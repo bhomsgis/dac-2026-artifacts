@@ -1,0 +1,27 @@
+The current assertion is failing because it does not consider the case when `div_zero_q` is true. In this case, the `result_o` is set to all ones, but the assertion is checking if `result_o` is not all zeros.
+
+The proposed fix is to add a condition to the assertion to check if `div_zero_q` is false. However, we should also consider the pipeline behavior and timing. The `div_zero_q` signal is updated in the next cycle after `valid_i` is asserted, so we should use a next-cycle assertion (`|=>`) to check the value of `div_zero_q` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__ResultOutWhenCyclesCounterOne: assert property(div_unit.cycles_counter == 6'd1 |=> $past(!div_unit.div_zero_q) -> result_o != {WIDTH{1'b0}});
+```
+
+However, this assertion is still not correct because it does not consider the case when `op_q` is REM. In this case, the `result_o` is set to `rmd_aux`, which can be all zeros.
+
+To fix this, we need to add another condition to the assertion to check if `op_q` is DIV. We can do this by using a logical AND operator (`&&`) to combine the two conditions.
+
+Here is the corrected assertion:
+
+```
+as__ResultOutWhenCyclesCounterOne: assert property(div_unit.cycles_counter == 6'd1 && !div_unit.op_q |=> $past(!div_unit.div_zero_q) -> result_o != {WIDTH{1'b0}});
+```
+
+However, this is still not the best solution. A better solution is to check if `result_o` is valid (`valid_o` is high) and then check if it is not all zeros.
+
+Here is the final corrected assertion:
+
+```
+as__ResultOutWhenCyclesCounterOne: assert property(div_unit.cycles_counter == 6'd1 |=> valid_o -> result_o != {WIDTH{1'b0}});
+```

@@ -1,0 +1,1 @@
+as__ReplaceEnStable: assert property(!access_hit_i |-> pseudoLRU.replace_en == $past(pseudoLRU.replace_en) || !&pseudoLRU.access_array);

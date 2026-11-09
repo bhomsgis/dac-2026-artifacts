@@ -1,0 +1,3 @@
+```systemverilog
+as__NoInvalidData: assert property(!(valid_o && (($past(data_rs1_i) == {WIDTH{1'bx}}) || ($past(data_rs2_i) == {WIDTH{1'bx}}))));
+```

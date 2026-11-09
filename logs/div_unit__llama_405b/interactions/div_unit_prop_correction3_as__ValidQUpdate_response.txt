@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking if the `valid_i` input directly affects the `valid_q` register in the next cycle, which is not the case. The `valid_q` register is updated based on the `valid_i` input, but also on other conditions, such as the `flush_i` input and the current state of the `valid_q` register.
+
+The proposed fix is to check if the `valid_q` register is updated correctly based on the `valid_i` input and the current state of the `valid_q` register. This can be done by checking if the `valid_q` register is set to `valid_i` when `valid_i` is high, and if it remains unchanged when `valid_i` is low.
+
+Here is the corrected assertion:
+
+as__ValidQUpdate: assert property(valid_i |=> div_unit.valid_q == $past(valid_i));

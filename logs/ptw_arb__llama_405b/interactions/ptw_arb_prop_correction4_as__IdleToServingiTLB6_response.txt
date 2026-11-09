@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Analysis:**
+The original assertion is failing because it does not consider the case where `is_req_waiting_q` is 1'b1. When `is_req_waiting_q` is 1'b1, the next state should be `SERVING_iTLB`, regardless of the values of `itlb_ptw_comm_i.req.valid` and `dtlb_ptw_comm_i.req.valid`. The original assertion only checks for the case where `is_req_waiting_q` is 1'b0.
+
+**Proposed Fix:**
+To fix this issue, we need to add a condition to check for `is_req_waiting_q` being 1'b1. We can do this by adding an OR condition to the assertion.
+
+**Corrected Assertion:**
+```
+as__IdleToServingiTLB6: assert property(ptw_arb.current_state == ptw_arb.IDLE && (ptw_arb.is_req_waiting_q == 1'b1 || (itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.ptw_itlb_comm_o.ptw_ready == 1'b1)) |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB);
+```
+This corrected assertion checks for both cases: when `is_req_waiting_q` is 1'b1, and when `itlb_ptw_comm_i.req.valid` is 1'b1, `dtlb_ptw_comm_i.req.valid` is 1'b0, and `ptw_itlb_comm_o.ptw_ready` is 1'b1. If either of these conditions is true, the next state should be `SERVING_iTLB`.

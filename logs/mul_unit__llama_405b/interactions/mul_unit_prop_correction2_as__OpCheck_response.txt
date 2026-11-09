@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if the `op_q_final` is equal to `op_i` in the same cycle when `valid_i` is high. However, `op_q_final` is a registered signal that is updated in the next cycle, so it will not match `op_i` in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check if `op_q_final` is equal to the previous value of `op_i` (`$past(op_i)`).
+
+Here is the corrected assertion:
+
+```
+as__OpCheck: assert property((valid_i) |=> (mul_unit.op_q_final == $past(op_i)));
+```
+
+This assertion checks if `op_q_final` is equal to the previous value of `op_i` in the next cycle when `valid_i` is high. This should correctly verify the behavior of the `mul_unit` module.

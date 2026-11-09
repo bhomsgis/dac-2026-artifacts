@@ -1,0 +1,13 @@
+Here is the corrected assertion:
+
+as__IdleToServingiTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB && tlb_ptw_comm_o == $past(itlb_ptw_comm_i));
+
+Here's the analysis:
+
+1. The original assertion is failing because it's checking the value of `tlb_ptw_comm_o` in the same cycle as the precondition, but `tlb_ptw_comm_o` is assigned in the combinational logic and its value is only updated in the next cycle.
+
+2. The first attempt at correcting the assertion used `$past(itlb_ptw_comm_i)` but still used a same-cycle assertion (`|->`), which is incorrect because `$past` should only be used in the postcondition of a next-cycle assertion (`|=>`).
+
+3. The second attempt at correcting the assertion checked `ptw_arb.next_state` and `tlb_ptw_comm_o` in the same cycle, but `ptw_arb.next_state` is a registered signal that only updates in the next cycle, so its value is not yet updated when the assertion is checked.
+
+The corrected assertion uses a next-cycle assertion (`|=>`) to check the value of `ptw_arb.next_state` and `tlb_ptw_comm_o` in the next cycle, after the combinational logic has updated their values. It also uses `$past(itlb_ptw_comm_i)` to refer to the value of `itlb_ptw_comm_i` in the previous cycle, which is the correct value to compare with `tlb_ptw_comm_o`.

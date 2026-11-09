@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion checks that when valid_i is asserted, signed_op_q immediately equals !op_unsigned_i in the same cycle (using |=>). However, signed_op_q is a register updated on the clock edge and assigned the value of !op_unsigned_i only when valid_i is asserted. Therefore, signed_op_q reflects the previous cycle's value during the current cycle. The assertion fails because it compares signed_op_q in the same cycle as valid_i without accounting for the register update delay.
+
+2. Proposed fix:  
+Use a next-cycle assertion (|=>) where the precondition is valid_i in the current cycle, and the postcondition checks signed_op_q in the next cycle. Since signed_op_q is a register updated on the clock edge, in the next cycle it should equal the value of !op_unsigned_i from the current cycle. To refer to the current cycle's op_unsigned_i in the postcondition, use $past(op_unsigned_i). This aligns with the pipeline behavior and timing of the register update.
+
+3. Corrected assertion:  
+as__SignedOpQSetOnValidI: assert property (valid_i |=> (div_unit.signed_op_q == !$past(op_unsigned_i)));

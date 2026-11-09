@@ -1,0 +1,51 @@
+The current assertion is failing because it is checking if the `op_q_final` is equal to `op_i` in the same cycle when `valid_i` is high. However, `op_q_final` is a registered signal that is updated in the next cycle, so it will not match `op_i` in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check if `op_q_final` is equal to `op_i` in the next cycle when `valid_i` is high.
+
+Here is the corrected assertion:
+
+```
+as__OpCheck: assert property((valid_i) |=> (mul_unit.op_q_final == $past(op_i)));
+```
+
+However, this assertion is still not correct because it doesn't consider the pipeline behavior of the `mul_unit`. The `op_q_final` signal is updated in the second stage of the pipeline, so we need to wait for two cycles to check if it matches `op_i`.
+
+Here is the corrected assertion:
+
+```
+as__OpCheck: assert property((valid_i) |=> ##1 (mul_unit.op_q_final == $past(op_i, 2)));
+```
+
+But, this will only work if `CONFIG32` is 1'b0. If `CONFIG32` is 1'b1, then `op_q_final` is updated in the same cycle as `op_q`, so we need to use a different assertion.
+
+To make the assertion work for both cases, we can use the following assertion:
+
+```
+as__OpCheck: assert property((valid_i && !mul_unit.op_32bits_i) |=> ##1 (mul_unit.op_q_final == $past(op_i, 2))) 
+             else assert property((valid_i && mul_unit.op_32bits_i) |-> (mul_unit.op_q == op_i));
+```
+
+However, this is still not correct because when `REG_32` is 1'b1 and `CONFIG32` is 1'b0, `op_q_final` is updated in the second stage, but the result is registered, so we need to wait for one more cycle.
+
+Here is the corrected assertion:
+
+```
+as__OpCheck: assert property((valid_i && !mul_unit.op_32bits_i && !REG_32) |=> ##1 (mul_unit.op_q_final == $past(op_i, 2))) 
+             else assert property((valid_i && !mul_unit.op_32bits_i && REG_32) |=> ##2 (mul_unit.op_q_final == $past(op_i, 3))) 
+             else assert property((valid_i && mul_unit.op_32bits_i) |-> (mul_unit.op_q == op_i));
+```
+
+However, this assertion is too complex and hard to understand. A better approach is to write separate assertions for each configuration.
+
+Here is the final corrected assertion:
+
+```
+as__OpCheck: assert property((valid_i) |=> (mul_unit.op_q == $past(op_i)));
+```
+
+And we need to add separate assertions for the configurations where `op_q_final` is used.
+
+```
+as__OpCheck_64bit: assert property((valid_i && !mul_unit.op_32bits_i && !REG_32) |=> ##1 (mul_unit.op_q_final == $past(op_i, 2)));
+as__OpCheck_64bit_reg: assert property((valid_i && !mul_unit.op_32bits_i && REG_32) |=> ##2 (mul_unit.op_q_final == $past(op_i, 3)));
+```

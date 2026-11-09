@@ -1,0 +1,6 @@
+// The assertion is failing because divisor_d is a combinational signal assigned in the same cycle as valid_i, but the assertion uses a same-cycle implication (|->) which expects divisor_d to be stable and valid in the same cycle. However, divisor_d depends on inputs and combinational logic that may not be stable or valid at the exact same cycle as valid_i. Also, the original assertion does not consider the timing of op_32_d and CONFIG32 properly with respect to divisor_d assignment timing.
+
+// The fix is to use a next-cycle implication (|=>) so that the assertion checks divisor_d in the cycle after valid_i is asserted, allowing divisor_d to settle. Also, since divisor_d is a wire (not a _q), we must use $past() to refer to the inputs at the precondition cycle. We must use $past() on CONFIG32, op_32_d, and divisor_aux_d to reflect their values at the precondition cycle. This matches the pipeline behavior and timing of divisor_d assignment.
+
+// Corrected assertion:
+as__DivisorDAssignCorrect: assert property (valid_i |=> (div_unit.divisor_d == (($past(div_unit.CONFIG32) == 1'b1) ? $past(div_unit.divisor_aux_d) : ($past(div_unit.op_32_d) ? {32'b0, $past(div_unit.divisor_aux_d[31:0])} : $past(div_unit.divisor_aux_d)))));

@@ -1,0 +1,28 @@
+```systemverilog
+as__PLRUTreeUpdateHit_9: assert property(access_hit_i |=> pseudoLRU.plru_tree_q[8] == $past(pseudoLRU.plru_tree_d[8]));
+as__PLRUTreeUpdateNoHit_9: assert property(!access_hit_i |=> pseudoLRU.plru_tree_q[8] == $past(pseudoLRU.plru_tree_d[8]));
+as__PLRUTreeDecodeNoHit_15: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeDecodeNoHit_16: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeUpdateHit_10: assert property(access_hit_i |=> pseudoLRU.plru_tree_q[9] == $past(pseudoLRU.plru_tree_d[9]));
+as__PLRUTreeUpdateNoHit_10: assert property(!access_hit_i |=> pseudoLRU.plru_tree_q[9] == $past(pseudoLRU.plru_tree_d[9]));
+as__PLRUTreeDecodeNoHit_17: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeDecodeNoHit_18: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeUpdateHit_11: assert property(access_hit_i |=> pseudoLRU.plru_tree_q[10] == $past(pseudoLRU.plru_tree_d[10]));
+as__PLRUTreeUpdateNoHit_11: assert property(!access_hit_i |=> pseudoLRU.plru_tree_q[10] == $past(pseudoLRU.plru_tree_d[10]));
+as__PLRUTreeDecodeNoHit_19: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeDecodeNoHit_20: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeUpdateHit_12: assert property(access_hit_i |=> pseudoLRU.plru_tree_q[11] == $past(pseudoLRU.plru_tree_d[11]));
+as__PLRUTreeUpdateNoHit_12: assert property(!access_hit_i |=> pseudoLRU.plru_tree_q[11] == $past(pseudoLRU.plru_tree_d[11]));
+as__PLRUTreeDecodeNoHit_21: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeDecodeNoHit_22: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeUpdateHit_13: assert property(access_hit_i |=> pseudoLRU.plru_tree_q[12] == $past(pseudoLRU.plru_tree_d[12]));
+as__PLRUTreeUpdateNoHit_13: assert property(!access_hit_i |=> pseudoLRU.plru_tree_q[12] == $past(pseudoLRU.plru_tree_d[12]));
+as__PLRUTreeDecodeNoHit_23: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeDecodeNoHit_24: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeUpdateHit_14: assert property(access_hit_i |=> pseudoLRU.plru_tree_q[13] == $past(pseudoLRU.plru_tree_d[13]));
+as__PLRUTreeUpdateNoHit_14: assert property(!access_hit_i |=> pseudoLRU.plru_tree_q[13] == $past(pseudoLRU.plru_tree_d[13]));
+as__PLRUTreeDecodeNoHit_25: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeDecodeNoHit_26: assert property(!access_hit_i |-> !(&pseudoLRU.access_array));
+as__PLRUTreeUpdateHit_15: assert property(access_hit_i |=> pseudoLRU.plru_tree_q[14] == $past(pseudoLRU.plru_tree_d[14]));
+as__PLRUTreeUpdateNoHit_15: assert property(!access_hit_i |=> pseudoLRU.plru_tree_q[14] == $past(pseudoLRU.plru_tree_d[14]));
+```

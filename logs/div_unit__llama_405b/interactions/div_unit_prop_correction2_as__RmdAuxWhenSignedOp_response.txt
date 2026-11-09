@@ -1,0 +1,17 @@
+The current assertion is failing because it is using a same-cycle assertion (`|->`) to check the value of `rmd_aux`, which depends on the updated value of `remanent_q`. However, the updated value of `remanent_q` is only available in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `rmd_aux`. This will ensure that the assertion is checking the value of `rmd_aux` in the next cycle, after the updated value of `remanent_q` has been assigned.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.rmd_aux == (((div_unit.first_dividend_q[(WIDTH - 1)] & (!$past(div_unit.op_32_q))) | (div_unit.first_dividend_q[31] & $past(div_unit.op_32_q))) ? ((~div_unit.remanent_q) + div_unit.ONE) : div_unit.remanent_q));
+```
+
+However, this is still not correct, because we are referencing `div_unit.remanent_q` directly in the postcondition of the next-cycle assertion. Instead, we should reference the value of `div_unit.remanent_q` in the previous cycle using `$past()`.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.rmd_aux == (((div_unit.first_dividend_q[(WIDTH - 1)] & (!$past(div_unit.op_32_q))) | (div_unit.first_dividend_q[31] & $past(div_unit.op_32_q))) ? ((~$past(div_unit.remanent_q)) + div_unit.ONE) : $past(div_unit.remanent_q)));
+```

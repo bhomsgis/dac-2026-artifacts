@@ -1,0 +1,16 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultMULHU: assert property(valid_i && op_i == mul_unit.MULHU |-> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` checks if the result of the MULHU operation is correctly assigned to `result_o`.
+2. **Identifying the issue**: The assertion is using a same-cycle assertion (`|->`) which means it checks the condition and the result in the same clock cycle. However, the result of the MULHU operation is calculated and assigned to `result_o` in the next cycle.
+3. **Pipeline behavior and timing**: The `result_o` is assigned in the next cycle after the operation is performed. Therefore, we need to use a next-cycle assertion (`|=>`) to check the result in the next cycle.
+
+# Fixed solution:
+```systemverilog
+as__ResultMULHU: assert property(valid_i && op_i == mul_unit.MULHU |=> result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+```
+
+# Explanation of changes:
+* **Changed same-cycle assertion to next-cycle assertion**: We changed `|->` to `|=>` to check the result in the next cycle.
+* **Used $past() to refer to the previous cycle's value**: We used `$past()` to refer to the value of `mul_unit.result_2width_def` in the previous cycle, which is the cycle when the operation was performed.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different inputs and checking if the assertion passes or fails. For example, we can test the MULHU operation with different inputs and check if the result is correctly assigned to `result_o`.

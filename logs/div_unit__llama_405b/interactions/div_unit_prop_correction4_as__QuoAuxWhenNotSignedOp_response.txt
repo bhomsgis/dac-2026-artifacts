@@ -1,0 +1,27 @@
+The current assertion is failing because it is checking the value of `div_unit.quo_aux` in the same cycle as `!div_unit.signed_op_q`, but `div_unit.quo_aux` is assigned a value based on `div_unit.dividend_quotient_q` which is a registered signal that only updates in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `div_unit.quo_aux` in the next cycle, after `div_unit.dividend_quotient_q` has been updated. Additionally, we need to use `$past()` to refer to the value of `div_unit.dividend_quotient_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.quo_aux == $past(div_unit.dividend_quotient_out));`
+
+However, this assertion is still not correct because `div_unit.quo_aux` is not directly assigned the value of `div_unit.dividend_quotient_q`. Instead, it is assigned a value based on `div_unit.div_zero_q` and `div_unit.same_sign_q`. 
+
+A correct assertion would be:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.quo_aux == (div_unit.div_zero_q ? {WIDTH{1'b1}} : div_unit.dividend_quotient_out));`
+
+But this assertion is still not correct because it doesn't take into account the 32-bit operation case.
+
+A correct assertion would be:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.quo_aux == (div_unit.div_zero_q ? {WIDTH{1'b1}} : (div_unit.op_32_q ? {{32{div_unit.dividend_quotient_out[31]}},div_unit.dividend_quotient_out[31:0]} : div_unit.dividend_quotient_out)));`
+
+However, this is the same as Attempt 3, which didn't work.
+
+Let's try another approach. We can check the value of `div_unit.quo_aux` in the same cycle as `!div_unit.signed_op_q`, but we need to make sure that we are checking the correct value of `div_unit.quo_aux`. We can do this by checking the value of `div_unit.quo_aux` when `div_unit.cycles_counter` is 1, which means that the division operation has completed.
+
+Here is the corrected assertion:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q && div_unit.cycles_counter == 6'd1 |-> div_unit.quo_aux == (div_unit.div_zero_q ? {WIDTH{1'b1}} : (div_unit.op_32_q ? {{32{div_unit.dividend_quotient_q[31]}},div_unit.dividend_quotient_q[31:0]} : div_unit.dividend_quotient_q)));`

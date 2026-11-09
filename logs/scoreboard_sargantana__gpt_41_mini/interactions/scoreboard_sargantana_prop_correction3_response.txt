@@ -1,0 +1,2 @@
+// Check that when no div set and div unit 0 busy, ocup_div_unit_q[1] shifts right by 1 or is set to 33'h100000000 if set_div_64_i was asserted in previous cycle
+as__OcupDivUnitQ1ShiftRightNoSet: assert property((!set_div_32_i && !set_div_64_i && !scoreboard_sargantana.free_div_unit[0]) |=> (scoreboard_sargantana.ocup_div_unit_q[1] == (($past(scoreboard_sargantana.ocup_div_unit_q[1]) >> 1) | ($past(set_div_64_i) ? 33'h100000000 : 33'h0))));

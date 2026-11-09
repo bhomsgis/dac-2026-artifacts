@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking the result of the multiplication in the same cycle as the input is provided, but the multiplication operation takes two cycles to complete. 
+
+The assertion should check the result in the next cycle after the input is provided. Also, it should consider both 32-bit and 64-bit operation cases.
+
+Here is the corrected assertion:
+
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0])) || ((valid_i && op_32bits_i) |=> (result_o == mul_unit.result_32_q));

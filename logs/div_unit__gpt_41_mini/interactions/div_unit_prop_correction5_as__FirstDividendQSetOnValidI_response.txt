@@ -1,0 +1,2 @@
+// The assertion fails because first_dividend_q is a registered signal updated on valid_i, so its updated value appears in the next cycle after valid_i is asserted. The original assertion checks first_dividend_q in the same cycle as valid_i, which is too early. Using a next-cycle assertion and comparing first_dividend_q to data_rs1_i delayed by one cycle aligns the timing correctly.  
+as__FirstDividendQSetOnValidI: assert property (valid_i |=> (div_unit.first_dividend_q == $past(data_rs1_i)));

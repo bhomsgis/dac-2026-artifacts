@@ -1,0 +1,4 @@
+// The original assertion fails because busy_o is asserted for multiple cycles during the division operation, but valid_o is only asserted in the last cycle (when cycles_counter == 1). Therefore, valid_o can be 0 while busy_o is 1 during intermediate cycles, violating the assertion. The fix is to allow valid_o only when busy_o is deasserted or in the last cycle of operation (cycles_counter == 1). Since valid_o is combinational and depends on valid_q and cycles_counter, we check that valid_o is only asserted when busy_o is low or cycles_counter is 1 (the last cycle). This ensures no valid_o during busy except the last cycle when valid_o is expected.
+
+// Corrected assertion:
+as__NoValidOutputWhileBusy: assert property ((div_unit.busy_o && (div_unit.cycles_counter != 6'd1)) |-> !div_unit.valid_o);

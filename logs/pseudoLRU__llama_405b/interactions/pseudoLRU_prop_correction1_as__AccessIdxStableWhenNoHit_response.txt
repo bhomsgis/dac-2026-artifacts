@@ -1,0 +1,41 @@
+The current assertion is failing because it is checking if the `access_idx_i` remains the same when `access_hit_i` is 0, which is not necessarily true. The `access_idx_i` can change even when `access_hit_i` is 0, as it is not dependent on the hit signal.
+
+The corrected assertion should check if the `access_idx_i` remains the same when `access_hit_i` is 0 and the `plru_tree_q` is not updated. This can be done by checking if the `plru_tree_d` is equal to the previous value of `plru_tree_q`.
+
+Here is the corrected assertion:
+
+```
+as__AccessIdxStableWhenNoHit: assert property(access_hit_i == 1'b0 |-> pseudoLRU.plru_tree_d == $past(pseudoLRU.plru_tree_q));
+```
+
+However, this assertion is still not correct, as it is checking the stability of `plru_tree_d` instead of `access_idx_i`. To fix this, we need to check if the `access_idx_i` remains the same when `access_hit_i` is 0 and the `plru_tree_q` is not updated.
+
+Here is the corrected assertion:
+
+```
+as__AccessIdxStableWhenNoHit: assert property(access_hit_i == 1'b0 && pseudoLRU.plru_tree_d == $past(pseudoLRU.plru_tree_q) |-> access_idx_i == $past(access_idx_i));
+```
+
+However, this assertion is using `$past` in the precondition, which is not allowed. To fix this, we can rewrite the assertion as:
+
+```
+as__AccessIdxStableWhenNoHit: assert property(access_hit_i == 1'b0 |=> (pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d)) -> access_idx_i == $past(access_idx_i));
+```
+
+But this is still not correct, as we are using `$past` with `plru_tree_d`, which is not a register. To fix this, we can rewrite the assertion as:
+
+```
+as__AccessIdxStableWhenNoHit: assert property(access_hit_i == 1'b0 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_q) -> access_idx_i == $past(access_idx_i));
+```
+
+However, this assertion is not correct, as it is checking if the `access_idx_i` remains the same when `access_hit_i` is 0 and the `plru_tree_q` is not updated, which is not the original intention of the assertion.
+
+Let's re-evaluate the original assertion. The original assertion is trying to check if the `access_idx_i` remains the same when `access_hit_i` is 0. However, this is not necessarily true, as the `access_idx_i` can change even when `access_hit_i` is 0.
+
+A better approach would be to check if the `plru_tree_q` is not updated when `access_hit_i` is 0. Here is the corrected assertion:
+
+```
+as__AccessIdxStableWhenNoHit: assert property(access_hit_i == 1'b0 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_q));
+```
+
+This assertion checks if the `plru_tree_q` remains the same when `access_hit_i` is 0, which is the correct behavior.

@@ -1,0 +1,1 @@
+# as__PLRUTreeDecode: assert property(pseudoLRU.access_hit_i & pseudoLRU.access_array[0] |-> pseudoLRU.replace_en[0] == 1'b1);

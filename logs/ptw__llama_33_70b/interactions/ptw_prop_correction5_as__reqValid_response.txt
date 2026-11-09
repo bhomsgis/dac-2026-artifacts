@@ -1,0 +1,1 @@
+as__reqValid: assert property(tlb_ptw_comm_i.req.valid |-> (ptw.next_state == ptw.S_REQ || ptw.current_state == ptw.S_REQ || ptw.current_state == ptw.S_WAIT));

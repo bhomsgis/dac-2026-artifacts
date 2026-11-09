@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to compare the value of `neg_q_final` with `neg_d` in the same cycle. However, `neg_q_final` is a registered signal that is updated in the next cycle, whereas `neg_d` is a combinational signal that is calculated in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to compare the value of `neg_q_final` with the value of `neg_d` in the previous cycle. However, we cannot directly use `$past(neg_d)` because `neg_d` is a combinational signal that is not registered. Instead, we can compare `neg_q_final` with the registered value of `neg_q` which is updated in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__NegCheck: assert property((valid_i) |=> (mul_unit.neg_q_final == $past(mul_unit.neg_q)));
+```
+
+This assertion checks that when `valid_i` is high, the value of `neg_q_final` in the next cycle is equal to the value of `neg_q` in the previous cycle. This ensures that the `neg_q_final` signal is correctly updated based on the value of `neg_d`.

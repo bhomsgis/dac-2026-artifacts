@@ -1,0 +1,2 @@
+// Check that when there is a hit and access_array matches the accessed index, the plru_tree_q updates in the next cycle
+as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));

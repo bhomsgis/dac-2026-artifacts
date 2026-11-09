@@ -1,0 +1,1 @@
+as__SameSign2: assert property(valid_i |=> div_unit.same_sign_q == $past(div_unit.same_sign_d));

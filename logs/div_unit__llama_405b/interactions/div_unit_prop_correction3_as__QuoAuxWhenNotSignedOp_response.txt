@@ -1,0 +1,19 @@
+The current assertion is failing because it is checking the value of `div_unit.quo_aux` in the same cycle as `!div_unit.signed_op_q`, but `div_unit.quo_aux` is assigned a value based on `div_unit.dividend_quotient_q` which is a registered signal that is updated in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `div_unit.quo_aux` in the next cycle, after `div_unit.dividend_quotient_q` has been updated. Additionally, we need to use `$past()` to refer to the value of `div_unit.dividend_quotient_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.quo_aux == $past(div_unit.dividend_quotient_out));`
+
+However, this is still not correct, because `div_unit.quo_aux` is not directly assigned the value of `div_unit.dividend_quotient_q`. Instead, it is assigned a value based on `div_unit.dividend_quotient_q` and other signals.
+
+A more correct assertion would be:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.quo_aux == div_unit.dividend_quotient_out);`
+
+But this is still not correct, because when `div_unit.signed_op_q` is 0, `div_unit.quo_aux` is assigned the value of `div_unit.dividend_quotient_q` if `div_unit.div_zero_q` is 0, and the value of `{WIDTH{1'b1}}` if `div_unit.div_zero_q` is 1.
+
+Therefore, the correct assertion is:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.quo_aux == (div_unit.div_zero_q ? {WIDTH{1'b1}} : div_unit.dividend_quotient_out));`

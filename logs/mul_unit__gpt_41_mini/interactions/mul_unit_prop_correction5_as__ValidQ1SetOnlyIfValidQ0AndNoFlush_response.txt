@@ -1,0 +1,2 @@
+// valid_q[1] can only be set if valid_q[0] was set in the previous cycle and flush_i[1] is not asserted in the current cycle
+as__ValidQ1SetOnlyIfValidQ0AndNoFlush: assert property (mul_unit.valid_q[1] |=> ($past(mul_unit.valid_q[0]) && !mul_unit.flush_i[1]));

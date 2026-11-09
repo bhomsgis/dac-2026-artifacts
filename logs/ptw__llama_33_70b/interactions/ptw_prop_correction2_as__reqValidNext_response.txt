@@ -1,0 +1,3 @@
+```systemverilog
+as__reqValidNext: assert property(tlb_ptw_comm_i.req.valid && ptw.current_state == ptw.S_READY |=> (ptw.next_state == ptw.S_REQ));
+```

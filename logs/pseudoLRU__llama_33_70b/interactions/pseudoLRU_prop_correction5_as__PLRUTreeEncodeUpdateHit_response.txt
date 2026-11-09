@@ -1,0 +1,2 @@
+// Check that when there is a hit, the replace_en signal is updated in the next cycle
+as__PLRUTreeEncodeUpdateHit: assert property(access_hit_i |=> pseudoLRU.replace_en != $past(pseudoLRU.replace_en));

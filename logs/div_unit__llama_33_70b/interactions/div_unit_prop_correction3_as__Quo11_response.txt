@@ -1,0 +1,1 @@
+as__Quo11: assert property(!div_unit.div_zero_q && div_unit.signed_op_q && !div_unit.same_sign_q |=> div_unit.quo_aux == ~div_unit.dividend_quotient_q + {div_unit.WIDTH{1'b1}});

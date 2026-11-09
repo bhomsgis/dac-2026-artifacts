@@ -1,0 +1,3 @@
+// The original assertion fails because divisor_q is a register updated on the clock edge, so its updated value appears one cycle after valid_i is asserted. The assertion incorrectly compares divisor_q in the next cycle to divisor_d in the same cycle without accounting for the pipeline delay.  
+// The fix is to compare divisor_q in the next cycle to divisor_d from the previous cycle (using $past(divisor_d)) to correctly reflect the register update timing.  
+as__DivisorQSetOnValidI: assert property (valid_i |=> (div_unit.divisor_q == $past(div_unit.divisor_d,1)));

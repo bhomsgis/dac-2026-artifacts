@@ -1,0 +1,8 @@
+The current assertion `as__NoInvalidOpNext: assert property(valid_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));` is failing because it is checking if the operation is invalid (`op_i == {MUL_OPS_BITS{1'bx}}`) in the same cycle as the valid output (`valid_o`). However, the operation is determined by the `op_i` signal in the current cycle, but the output `valid_o` is determined by the `op_q` signal in the next cycle.
+
+To fix this, we need to check the operation in the next cycle using `$past()`. We also need to consider the pipeline behavior and timing of the `mul_unit`. The corrected assertion should check if the operation is invalid in the next cycle when the output is valid.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidOpNext: assert property(valid_i |=> !(valid_o && $past(op_i) == {MUL_OPS_BITS{1'bx}}));
+```

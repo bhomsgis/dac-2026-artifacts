@@ -1,0 +1,21 @@
+The current assertion is failing because it is checking the value of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q` is 0. However, `itlb_req_waiting_q` is a registered signal that is updated in the next cycle. Therefore, the assertion is checking the value of `itlb_req_waiting_q` before it has been updated.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `itlb_req_waiting_q` in the next cycle, after it has been updated. Additionally, we need to check the value of `itlb_req_waiting_d` instead of `itlb_req_waiting_q`, since `itlb_req_waiting_d` is the signal that is being updated in the current cycle.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.itlb_req_waiting_d == '0);`
+
+However, this assertion is still not correct, as it does not take into account the pipeline behavior of the `ptw_arb` module. A more correct assertion would be:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.itlb_req_waiting_q == '0);`
+
+But this assertion is the same as Attempt 1, which did not work.
+
+After analyzing the RTL, I realized that the issue is that `is_req_waiting_q` is not the only signal that determines whether `itlb_req_waiting_q` is 0. The `current_state` signal also plays a role in determining the value of `itlb_req_waiting_q`.
+
+Therefore, the corrected assertion is:
+
+`as__NoReqWaiting: assert property(ptw_arb.current_state == IDLE && ptw_arb.is_req_waiting_q == 1'b0 |-> ptw_arb.itlb_req_waiting_d == '0);`
+
+This assertion checks that when the `current_state` is IDLE and `is_req_waiting_q` is 0, `itlb_req_waiting_d` is also 0. This assertion takes into account the pipeline behavior of the `ptw_arb` module and should correctly verify the functionality of the module.

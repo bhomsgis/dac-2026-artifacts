@@ -1,0 +1,3212 @@
+Assertions:
+as__CounterIncrementDecrement: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+as__CounterUpdateNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+as__TargetRegHoldNoResetCount: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+as__CurrentCountOutputConfigOne: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+as__CurrentCountOutputConfigZero: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+as__CurrentCountOutputConfigOther: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+as__TargetReachedOpenLimit: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+as__TargetReachedClosedLimit: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+======================================================================
+STARTING UNPROVEN ASSERTION FIXING
+======================================================================
+
+Starting to fix unproven assertions...
+Stored property file version for after_extension stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_after_extension.sv
+Populating assertions_list from current assertions...
+Found 12 assertions
+Running JasperGold to get fresh property results...
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterIncrementDecrement                             proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterIncrementDecrement
+[4]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent                                    cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent
+[7]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateNextCycle                                proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateNextCycle
+[10]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset                           cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset
+[13]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount                           cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount
+[16]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegHoldNoResetCount                             proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegHoldNoResetCount
+[19]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOne                           proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOne
+[21]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigZero                          proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigZero
+[24]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOther                         proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOther
+[27]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedOpenLimit                                proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedOpenLimit
+[29]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedClosedLimit                              proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedClosedLimit
+[32]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__NoEventTriggersCounterHold                            cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__NoEventTriggersCounterHold
+
+Found 4 unproven assertions to fix
+
+Processing unproven assertion: as__CounterHoldNoEvent
+Original assertion: as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+Attempt 1 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4300
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 253
+Total output tokens: 0
+Final response length: 1241
+
+
+Full LLM Response:
+// The original assertion fails because it assumes that when no event triggers are active, the counter_d equals counter_q in the same cycle. However, counter_d is combinational and depends on event_triggers_i, but the counter_q updates on the next clock cycle. The assertion uses a next-cycle implication (|=>) but compares counter_d and counter_q in the same cycle, which is incorrect timing. Also, it does not consider the reset_count_i signal, which can update counter_q independently of event_triggers_i. The assertion should check that if no event triggers are active and reset_count_i is not asserted, then the counter_q remains unchanged in the next cycle.
+
+// The fix is to include reset_count_i in the precondition to exclude cycles where the counter is synchronously reset, and to compare counter_q in the next cycle to its previous value (using $past) to ensure it holds when no events or resets occur. This respects the pipeline behavior and timing of counter_q updates.
+
+// Corrected assertion:
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Selected last assertion from response: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent
+
+Attempt 2 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4300
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 295
+Total output tokens: 0
+Final response length: 1422
+
+
+Full LLM Response:
+// The original assertion fails because it assumes that when no event triggers are active, the counter_d equals counter_q in the same cycle. However, the counter_d is combinational and depends on event_triggers_i, but the counter_q updates only on the clock edge. The assertion uses a next-cycle implication (|=>) but compares counter_d (combinational) to counter_q (registered) in the postcondition, which is not correct timing. The counter_d reflects the next value combinationally, but counter_q updates only at the clock edge, so the assertion should compare counter_q in the next cycle to the previous counter_q when no events occur, ignoring counter_d.
+
+// The fix is to assert that when no event triggers are active in the current cycle, the counter_q in the next cycle remains equal to the counter_q in the current cycle (i.e., no increment or decrement occurs). This means the counter_q does not change if no events happen and no reset occurs. Since reset behavior is excluded, we only check the no-event condition. We use $past(counter_q) in the postcondition to refer to the previous cycle's counter_q and compare it to the current counter_q. This matches the pipeline behavior and timing correctly.
+
+// Corrected assertion:
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+Stored LLM interaction for correction stage iteration 2
+
+Found 1 assertions in response:
+Assertion 1: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Selected last assertion from response: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent
+
+Attempt 3 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4300
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 267
+Total output tokens: 0
+Final response length: 1270
+
+
+Full LLM Response:
+// The original assertion fails because it assumes that when no event triggers are active, the counter_d equals counter_q in the same cycle. However, counter_d is combinational and depends on event_triggers_i, but the counter_q register updates on the next clock cycle. The assertion uses a next-cycle implication (|=>) but compares counter_d (combinational) to counter_q (registered) in the same cycle, which may not hold due to pipeline timing and reset_count_i behavior. Also, reset_count_i can update counter_q independently of event_triggers_i, so the assertion must exclude cycles when reset_count_i is asserted.
+
+// The fix is to add a precondition that reset_count_i is not asserted, ensuring the counter update depends only on event_triggers_i. Also, use $past() on counter_q in the postcondition to refer to the previous cycle's counter_q before update. This aligns with the pipeline behavior: if no events and no reset_count_i, then counter_q in the next cycle equals counter_q in the current cycle (no increment/decrement).
+
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+Stored LLM interaction for correction stage iteration 3
+
+Found 1 assertions in response:
+Assertion 1: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Selected last assertion from response: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent
+
+Attempt 4 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4300
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 191
+Total output tokens: 0
+Final response length: 990
+
+
+Full LLM Response:
+// The original assertion fails because it assumes that when no event triggers are active, the counter remains unchanged in the next cycle. However, the counter can also be updated by the synchronous reset_count_i signal, which sets the counter to a reset value, causing counter_d != counter_q even if no event triggers are active. The assertion does not account for this reset condition, leading to failures.
+
+// The fix is to include the condition that reset_count_i is not asserted in the precondition. This ensures that the assertion only checks the counter hold behavior when no event triggers and no synchronous reset occur. This aligns with the RTL behavior where counter_q updates to counter_d only if reset_count_i is not asserted.
+
+// Corrected assertion:
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+Stored LLM interaction for correction stage iteration 4
+
+Found 1 assertions in response:
+Assertion 1: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+Selected last assertion from response: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i && !dynamic_target_event_counter.reset_count_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent
+
+Attempt 5 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4300
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 236
+Total output tokens: 0
+Final response length: 1169
+
+
+Full LLM Response:
+// The original assertion fails because it assumes that when no event triggers are active, the counter_d equals counter_q in the same cycle. However, counter_d is combinational and depends on event_triggers_i in the current cycle, while counter_q updates on the next clock edge. The assertion uses a next-cycle implication (|=>) but compares counter_d (combinational) to counter_q (registered) in the same cycle, which is inconsistent with the pipeline timing. The fix is to check that when no event triggers are active, the next cycle's counter_q remains equal to the previous cycle's counter_q, reflecting that no increment or decrement occurred.
+
+// The corrected assertion uses a next-cycle implication (|=>) with a postcondition that compares the updated counter_q to the previous cycle's counter_q using $past(). This properly reflects that if no event triggers are active in the current cycle, the counter_q in the next cycle should remain unchanged.
+
+// Corrected assertion:
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+Stored LLM interaction for correction stage iteration 5
+
+Found 1 assertions in response:
+Assertion 1: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Selected last assertion from response: as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|dynamic_target_event_counter.event_triggers_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_q)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEvent
+Failed to fix assertion as__CounterHoldNoEvent after 5 attempts
+
+Processing unproven assertion: as__CounterUpdateOnEventNoReset
+Original assertion: as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+Attempt 1 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4301
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 222
+Total output tokens: 0
+Final response length: 1072
+
+
+Full LLM Response:
+// The original assertion fails because it assumes that whenever reset_count_i is low, the counter_q immediately equals counter_d in the next cycle. However, the counter_q update depends on reset_count_i being low and the clock edge, and the counter_q is a register updated on the clock edge. The assertion uses a next-cycle implication (|=>) but compares counter_q to counter_d in the same cycle, which is incorrect timing. Also, it does not consider that when reset_count_i is high, the counter_q is loaded with reset values, not counter_d.
+
+// The fix is to assert that when reset_count_i is low in the current cycle, in the next cycle counter_q equals the counter_d from the current cycle (using $past(counter_d)) because counter_q updates on the clock edge after the precondition cycle. This aligns with the pipeline behavior and timing of registers.
+
+// Corrected assertion:
+as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+Selected last assertion from response: as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset
+
+Attempt 2 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4301
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 277
+Total output tokens: 0
+Final response length: 1332
+
+
+Full LLM Response:
+// 1. Explanation of failure: The original assertion as__CounterUpdateOnEventNoReset checks that when reset_count_i is low, the counter_q equals counter_d in the same cycle. However, counter_q is a register updated on the clock edge, so its value reflects the previous cycle's counter_d. The assertion incorrectly compares counter_q and counter_d in the same cycle, which will fail because counter_q updates only on the clock edge after counter_d is computed. Also, the assertion uses a next-cycle implication (|=>) but compares counter_q and counter_d in the same cycle, which is inconsistent.
+
+// 2. Proposed fix: Use a next-cycle assertion (|=>) where the precondition is evaluated in the current cycle and the postcondition in the next cycle. In the postcondition, compare the updated counter_q with the previous cycle's counter_d using $past(dynamic_target_event_counter.counter_d). This correctly models the pipeline behavior where counter_q updates to counter_d on the clock edge. Also, exclude the case when reset_count_i is asserted because the counter_q is loaded with reset values then, not counter_d.
+
+// 3. Corrected assertion:
+as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+Stored LLM interaction for correction stage iteration 2
+
+Found 1 assertions in response:
+Assertion 1: as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+Selected last assertion from response: as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset
+
+Attempt 3 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4301
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 208
+Total output tokens: 0
+Final response length: 979
+
+
+Full LLM Response:
+// 1. Explanation of failure: The original assertion as__CounterUpdateOnEventNoReset uses a next-cycle implication (|=>) to check that when reset_count_i is not asserted, the counter_q equals counter_d. However, counter_q is updated on the clock edge, so on the cycle after the precondition, counter_q should equal the previous cycle's counter_d. The assertion incorrectly compares counter_q to the current cycle's counter_d, which may have changed, causing the assertion to fail.
+
+// 2. Proposed fix: Use $past(dynamic_target_event_counter.counter_d) in the postcondition to refer to the counter_d value at the cycle of the precondition. This correctly checks that counter_q updated to the previous cycle's counter_d value when reset_count_i is not asserted.
+
+// 3. Corrected assertion:
+as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+Stored LLM interaction for correction stage iteration 3
+
+Found 1 assertions in response:
+Assertion 1: as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+Selected last assertion from response: as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!dynamic_target_event_counter.reset_count_i) |=> (dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset
+
+Attempt 4 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4301
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 209
+Total output tokens: 0
+Final response length: 1023
+
+
+Full LLM Response:
+// The original assertion fails because it assumes that when reset_count_i is low, the counter_q immediately equals counter_d in the same cycle. However, counter_q is a register updated on the clock edge, so its updated value appears in the next cycle. Also, the assertion does not consider that when reset_count_i is high, the counter_q is loaded with reset values, not counter_d. Therefore, the assertion should be a next-cycle assertion checking that when reset_count_i is low, the counter_q in the next cycle equals the counter_d computed in the current cycle.
+
+// The fix is to use a next-cycle assertion (|=>) with precondition !reset_count_i, and postcondition that counter_q equals the counter_d from the previous cycle (using $past). This correctly models the pipeline behavior of the register update.
+
+// Corrected assertion:
+as__CounterUpdateOnEventNoReset: assert property (!dynamic_target_event_counter.reset_count_i |=> dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d));
+Stored LLM interaction for correction stage iteration 4
+
+Found 1 assertions in response:
+Assertion 1: as__CounterUpdateOnEventNoReset: assert property (!dynamic_target_event_counter.reset_count_i |=> dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d));
+
+Selected last assertion from response: as__CounterUpdateOnEventNoReset: assert property (!dynamic_target_event_counter.reset_count_i |=> dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property (!dynamic_target_event_counter.reset_count_i |=> dynamic_target_event_counter.counter_q == $past(dynamic_target_event_counter.counter_d));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset
+
+Attempt 5 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4301
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 566
+Total output tokens: 0
+Final response length: 2650
+
+
+Full LLM Response:
+// 1. Explanation of failure: The original assertion as__CounterUpdateOnEventNoReset uses a next-cycle implication (|=>) with a precondition of !reset_count_i and expects that counter_q equals counter_d in the next cycle. However, the RTL shows that when reset_count_i is low, the counter_q updates to counter_d on the next clock edge, but if reset_count_i is high, counter_q updates to a reset value (RST_COUNTER_VAL or rst_cntr_val_i). The assertion does not exclude the case when reset_count_i is high in the next cycle, so JasperGold may find counter_q not equal to counter_d after a reset_count_i pulse. Also, the assertion does not consider that counter_q updates on the clock edge, so the postcondition should refer to the updated counter_q without $past(), but the precondition cycle's counter_q can be referenced with $past(). The original assertion also does not consider the possibility of reset_count_i being asserted in the next cycle, which changes the counter_q update path.
+
+// 2. Proposed fix: The assertion should check that if reset_count_i is low in the next cycle (i.e., after the clock edge), then counter_q equals counter_d; otherwise, counter_q equals the reset value (RST_COUNTER_VAL or rst_cntr_val_i). Since the assertion is a next-cycle assertion, the postcondition is evaluated in the next cycle, so we can use $past(reset_count_i) to know the reset_count_i value in the precondition cycle. We must also consider EXT_COUNT_RESET parameter to know which reset value is used. However, since parameters are not accessible in assertions, we assume the assertion is parameterized or that the reset value is either RST_COUNTER_VAL or rst_cntr_val_i depending on EXT_COUNT_RESET. To keep the assertion high-level and avoid implementation details, we check that if reset_count_i was low in the precondition cycle, counter_q equals counter_d in the next cycle; if reset_count_i was high, counter_q equals the reset value. To avoid referencing parameters, we check that when reset_count_i was high, counter_q equals either rst_cntr_val_i or RST_COUNTER_VAL, depending on EXT_COUNT_RESET. Since EXT_COUNT_RESET is a parameter, we can check both possibilities using an implication with OR. This covers both cases and avoids implementation details.
+
+// 3. Corrected assertion:
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> (reset_count_i == 0 ? dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q == dynamic_target_event_counter.rst_cntr_val_i || dynamic_target_event_counter.counter_q == dynamic_target_event_counter.RST_COUNTER_VAL)));
+Stored LLM interaction for correction stage iteration 5
+
+Found 1 assertions in response:
+Assertion 1: as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> (reset_count_i == 0 ? dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q == dynamic_target_event_counter.rst_cntr_val_i || dynamic_target_event_counter.counter_q == dynamic_target_event_counter.RST_COUNTER_VAL)));
+
+Selected last assertion from response: as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> (reset_count_i == 0 ? dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q == dynamic_target_event_counter.rst_cntr_val_i || dynamic_target_event_counter.counter_q == dynamic_target_event_counter.RST_COUNTER_VAL)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> (reset_count_i == 0 ? dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q == dynamic_target_event_counter.rst_cntr_val_i || dynamic_target_event_counter.counter_q == dynamic_target_event_counter.RST_COUNTER_VAL)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoReset
+Failed to fix assertion as__CounterUpdateOnEventNoReset after 5 attempts
+
+Processing unproven assertion: as__TargetRegUpdateOnResetCount
+Original assertion: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+Attempt 1 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4295
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 355
+Total output tokens: 0
+Final response length: 1675
+
+
+Full LLM Response:
+1. Explanation of failure:  
+The original assertion as__TargetRegUpdateOnResetCount uses a next-cycle implication (|=>) with reset_count_i as precondition and expects that target_reg_q equals target_value_i in the next cycle. However, target_reg_q is a register updated on the clock edge when reset_count_i is asserted. Because target_value_i is a wire (input), its value can change anytime, but the register update happens only on the clock edge. The assertion does not consider that the target_reg_q update happens synchronously on the clock edge with reset_count_i asserted, so the postcondition should check target_reg_q in the cycle after reset_count_i was asserted, but referencing target_value_i from the previous cycle (using $past) to match the value latched into target_reg_q. The original assertion incorrectly compares target_reg_q to the current target_value_i instead of the past target_value_i, causing JasperGold to fail the proof.
+
+2. Proposed fix:  
+Use a next-cycle assertion (|=>) with reset_count_i as precondition, and in the postcondition check that target_reg_q equals $past(target_value_i). This matches the synchronous update semantics: when reset_count_i is asserted at cycle t, target_reg_q is updated at the clock edge to the value of target_value_i at cycle t, so at cycle t+1 target_reg_q should equal $past(target_value_i). Also, prepend internal signals with the module prefix dynamic_target_event_counter. This fix aligns the assertion with the RTL timing and signal semantics.
+
+3. Corrected assertion:  
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+Selected last assertion from response: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount
+
+Attempt 2 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4295
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 207
+Total output tokens: 0
+Final response length: 1006
+
+
+Full LLM Response:
+// The original assertion fails because it uses a same-cycle implication (|=>) expecting the target_reg_q to update immediately on the same cycle as reset_count_i is asserted. However, target_reg_q is a register updated on the clock edge, so its new value appears in the next cycle. Also, the assertion uses dynamic_target_event_counter.target_reg_q directly without considering the pipeline delay.
+
+// The fix is to use a next-cycle implication (|=>) so that the precondition is evaluated in the current cycle when reset_count_i is asserted, and the postcondition checks the updated target_reg_q in the next cycle. In the postcondition, we compare target_reg_q to target_value_i from the previous cycle using $past(target_value_i) to reflect the value loaded into the register. This aligns with the synchronous update behavior of target_reg_q.
+
+// Corrected assertion:
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+Stored LLM interaction for correction stage iteration 2
+
+Found 1 assertions in response:
+Assertion 1: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+Selected last assertion from response: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount
+
+Attempt 3 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4295
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 412
+Total output tokens: 0
+Final response length: 1858
+
+
+Full LLM Response:
+1. The current assertion as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i); is failing because it uses a next-cycle implication (|=>) expecting that on the cycle after reset_count_i is asserted, target_reg_q will equal target_value_i. However, target_reg_q is updated synchronously on the clock edge when reset_count_i is asserted, so the updated value appears in the same cycle as the clock edge, not the next cycle. Using |=> means the postcondition is checked one cycle later, but target_reg_q will have already updated by then, so the assertion might fail due to timing mismatch or sampling at the wrong time. Also, the assertion does not consider that target_reg_q is a register updated on posedge clk_i, so the assertion should be clocked and use $past() to refer to the previous cycle's signals.
+
+2. The fix is to use a same-cycle implication (|->) to check that when reset_count_i is asserted, the target_reg_q will be updated to target_value_i in the same cycle (i.e., after the clock edge). Since target_reg_q is a register updated on posedge clk_i, the assertion should be clocked on posedge clk_i and use |-> to check the assigned value of target_reg_q in the same cycle. Alternatively, if we want to check the updated value of target_reg_q after the clock edge, we can use a next-cycle implication (|=>) and refer to $past(target_reg_q) to check the previous value before update. But since the update happens synchronously, the same-cycle assertion is more appropriate here. Also, the assertion should be clocked on posedge clk_i to align with the register update.
+
+3. Corrected assertion:
+
+as__TargetRegUpdateOnResetCount: assert property (@(posedge dynamic_target_event_counter.clk_i) reset_count_i |-> dynamic_target_event_counter.target_reg_q == target_value_i);
+Stored LLM interaction for correction stage iteration 3
+
+Found 2 assertions in response:
+Assertion 1: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+Assertion 2: as__TargetRegUpdateOnResetCount: assert property (@(posedge dynamic_target_event_counter.clk_i) reset_count_i |-> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+Selected last assertion from response: as__TargetRegUpdateOnResetCount: assert property (@(posedge dynamic_target_event_counter.clk_i) reset_count_i |-> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (@(posedge dynamic_target_event_counter.clk_i) reset_count_i |-> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount
+
+Attempt 4 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4295
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 356
+Total output tokens: 0
+Final response length: 1700
+
+
+Full LLM Response:
+// 1. Explanation of failure: The original assertion as__TargetRegUpdateOnResetCount uses a next-cycle implication (|=>) with reset_count_i as precondition and expects target_reg_q to be equal to target_value_i in the next cycle. However, target_reg_q is updated synchronously on the clock edge when reset_count_i is asserted, so the updated target_reg_q value is available only after the clock edge following the assertion of reset_count_i. The original assertion incorrectly compares target_reg_q directly to target_value_i without considering the pipeline delay and the fact that target_value_i is a wire (combinational) signal. Also, it does not use $past() to refer to the value of target_value_i at the time of the precondition, which is required for next-cycle assertions. This mismatch in timing and signal referencing causes JasperGold to fail proving the assertion.
+
+// 2. Proposed fix: Use a next-cycle assertion (|=>) with reset_count_i as precondition, and in the postcondition compare the updated target_reg_q (which is a register updated on the clock edge) to the $past(target_value_i) (the value of target_value_i at the time of the precondition). This correctly models the pipeline behavior where target_reg_q updates on the clock edge following reset_count_i assertion, and target_value_i is sampled at the same cycle as reset_count_i. Also, prepend internal signals with the module prefix dynamic_target_event_counter. This fix aligns the timing and signal references with the RTL behavior and SVA best practices.
+
+// 3. Corrected assertion:
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i)));
+Stored LLM interaction for correction stage iteration 4
+
+Found 1 assertions in response:
+Assertion 1: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i)));
+
+Selected last assertion from response: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount
+
+Attempt 5 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4295
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 306
+Total output tokens: 0
+Final response length: 1466
+
+
+Full LLM Response:
+// The original assertion fails because it uses a same-cycle implication (|=>) expecting the target_reg_q to be updated immediately in the same cycle that reset_count_i is asserted. However, target_reg_q is a register updated on the clock edge, so its updated value appears in the next cycle. Also, the assertion does not consider that target_reg_q is updated synchronously on the rising edge of clk_i, so the postcondition must be checked in the next cycle. Therefore, a next-cycle assertion (|=>) should be used, and the postcondition should check the updated target_reg_q without $past(), while the precondition cycle's target_value_i should be referenced with $past() if needed. Since target_value_i is a wire, it can be referenced directly in the precondition cycle without $past(). The assertion should be written as a next-cycle assertion with reset_count_i as precondition and target_reg_q updated to target_value_i in the next cycle.
+
+// The fix is to use a next-cycle assertion (|=>) with reset_count_i as precondition and check that dynamic_target_event_counter.target_reg_q equals $past(target_value_i) in the postcondition cycle. This matches the synchronous update behavior of target_reg_q and the timing of reset_count_i. This approach respects the pipeline behavior and timing of the RTL.
+
+// Corrected assertion:
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+Stored LLM interaction for correction stage iteration 5
+
+Found 1 assertions in response:
+Assertion 1: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+Selected last assertion from response: as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == $past(target_value_i));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount                         cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCount
+Failed to fix assertion as__TargetRegUpdateOnResetCount after 5 attempts
+
+Processing unproven assertion: as__NoEventTriggersCounterHold
+Original assertion: as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+Attempt 1 of 5
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4302
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 292
+Total output tokens: 0
+Final response length: 1428
+
+
+Full LLM Response:
+// 1. Explanation of failure: The original assertion as__NoEventTriggersCounterHold uses a next-cycle implication (|=>) with precondition !(|event_triggers_i), expecting that when no event triggers are active in the current cycle, the next cycle's counter_d equals the current cycle's counter_q. However, counter_d is combinational and depends on event_triggers_i and counter_q. If event_triggers_i is zero, counter_d should equal counter_q in the same cycle, not necessarily in the next cycle. Using a next-cycle implication here causes a mismatch in timing because counter_d is combinational and updated immediately, while counter_q updates on the clock edge. Thus, the assertion fails as it incorrectly checks counter_d in the next cycle instead of the current cycle.
+
+// 2. Proposed fix: Change the assertion to a same-cycle implication (|->) so that when no event triggers are active in the current cycle, the combinational counter_d equals the current counter_q in the same cycle. This matches the RTL behavior where counter_d is combinationally assigned based on event_triggers_i and counter_q. This fix respects the timing of combinational logic and registered signals and should pass formal verification.
+
+// 3. Corrected assertion:
+
+as__NoEventTriggersCounterHold: assert property (!(|dynamic_target_event_counter.event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__NoEventTriggersCounterHold: assert property (!(|dynamic_target_event_counter.event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+Selected last assertion from response: as__NoEventTriggersCounterHold: assert property (!(|dynamic_target_event_counter.event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__NoEventTriggersCounterHold: assert property (!(|dynamic_target_event_counter.event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__NoEventTriggersCounterHold                         proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__NoEventTriggersCounterHold
+Successfully fixed assertion as__NoEventTriggersCounterHold after 1 attempts
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+as__NoEventTriggersCounterHold: assert property (!(|dynamic_target_event_counter.event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Final property file contents:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+as__CounterHoldNoEvent: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+as__CounterUpdateOnEventNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+as__NoEventTriggersCounterHold: assert property (!(|dynamic_target_event_counter.event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+======================================================================
+FINISHED UNPROVEN ASSERTION FIXING
+======================================================================

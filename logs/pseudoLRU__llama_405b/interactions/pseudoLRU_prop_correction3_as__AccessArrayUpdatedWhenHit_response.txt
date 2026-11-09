@@ -1,0 +1,23 @@
+The current assertion is failing because it is checking if the `access_array` has changed in the same cycle when `access_hit_i` is high. However, the `access_array` is a combinational signal that is updated in the same cycle, but the `plru_tree_q` is a sequential signal that is updated in the next cycle.
+
+The assertion is trying to check if the `plru_tree_q` has been updated when there is a hit, but it is using the wrong signal (`access_array`) and the wrong timing (same cycle).
+
+The proposed fix is to check if the `plru_tree_q` has changed in the next cycle when `access_hit_i` is high. This can be done by using the `|=>` operator, which checks the precondition in the current cycle and the postcondition in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__AccessArrayUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+```
+
+However, this assertion is still not correct, as we are comparing the updated value of `plru_tree_q` with its past value, but we are not considering the case where the update does not change the value of `plru_tree_q`.
+
+A better approach is to check if the `plru_tree_d` (the combinational signal that drives the update of `plru_tree_q`) is different from the current value of `plru_tree_q` when `access_hit_i` is high.
+
+Here is the corrected assertion:
+
+```
+as__AccessArrayUpdatedWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+```
+
+This assertion checks if the `plru_tree_d` is different from the current value of `plru_tree_q` in the same cycle when `access_hit_i` is high, which indicates that the `plru_tree_q` will be updated in the next cycle.

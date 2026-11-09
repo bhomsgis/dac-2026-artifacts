@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion uses a same-cycle implication (|->) to check that when valid_i is high and flush_i[0] is low, the registered operation op_q immediately equals op_i in the same cycle. However, op_q is a registered signal updated on the clock edge, so it reflects the value of op_i from the previous cycle, not the current cycle. Therefore, the assertion fails because it expects op_q to update combinationally within the same cycle, which is not possible.
+
+2. Proposed fix:  
+To correctly check that op_q captures op_i when valid_i is asserted and flush_i[0] is not asserted, we should use a next-cycle implication (|=>). This means that when the precondition is true in the current cycle, the postcondition should hold in the next cycle. In the postcondition, we compare op_q to $past(op_i) because op_q updates at the clock edge and should match the previous cycle's op_i. This aligns with the pipeline behavior and timing of registered signals.
+
+3. Corrected assertion:  
+as__OpQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |=> mul_unit.op_q == $past(op_i));

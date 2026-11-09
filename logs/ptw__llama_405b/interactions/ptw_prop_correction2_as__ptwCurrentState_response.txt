@@ -1,0 +1,24 @@
+The current assertion is failing because it is comparing the current state with the past value of the next state, which is not the correct behavior. The next state is calculated in the same cycle as the current state, so there is no need to use the past value of the next state.
+
+Proposed fix:
+The correct assertion should compare the current state with the next state in the same cycle. This can be achieved by using a same-cycle assertion (|->) and comparing the current state with the next state directly.
+
+Corrected assertion:
+```
+as__ptwCurrentState: assert property(ptw.current_state == ptw.next_state);
+```
+However, this assertion will still fail because the next state is not always equal to the current state. The next state is calculated based on the current state and other conditions, so it's not always the same as the current state.
+
+A better approach would be to check the FSM transitions, ensuring that the next state is valid based on the current state and other conditions. This would require a more complex assertion that takes into account the FSM transition logic.
+
+Here is an example of a more complex assertion that checks the FSM transitions:
+```
+as__ptwFSMTransition: assert property(
+  (ptw.current_state == S_READY) -> (ptw.next_state == S_REQ || ptw.next_state == S_READY) &&
+  (ptw.current_state == S_REQ) -> (ptw.next_state == S_WAIT || ptw.next_state == S_REQ) &&
+  (ptw.current_state == S_WAIT) -> (ptw.next_state == S_REQ || ptw.next_state == S_DONE || ptw.next_state == S_ERROR) &&
+  (ptw.current_state == S_DONE) -> (ptw.next_state == S_READY) &&
+  (ptw.current_state == S_ERROR) -> (ptw.next_state == S_READY)
+);
+```
+This assertion checks that the next state is valid based on the current state, ensuring that the FSM transitions are correct.

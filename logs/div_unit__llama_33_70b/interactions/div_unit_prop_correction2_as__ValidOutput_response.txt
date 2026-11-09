@@ -1,0 +1,1 @@
+as__ValidOutput: assert property(valid_i |-> div_unit.valid_q == 1'b0);

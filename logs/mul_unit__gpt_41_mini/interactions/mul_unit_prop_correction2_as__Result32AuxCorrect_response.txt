@@ -1,0 +1,6 @@
+// The original assertion fails because it compares result_32_aux (a wire) directly with result_low_d (also a wire) without considering pipeline timing. result_low_d is updated combinationally, but result_32_aux depends on neg_q, which is a registered signal updated in the previous cycle. The assertion does not account for the fact that neg_q and result_low_d are not from the same cycle, causing mismatch. The previous attempt used valid_q[0] as precondition and $past() on result_low_d, but neg_q is also registered and should be referenced with $past() to match the cycle of result_low_d. Also, the assertion should only check when valid_q[0] is high, as result_32_aux is meaningful then.
+
+// The fix is to use a next-cycle assertion with valid_q[0] as precondition, and in the postcondition compare result_32_aux with the combinational result_low_d from the same cycle as neg_q, both referenced with $past(). This aligns the timing of neg_q and result_low_d with the registered result_32_aux. This should work because it respects pipeline timing and signal registration.
+
+// Corrected assertion:
+as__Result32AuxCorrect: assert property (mul_unit.valid_q[0] |=> (mul_unit.result_32_aux == ( $past(mul_unit.neg_q) ? (~$past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) )));

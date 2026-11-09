@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when permission is not ok, the request type and privilege level match the expected permissions
+as__permNotOk: assert property(!ptw.perm_ok |-> ((ptw.prv_req[0] == 1'b0 && !(ptw.is_pte_sx || ptw.is_pte_ux)) || (ptw.prv_req[0] == 1'b1 && ((ptw.r_req.fetch && ptw.is_pte_ux) || (ptw.r_req.store && ptw.is_pte_uw) || (ptw.r_req.load && (ptw.is_pte_ux || ptw.is_pte_ur))))));
+```

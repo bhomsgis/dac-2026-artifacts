@@ -1,0 +1,11 @@
+The current assertion is failing because it's not considering the case when `op_32bits_i` is 0, which means the operation is 64-bit. In this case, the `same_sign` signal is determined by the most significant bits of `data_rs2_i` and `data_rs1_i`, which are `data_rs2_i[63]` and `data_rs1_i[63]`, respectively.
+
+However, the assertion is only checking the 32nd bit of `data_rs2_i` and `data_rs1_i`, which is incorrect for 64-bit operations.
+
+Here's the corrected assertion:
+
+```
+as__SignCheck6: assert property((valid_i && (op_i == 2'b01)) |-> (mul_unit.same_sign == ~(mul_unit.op_32bits_i ? (data_rs2_i[31] ^ data_rs1_i[31]) : (data_rs2_i[63] ^ data_rs1_i[63]))));
+```
+
+This assertion correctly checks the `same_sign` signal based on the value of `op_32bits_i`. If `op_32bits_i` is 1, it checks the 32nd bit of `data_rs2_i` and `data_rs1_i`. If `op_32bits_i` is 0, it checks the 64th bit of `data_rs2_i` and `data_rs1_i`.

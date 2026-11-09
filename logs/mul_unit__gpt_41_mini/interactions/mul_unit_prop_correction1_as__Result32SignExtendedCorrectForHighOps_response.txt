@@ -1,0 +1,2 @@
+// Check that for high part operations (MULH, MULHSU, MULHU), the 32-bit result is sign-extended correctly from result_32_aux at the cycle after op_q_final is set
+as__Result32SignExtendedCorrectForHighOps: assert property ((mul_unit.op_q_final inside {1,2,3}) |=> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}}, mul_unit.result_32_aux[31:0]});

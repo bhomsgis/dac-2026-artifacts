@@ -1,0 +1,11 @@
+Here is the corrected assertion:
+
+as__IdleToServingdTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && (itlb_ptw_comm_i.req.valid == 1'b0 || ptw_arb.is_req_waiting_q == 1'b1) |=> ptw_arb.next_state == ptw_arb.SERVING_dTLB);
+
+Explanation:
+
+The original assertion is failing because it doesn't consider the case where both iTLB and dTLB requests are valid at the same time. In this case, the arbiter will prioritize the dTLB request and move to the SERVING_dTLB state, but it will also set the `is_req_waiting_q` flag to 1'b1 to indicate that the iTLB request is waiting.
+
+The corrected assertion adds a condition to check if the iTLB request is valid and the `is_req_waiting_q` flag is 1'b1. This ensures that the assertion only passes when the dTLB request is prioritized and the arbiter moves to the SERVING_dTLB state.
+
+Note that I've also removed the `ptw_arb.is_req_waiting_q == 1'b0` condition from the original assertion, as it's not necessary to check this condition when the iTLB request is not valid.

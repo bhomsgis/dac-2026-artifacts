@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking if the `dividend_quotient_q` register remains the same when `cycles_counter` is 0. However, this is not necessarily true. When `cycles_counter` is 0, it means the division operation is not in progress, and the `dividend_quotient_q` register can be updated with a new value when a new division operation starts.
+
+The corrected assertion should check if the `dividend_quotient_q` register remains the same when `cycles_counter` is not 0, because during the division operation, the `dividend_quotient_q` register should not be updated.
+
+Here is the corrected assertion:
+
+```
+as__DividendQuotientQNoUpdate: assert property(div_unit.cycles_counter != 6'd0 |=> div_unit.dividend_quotient_q == $past(div_unit.dividend_quotient_q));
+```
+
+This assertion checks if the `dividend_quotient_q` register remains the same in the next cycle when `cycles_counter` is not 0.

@@ -1,0 +1,7 @@
+The current assertion is failing because it does not correctly account for the pipeline behavior and timing of the `mul_unit` module. Specifically, the assertion is trying to relate the `result_o` output to the internal signals `mul_unit.neg_q` and `mul_unit.result_low_d` without considering the latency of the module.
+
+The proposed fix is to use the `mul_unit.neg_q_final` and `mul_unit.result_2width_def` signals, which are the final values of the negation and result after the pipeline has completed. Additionally, we need to consider the case where the operation is 32-bit and the `REG_32` parameter is set.
+
+Here is the corrected assertion:
+
+as__ResultNextMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == ($past(mul_unit.neg_q_final) ? (~$past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) + $past(mul_unit.ONEDOUBLE[mul_unit.WIDTH-1:0])) : $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));

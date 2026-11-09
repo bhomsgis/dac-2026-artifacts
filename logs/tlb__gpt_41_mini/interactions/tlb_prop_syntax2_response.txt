@@ -1,0 +1,44 @@
+// Check that on a store request, if the TLB entry is dirty, store_hit is asserted same cycle
+as__StoreHitDirtyImpliesStoreHiteotid: assert property((cache_tlb_comm_i.req.store && tlb_entries[hit_idx].dirty) |-> (store_hit == 1'b1));
+// Check that on a store request, if write_ok is false, store_hit is asserted same cycle
+as__StoreHitWriteNotOkeotid: assert property((cache_tlb_comm_i.req.store && !write_ok) |-> (store_hit == 1'b1));
+// Check that on a store request, if write_ok is true and dirty is false, store_hit is deasserted same cycle
+as__StoreHitWriteOkDirtyFalseeotid: assert property((cache_tlb_comm_i.req.store && write_ok && !tlb_entries[hit_idx].dirty) |-> (store_hit == 1'b0));
+// Check that hits_cam is one-hot encoded (only one bit set) same cycle
+as__HitsCamOneHoteotid: assert property(!(|(hits_cam & (hits_cam - 1))));
+// Check that hit_idx corresponds to the index of the hit in hits_cam same cycle
+as__HitIdxMatchesHitsCameotid: assert property(hit_cam |-> hits_cam[hit_idx]);
+// Check that tlb_hit is asserted only when vm_enable, hit_cam and store_hit are all true same cycle
+as__TlbHitDefinitioneotid: assert property(tlb_hit |-> (vm_enable && hit_cam && store_hit));
+// Check that tlb_miss is asserted only when vm_enable is true and no hit_cam same cycle
+as__TlbMissDefinitioneotid: assert property(tlb_miss |-> (vm_enable && !hit_cam));
+// Check that eviction_idx equals invalid_idx if has_invalid_entry is true, else equals plru_eviction_idx same cycle
+as__EvictionIdxCorrectSelectioneotid: assert property((has_invalid_entry && (eviction_idx == invalid_idx)) || (!has_invalid_entry && (eviction_idx == plru_eviction_idx)));
+// Check that if has_invalid_entry is true, then tlb_entries[invalid_idx].nempty is false same cycle
+as__InvalidIdxNemptyZeroeotid: assert property(has_invalid_entry |-> (!tlb_entries[invalid_idx].nempty));
+// Check that pmu_tlb_access is asserted only in IDLE state with valid cache_tlb_comm_i.req same cycle
+as__PmuTlbAccessIdleValidReqeotid: assert property(pmu_tlb_access |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid));
+// Check that pmu_tlb_miss is asserted only in IDLE state with valid cache_tlb_comm_i.req and tlb_miss same cycle
+as__PmuTlbMissIdleValidMissReqeotid: assert property(pmu_tlb_miss |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid && tlb_miss));
+// Check that store_tlb_req is asserted only in IDLE state with valid cache_tlb_comm_i.req and tlb_miss same cycle
+as__StoreTlbReqIdleValidMissReqeotid: assert property(store_tlb_req |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid && tlb_miss));
+// Check that send_tlb_req is asserted only in SEND_REQUEST state same cycle
+as__SendTlbReqSendRequestStateeotid: assert property(send_tlb_req |-> (current_state == tlb.SEND_REQUEST));
+// Check that write_tlb is asserted only in WAIT_RESPONSE state with valid ptw_tlb_comm_i.resp same cycle
+as__WriteTlbWaitResponseValidRespeotid: assert property(write_tlb |-> (current_state == tlb.WAIT_RESPONSE && ptw_tlb_comm_i.resp.valid));
+// Check that clean_tlb is asserted only in IDLE state with valid cache_tlb_comm_i.req same cycle
+as__CleanTlbIdleValidReqeotid: assert property(clean_tlb |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid));
+// Check that tlb_ready is asserted only in IDLE state same cycle
+as__TlbReadyIdleStateeotid: assert property(tlb_ready |-> (current_state == tlb.IDLE));
+// Check that next_state is always within the defined enum range
+as__NextStateEnumRangeeotid: assert property(next_state inside {[tlb.IDLE:tlb.INVALIDATED_WAIT_RESPONSE]});
+// Check that current_state updates to previous cycle's next_state next cycle
+as__CurrentStateUpdateOnClockeotid: assert property((current_state != next_state) |=> (current_state == $past(next_state)));
+// Check that tlb_req_tmp updates correctly on store_tlb_req next cycle
+as__TlbReqTmpUpdateOnStoreTlbReqeotid: assert property(store_tlb_req |=> (tlb_req_tmp.vpn == $past(cache_tlb_comm_i.req.vpn[VPN_SIZE-1:0]) && tlb_req_tmp.asid == $past(cache_tlb_comm_i.req.asid) && tlb_req_tmp.store == $past(cache_tlb_comm_i.req.store) && tlb_req_tmp.fetch == $past(cache_tlb_comm_i.req.instruction) && tlb_req_tmp.write_idx == $past(eviction_idx)));
+// Check that tlb_ptw_comm_o.req.valid is asserted same cycle as send_tlb_req
+as__TlbPtwCommOReqValidOnSendTlbReqeotid: assert property(send_tlb_req |-> tlb_ptw_comm_o.req.valid);
+// Check that tlb_ptw_comm_o.req fields match tlb_req_tmp and cache_tlb_comm_i.priv_lvl same cycle as send_tlb_req
+as__TlbPtwCommOReqFieldsMatchOnSendTlbReqeotid: assert property(send_tlb_req |-> (tlb_ptw_comm_o.req.vpn == tlb_req_tmp.vpn && tlb_ptw_comm_o.req.asid == tlb_req_tmp.asid && tlb_ptw_comm_o.req.prv == cache_tlb_comm_i.priv_lvl && tlb_ptw_comm_o.req.store == tlb_req_tmp.store && tlb_ptw_comm_o.req.fetch == tlb_req_tmp.fetch));
+// Check that tlb_ptw_comm_o.req is zero when send_tlb_req is not asserted same cycle
+as__TlbPtwCommOReqZeroWhenNotSendTlbReqeotid: assert property(!send_tlb_req |-> (tlb_ptw_comm_o.req == '0));

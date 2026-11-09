@@ -1,0 +1,3 @@
+```systemverilog
+as__DividendAux: assert property((!op_32bits_i && data_rs1_i[63] && !op_unsigned_i) || (op_32bits_i && data_rs1_i[31] && !op_unsigned_i) |-> div_unit.dividend_aux_d == (~data_rs1_i + {WIDTH{1'b1}}));
+```

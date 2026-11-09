@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to check the value of `tmp_remanent[1]` in the same cycle as `sew_i` is being checked. However, `tmp_remanent[1]` is a combinational signal that is assigned a value based on the value of `sew_i` and other signals. This means that the value of `tmp_remanent[1]` may not be stable or valid in the same cycle as `sew_i` is being checked.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `tmp_remanent[1]` in the next cycle, after the combinational logic has had a chance to settle.
+
+Here is the corrected assertion:
+
+```
+as__SimdDivSEW8: assert property(sew_i == 2'b00 |=> div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[7]});
+```
+
+This assertion checks that if `sew_i` is equal to `2'b00` in the current cycle, then in the next cycle, `tmp_remanent[1]` should be equal to the expected value. This allows the combinational logic to settle and ensures that we are checking the correct value of `tmp_remanent[1]`.

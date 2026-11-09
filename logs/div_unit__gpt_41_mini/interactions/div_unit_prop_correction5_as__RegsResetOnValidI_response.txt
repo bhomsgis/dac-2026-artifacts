@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion fails because it uses a same-cycle implication (|=>) with valid_i as the precondition and then immediately checks the registered signals remanent_q, dividend_quotient_q, and divisor_q in the same cycle. However, these registered signals are updated on the clock edge after valid_i is asserted. Therefore, the updated values of these registers will only be visible in the next cycle, not in the same cycle as valid_i. Also, the assertion does not include the clock event in the property, which is necessary for $past() usage and proper timing reference.
+
+2. Proposed fix:  
+Use a next-cycle implication (|=>) with a clock event @(posedge div_unit.clk_i) so that the postcondition checks the registered signals after they have been updated. In the postcondition, use $past() to refer to the input signals dividend_d and divisor_d from the cycle when valid_i was asserted. This matches the RTL behavior where on a valid_i cycle, the registers are loaded with dividend_d and divisor_d, and remanent_q is reset to zero. This approach respects the pipeline timing and register update semantics.
+
+3. Corrected assertion:  
+as__RegsResetOnValidI: assert property (@(posedge div_unit.clk_i) valid_i |=> (div_unit.remanent_q == {div_unit.WIDTH{1'b0}} && div_unit.dividend_quotient_q == $past(div_unit.dividend_d) && div_unit.divisor_q == $past(div_unit.divisor_d)));

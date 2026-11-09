@@ -1,0 +1,2 @@
+// Check that for MULHU operation (op_q == 3), result_32_aux matches the unsigned lower WIDTH bits of result_low_q in the next cycle
+as__Result32AuxCorrectForMulHUQ: assert property (mul_unit.op_q == 3 |=> mul_unit.result_32_aux == mul_unit.result_low_q[mul_unit.WIDTH-1:0]);

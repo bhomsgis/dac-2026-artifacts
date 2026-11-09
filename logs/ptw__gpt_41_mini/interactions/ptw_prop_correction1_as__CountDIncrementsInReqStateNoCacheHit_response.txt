@@ -1,0 +1,2 @@
+// Check that count_d increments by 1 in S_REQ state when there is no cache hit and dmem_ptw_comm_i.dmem_ready is asserted (i.e., count_d updates on next cycle)
+as__CountDIncrementsInReqStateNoCacheHit: assert property((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && ptw.dmem_ptw_comm_i.dmem_ready) |=> (ptw.count_d == (ptw.count_q + 1'b1)));

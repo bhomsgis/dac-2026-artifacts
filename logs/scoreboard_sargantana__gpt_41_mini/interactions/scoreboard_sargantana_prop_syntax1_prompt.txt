@@ -1,0 +1,151 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a scoreboard_sargantana. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the scoreboard_sargantana interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of scoreboard_sargantana but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+We want to increase the assertion set for this RTL module called scoreboard_sargantana
+Here are the current correct assertions:
+  as__Ready1CycleDeassertedWhenInst0Set: assert property((inst_q[0]) |-> !ready_1cycle_o);
+  as__ReadyMul32DeassertedWhenInst1Set: assert property((inst_q[1]) |-> !ready_mul_32_o);
+  as__ReadyMul64DeassertedWhenInst2Set: assert property((inst_q[2]) |-> !ready_mul_64_o);
+  as__ReadyDiv32DeassertedWhenInst17Set: assert property((inst_q[17]) |-> !ready_div_32_o);
+  as__DivUnitSelAssertedWhenFreeDivUnit0NotFree: assert property((!scoreboard_sargantana.free_div_unit[0]) |-> div_unit_sel_o);
+  as__ReadyDivUnitAssertedWhenAnyFreeDivUnit: assert property(((scoreboard_sargantana.free_div_unit[0] || scoreboard_sargantana.free_div_unit[1])) |-> ready_div_unit_o);
+  as__FreeDivUnit0AssertedWhenOcupDivUnit0Zero: assert property((!(|scoreboard_sargantana.ocup_div_unit_q[0])) |-> scoreboard_sargantana.free_div_unit[0]);
+  as__FreeDivUnit1AssertedWhenOcupDivUnit1Zero: assert property((!(|scoreboard_sargantana.ocup_div_unit_q[1])) |-> scoreboard_sargantana.free_div_unit[1]);
+  as__InstDIsInstQShiftedRight1: assert property((scoreboard_sargantana.inst_d == (scoreboard_sargantana.inst_q >> 1)));
+  as__OcupDivUnitD0IsOcupDivUnitQ0ShiftedRight1: assert property((scoreboard_sargantana.ocup_div_unit_d[0] == (scoreboard_sargantana.ocup_div_unit_q[0] >> 1)));
+  as__OcupDivUnitD1IsOcupDivUnitQ1ShiftedRight1: assert property((scoreboard_sargantana.ocup_div_unit_d[1] == (scoreboard_sargantana.ocup_div_unit_q[1] >> 1)));
+  as__SetMul32SetsInstD0: assert property((set_mul_32_i) |-> (scoreboard_sargantana.inst_d[0] == 1'b1));
+  as__SetMul64SetsInstD1: assert property((set_mul_64_i) |-> (scoreboard_sargantana.inst_d[1] == 1'b1));
+  as__SetDiv32SetsInstD16AndOcup: assert property((set_div_32_i) |-> (scoreboard_sargantana.inst_d[16] == 1'b1) && ((scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h000010000)) || (!scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h000010000))));
+  as__SetDiv64SetsInstD32AndOcup: assert property((set_div_64_i) |-> (scoreboard_sargantana.inst_d[32] == 1'b1) && ((scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h100000000)) || (!scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h100000000))));
+  as__NoSetDiv64ClearsInstD32: assert property((!set_div_64_i) |-> (scoreboard_sargantana.inst_d[32] == 1'b0));
+  as__OcupAndInstUpdate: assert property((!rstn_i && !flush_i) |=> (scoreboard_sargantana.ocup_div_unit_q == scoreboard_sargantana.ocup_div_unit_d && scoreboard_sargantana.inst_q == scoreboard_sargantana.inst_d));
+Here is the RTL:
+module score_board_scalar
+    import drac_pkg::*;
+    import riscv_pkg::*;
+(
+    input logic             clk_i,
+    input logic             rstn_i,
+    input logic             flush_i,
+
+    input logic             set_mul_32_i,               // Insert new Mul instruction of 2  cycles
+    input logic             set_mul_64_i,               // Insert new Mul instruction of 3  cycles
+    input logic             set_div_32_i,               // Insert new Div instruction of 17 cycles
+    input logic             set_div_64_i,               // Insert new Div instruction of 32 cycles
+
+    // OUTPUTS
+    output logic            ready_1cycle_o,             // Instruction of 1 cycle duration can be issued
+    output logic            ready_mul_32_o,             // Instruction of 2 cycles duration can be issued
+    output logic            ready_mul_64_o,             // Instruction of 3 cycles duration can be issued
+    output logic            ready_div_32_o,             // Instruction of 8 cycles duration can be issued
+    output logic            div_unit_sel_o,             // Select Div unit for the Div instruction
+    output logic            ready_div_unit_o            // At least one of the Div units is free
+);
+
+    logic [32:0] inst_d, inst_q;
+    logic [1:0][32:0] ocup_div_unit_d;
+    logic [1:0][32:0] ocup_div_unit_q;
+    logic free_div_unit[1:0];
+
+    // check if both div units are empty
+    assign free_div_unit[0] = ~(|ocup_div_unit_q[0]);
+    assign free_div_unit[1] = ~(|ocup_div_unit_q[1]);
+    
+    always_comb begin
+        // shift all the busy slots for the next cycle
+        for (int i = 31; i >= 0; i--) begin
+            inst_d = inst_q >> 1;
+        end
+        for(int i = 1; i >= 0; i--) begin
+            ocup_div_unit_d[i] = ocup_div_unit_q[i] >> 1;
+        end
+
+        // set the next cycle busy if there are a 32-bit mult
+        if (set_mul_32_i) begin
+            inst_d[0]  = 1'b1;
+        end
+
+        // set the next-next cycle busy if there are a 64-bit mult
+        if (set_mul_64_i) begin
+            inst_d[1]  = 1'b1;
+        end
+
+        // set the 16th cycle busy if there are a 32-bit div
+        if (set_div_32_i) begin
+            inst_d[16] = 1'b1;
+            if (free_div_unit[0]) begin // if (~div_unit_sel_o)
+                ocup_div_unit_d[0] = 33'h000010000;
+            end else begin 
+                ocup_div_unit_d[1] = 33'h000010000;
+            end
+        end
+
+        // set the last (32) cycle busy if there are a 64-bit div
+        if (set_div_64_i) begin
+            inst_d[32] = 1'b1;
+            if (free_div_unit[0]) begin // if (~div_unit_sel_o)
+                ocup_div_unit_d[0] = 33'h100000000;
+            end else begin 
+                ocup_div_unit_d[1] = 33'h100000000;
+            end
+        end else begin
+            inst_d[32] = 1'b0;   
+        end
+    end
+
+    always_ff @(posedge clk_i, negedge rstn_i) begin
+        if(~rstn_i) begin
+            ocup_div_unit_q <= '0;
+            inst_q <= '0;
+        end 
+        else if (flush_i) begin
+            ocup_div_unit_q <= '0;
+            inst_q <= '0;
+        end 
+        else begin
+            ocup_div_unit_q <= ocup_div_unit_d;
+            inst_q <= inst_d;
+        end
+    end
+
+    assign ready_1cycle_o = (~inst_q[0]);
+    assign ready_mul_32_o = (~inst_q[1]);
+    assign ready_mul_64_o = (~inst_q[2]);
+    assign ready_div_32_o = (~inst_q[17]);
+    assign div_unit_sel_o = ~free_div_unit[0];
+    assign ready_div_unit_o = free_div_unit[0] | free_div_unit[1];
+
+
+endmodule
+
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'scoreboard_sargantana.'

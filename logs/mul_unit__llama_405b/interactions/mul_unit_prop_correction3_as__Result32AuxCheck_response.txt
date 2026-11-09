@@ -1,0 +1,25 @@
+The current assertion is failing because it is trying to check the value of `result_32_aux` in the same cycle as the inputs are being checked. However, `result_32_aux` is a signal that is generated after the inputs have been processed by the combinational logic, and its value is not available until the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will allow the assertion to check the value of `result_32_aux` in the next cycle, after the inputs have been processed.
+
+Here is the corrected assertion:
+
+```
+as__Result32AuxCheck: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));
+```
+
+However, this assertion is still not correct because it is using `mul_unit.result_low_q` which is a registered signal and will not be available until the next cycle. We should use `mul_unit.result_low_d` instead, which is the combinational signal that is used to generate `mul_unit.result_low_q`.
+
+Here is the corrected assertion:
+
+```
+as__Result32AuxCheck: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_d[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[mul_unit.WIDTH-1:0])));
+```
+
+But we still need to use `$past()` to get the value of `mul_unit.neg_q` and `mul_unit.result_low_d` from the previous cycle.
+
+Here is the final corrected assertion:
+
+```
+as__Result32AuxCheck: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_aux == ($past(mul_unit.neg_q) ? (~$past(mul_unit.result_low_d)[mul_unit.WIDTH-1:0] + mul_unit.ONE) : $past(mul_unit.result_low_d)[mul_unit.WIDTH-1:0])));
+```

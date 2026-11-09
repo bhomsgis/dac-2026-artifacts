@@ -1,0 +1,17 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ValidOutput: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |-> valid_o == 1'b1);` checks if the output `valid_o` is high when the input `valid_i` is high, the operation is multiplication (`op_i == mul_unit.MUL`), and the operation is 32-bit (`op_32bits_i`).
+2. **Identifying the issue**: The assertion might be failing because it does not consider the pipeline behavior of the `mul_unit`. The output `valid_o` might be delayed by one or two cycles depending on the operation and configuration.
+3. **Analyzing the pipeline behavior**: The `mul_unit` has a pipeline with two stages. The first stage registers the input operands and operation, and the second stage performs the multiplication. The output `valid_o` is generated based on the registered values.
+
+# Fixed solution:
+```systemverilog
+as__ValidOutput: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> valid_o == $past(valid_i));
+```
+
+# Explanation of changes:
+* **Changed the assertion operator**: The assertion operator was changed from `|->` (same-cycle) to `|=>` (next-cycle) to account for the pipeline delay.
+* **Used $past() function**: The `$past()` function was used to refer to the value of `valid_i` in the previous cycle, which is the cycle when the input was registered.
+* **Removed the comparison with 1'b1**: The comparison with `1'b1` was removed, and instead, the assertion checks if `valid_o` is equal to the past value of `valid_i`. This ensures that the output `valid_o` is high when the input `valid_i` was high in the previous cycle.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` with different input scenarios, including 32-bit and 64-bit multiplications, and verifying that the output `valid_o` is generated correctly.

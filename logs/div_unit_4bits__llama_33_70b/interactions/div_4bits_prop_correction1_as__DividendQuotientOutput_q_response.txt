@@ -1,0 +1,8 @@
+The current assertion `as__DividendQuotientOutput_q: assert property((div_4bits.dividend_quotient_o_q == $past(div_4bits.tmp_dividend_quotient[0])) |=> (div_4bits.dividend_quotient_o_q == $past(div_4bits.tmp_dividend_quotient[0])));` is failing because it is comparing the current value of `div_4bits.dividend_quotient_o_q` with the past value of `div_4bits.tmp_dividend_quotient[0]` in the postcondition, which is incorrect. The postcondition should compare the next value of `div_4bits.dividend_quotient_o_q` with the past value of `div_4bits.tmp_dividend_quotient[0]`.
+
+The proposed fix is to change the assertion to compare the next value of `div_4bits.dividend_quotient_o_q` with the past value of `div_4bits.tmp_dividend_quotient[0]`. This can be achieved by using the `$past` function to refer to the value of `div_4bits.tmp_dividend_quotient[0]` in the previous cycle, and comparing it with the next value of `div_4bits.dividend_quotient_o_q`.
+
+Here is the corrected assertion:
+as__DividendQuotientOutput_q: assert property((div_4bits.dividend_quotient_o_q == $past(div_4bits.tmp_dividend_quotient[0])) |=> (div_4bits.dividend_quotient_o_q == $past(div_4bits.tmp_dividend_quotient[0]))); 
+is incorrect and should be 
+as__DividendQuotientOutput_q: assert property((div_4bits.dividend_quotient_o == $past(div_4bits.tmp_dividend_quotient[0])) |=> (div_4bits.dividend_quotient_o_q == $past(div_4bits.tmp_dividend_quotient[0])));

@@ -1,0 +1,6 @@
+The current assertion is failing because it does not consider the flush signal. When flush_i is high, the op_q register is reset to 0, regardless of the value of valid_i. Therefore, the assertion should only check the update of op_q when flush_i is low.
+
+Proposed fix: The assertion should be modified to only check the update of op_q when flush_i is low and valid_i is high.
+
+Corrected assertion:
+as__OpQUpdate: assert property(valid_i && !flush_i |=> div_unit.op_q == op_i);

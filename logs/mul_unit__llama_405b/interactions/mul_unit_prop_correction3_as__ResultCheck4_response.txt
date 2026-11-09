@@ -1,0 +1,19 @@
+The current assertion is failing because it is trying to check the result of a 64-bit multiplication operation in the same cycle as the input is received, which is not possible due to the pipelined nature of the design. The result of the multiplication operation is only available after two cycles.
+
+Here's the corrected assertion:
+
+as__ResultCheck4: assert property((valid_i && (op_i == 2'b11)) |=> (result_o == mul_unit.result_2width_def[127:64]));
+
+This assertion checks that when a valid 64-bit multiplication operation is received (indicated by `valid_i` and `op_i == 2'b11`), the result of the operation is correctly output two cycles later. The `$past()` function is not needed in this case because we are using the `|=>` operator, which automatically checks the postcondition in the next cycle.
+
+However, the above assertion is still not correct because it doesn't consider the pipeline behavior of the design. The correct assertion should be:
+
+as__ResultCheck4: assert property((valid_i && (op_i == 2'b11)) |=> (result_o == mul_unit.result_2width_def[127:64] && mul_unit.valid_q[1]));
+
+This assertion checks that when a valid 64-bit multiplication operation is received, the result of the operation is correctly output two cycles later, and the `valid_q[1]` signal is asserted to indicate that the result is valid.
+
+But, considering the output stage of the design, the correct assertion should be:
+
+as__ResultCheck4: assert property((valid_i && (op_i == 2'b11)) |=> (result_o == mul_unit.result_2width_def[127:64] && valid_o));
+
+This assertion checks that when a valid 64-bit multiplication operation is received, the result of the operation is correctly output two cycles later, and the `valid_o` signal is asserted to indicate that the result is valid.

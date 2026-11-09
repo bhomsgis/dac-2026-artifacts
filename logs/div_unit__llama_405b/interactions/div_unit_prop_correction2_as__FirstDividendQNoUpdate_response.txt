@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking if the `first_dividend_q` register is not updated when `valid_i` is low, but it is using the `$past` function to compare the current value of `first_dividend_q` with its previous value. However, when `valid_i` is low, the `first_dividend_q` register is updated with the value of `first_dividend_d`, which is assigned the value of `first_dividend_q` in the same cycle. Therefore, the comparison is always true, and the assertion is not checking the intended behavior.
+
+The proposed fix is to change the assertion to check if the `first_dividend_q` register is updated with the same value as its previous value when `valid_i` is low. This can be done by comparing the current value of `first_dividend_q` with the value of `first_dividend_d` in the same cycle.
+
+Here is the corrected assertion:
+
+`as__FirstDividendQNoUpdate: assert property(!valid_i |=> div_unit.first_dividend_q == div_unit.first_dividend_d);`
+
+This assertion checks if the `first_dividend_q` register is updated with the same value as `first_dividend_d` when `valid_i` is low, which is the intended behavior.

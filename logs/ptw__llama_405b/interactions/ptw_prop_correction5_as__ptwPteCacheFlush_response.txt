@@ -1,0 +1,27 @@
+The current assertion is failing because it is checking if the `flush` signal is high, then the `valid` bit of the `ptecache_entry` at the `hit_idx` index should be low in the next cycle. However, the `flush` signal is used to invalidate all the cache entries, not just the one at the `hit_idx` index.
+
+The corrected assertion should check that when the `flush` signal is high, all the `valid` bits of the `ptecache_entry` array should be low in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> !(&ptw.ptecache_entry.valid));
+```
+
+However, this assertion is still not correct because it checks if all the `valid` bits are low using the bitwise AND operator `&`. This will only be true if all the `valid` bits are low, but it will not check if any of the `valid` bits are low.
+
+A better approach is to use the `forall` operator to check that all the `valid` bits are low:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> forall (ptw.ptecache_entry[i].valid == 1'b0));
+```
+
+However, since we cannot use `forall` in SVA, we can use a generate loop to create an array of assertions:
+
+But, we can write this assertion using a different approach:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> !(|ptw.ptecache_entry.valid));
+```
+
+This assertion checks if the `flush` signal is high, then none of the `valid` bits of the `ptecache_entry` array should be high in the next cycle.

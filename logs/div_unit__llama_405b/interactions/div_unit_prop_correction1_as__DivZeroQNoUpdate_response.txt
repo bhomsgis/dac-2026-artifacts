@@ -1,0 +1,9 @@
+The current assertion is failing because it's checking if the `div_zero_q` signal remains the same when `valid_i` is low, which is not necessarily true. The `div_zero_q` signal is updated based on the `div_zero_d` signal, which can change even when `valid_i` is low.
+
+The proposed fix is to check if the `div_zero_q` signal remains the same when `valid_i` is low and there is no new valid input (i.e., `valid_q` is also low). This ensures that the `div_zero_q` signal is not updated when there is no new valid input.
+
+Here is the corrected assertion:
+
+```
+as__DivZeroQNoUpdate: assert property(!valid_i && !div_unit.valid_q |=> div_unit.div_zero_q == $past(div_unit.div_zero_q));
+```

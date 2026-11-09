@@ -1,0 +1,7 @@
+The current assertion `as__pmuPtwhitONot: assert property(!pmu_ptw_hit_o |-> (ptw.current_state != ptw.S_REQ || !ptw.pte_cache_hit));` might be failing because it does not consider the case when `ptw.current_state` is `S_REQ` and `ptw.pte_cache_hit` is true, but `ptw.count_q` is equal to `LEVELS-1`. In this case, `pmu_ptw_hit_o` should not be asserted.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__pmuPtwhitONot: assert property(!pmu_ptw_hit_o |-> (ptw.current_state != ptw.S_REQ || !ptw.pte_cache_hit || ptw.count_q == $unsigned(LEVELS-1)));
+```

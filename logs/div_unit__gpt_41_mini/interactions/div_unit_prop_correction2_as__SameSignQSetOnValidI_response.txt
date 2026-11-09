@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion as__SameSignQSetOnValidI: assert property((valid_i) |=> (div_unit.same_sign_q == div_unit.same_sign_d)); fails because it checks that same_sign_q (a registered signal updated on the clock edge) is immediately equal to same_sign_d (a combinational signal updated in the same cycle). However, same_sign_q is updated only on the next clock edge after valid_i is asserted, so they cannot be equal in the same cycle. The assertion incorrectly uses a next-cycle implication (|=>) but compares same_sign_q and same_sign_d in the same cycle, without using $past() on same_sign_d.
+
+2. Proposed fix:  
+To correctly check that when valid_i is asserted, same_sign_q is updated on the next clock edge to the value of same_sign_d from the cycle when valid_i was asserted, the assertion should use a next-cycle implication (|=>) and compare same_sign_q in the next cycle to $past(same_sign_d) from the cycle of the precondition. This respects the pipeline behavior and timing of registered signals.
+
+3. Corrected assertion:  
+as__SameSignQSetOnValidI: assert property (valid_i |=> (div_unit.same_sign_q == $past(div_unit.same_sign_d)));

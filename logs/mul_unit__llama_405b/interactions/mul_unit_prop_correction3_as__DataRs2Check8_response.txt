@@ -1,0 +1,35 @@
+The current assertion is failing because it is trying to check the value of `data_rs2_d` in the same cycle as the inputs `valid_i` and `op_i` are checked. However, `data_rs2_d` is a combinational signal that is assigned a value based on the inputs `data_rs2_i` and `op_32bits_i`, and this assignment happens after the inputs have been checked.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `data_rs2_d` in the next cycle, after it has been assigned a value.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check8: assert property((valid_i && (op_i == 2'b10)) |=> (mul_unit.data_rs2_d == (($past(data_rs2_i[(mul_unit.WIDTH-1)]) & !$past(op_32bits_i)) | ($past(data_rs2_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs2_i) + mul_unit.ONE : $past(data_rs2_i)));
+```
+
+However, this is the same as Attempt 1, which didn't work. Let's try to understand why.
+
+The issue is that `data_rs2_d` is a combinational signal that is assigned a value based on the inputs `data_rs2_i` and `op_32bits_i`. In the next cycle, `data_rs2_d` will have the value that was assigned to it in the previous cycle, based on the previous values of `data_rs2_i` and `op_32bits_i`. But we want to check the value of `data_rs2_d` based on the current values of `data_rs2_i` and `op_32bits_i`.
+
+To fix this, we need to use a same-cycle assertion (`|->`) to check the value of `data_rs2_d` in the same cycle as the inputs `data_rs2_i` and `op_32bits_i` are checked. But we need to make sure that we are checking the value of `data_rs2_d` after it has been assigned a value.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check8: assert property((valid_i && (op_i == 2'b10)) |-> (mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+```
+
+However, this is the same as the original assertion, which didn't work. Let's try to understand why.
+
+The issue is that the assertion is trying to check the value of `data_rs2_d` before it has been assigned a value. To fix this, we need to find a way to check the value of `data_rs2_d` after it has been assigned a value.
+
+One way to do this is to check the value of `data_rs2_q` instead of `data_rs2_d`. `data_rs2_q` is a registered signal that is assigned the value of `data_rs2_d` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check8: assert property((valid_i && (op_i == 2'b10)) |=> (mul_unit.data_rs2_q == (($past(data_rs2_i[(mul_unit.WIDTH-1)]) & !$past(op_32bits_i)) | ($past(data_rs2_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs2_i) + mul_unit.ONE : $past(data_rs2_i)));
+```
+
+This assertion checks the value of `data_rs2_q` in the next cycle, after it has been assigned the value of `data_rs2_d`. This should fix the issue.

@@ -1,0 +1,3 @@
+```systemverilog
+as__NoInvalidValid: assert property(!(valid_o && !$past(valid_i)));
+```

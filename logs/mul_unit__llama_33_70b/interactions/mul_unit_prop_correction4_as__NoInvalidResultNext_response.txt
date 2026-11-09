@@ -1,0 +1,10 @@
+The current assertion `as__NoInvalidResultNext: assert property(valid_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));` is failing because it's checking if the result is all unknown bits (`{WIDTH{1'bx}}`) in the next cycle when `valid_i` is high. However, this assertion does not consider the case where the result is not all unknown bits but still invalid.
+
+The issue with the previous attempts is that they are using `$past(result_o)` which refers to the value of `result_o` in the previous cycle, but `result_o` is a wire and its value can change in the same cycle. 
+
+A better approach would be to check if the result is valid and not all unknown bits in the next cycle when `valid_i` is high. We can use the fact that if `result_o` is not all unknown bits, then it must have at least one known bit.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidResultNext: assert property(valid_i |=> !(valid_o && !(|result_o)));
+```

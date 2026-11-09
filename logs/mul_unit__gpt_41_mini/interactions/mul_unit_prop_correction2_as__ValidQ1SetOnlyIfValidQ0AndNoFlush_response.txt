@@ -1,0 +1,9 @@
+1. The current assertion fails because it uses a same-cycle implication (|->) to check a relationship between two pipeline registers valid_q[1] and valid_q[0], which are updated on clock edges. The valid_q[1] signal is updated in the next cycle relative to valid_q[0], so checking valid_q[0] and flush_i[1] in the same cycle as valid_q[1] is incorrect. The assertion should consider the pipeline timing and use a next-cycle implication (|=>) to relate valid_q[1] to the previous cycle's valid_q[0] and flush_i[1].
+
+2. The previous attempt used a next-cycle implication with $past() on valid_q[0] and flush_i[1], which is correct in principle, but it only checked that valid_q[1] implies that the previous cycle had valid_q[0] and no flush. However, the assertion should also consider that valid_q[1] can only be set if the previous cycle's valid_q[0] was set and flush_i[1] was not asserted in the current cycle (flush_i[1] flushes valid_q[1] in the current cycle). Since flush_i[1] is synchronous and affects valid_q[1] in the current cycle, the assertion should check that if valid_q[1] is set, then in the previous cycle valid_q[0] was set and flush_i[1] was not asserted in the current cycle (flush_i[1] is a wire, so its value in the current cycle is known).
+
+Therefore, the assertion should be a next-cycle assertion (|=>) with postcondition that valid_q[1] is set only if $past(valid_q[0]) was set and flush_i[1] is not asserted in the current cycle.
+
+3. Corrected assertion:
+
+as__ValidQ1SetOnlyIfValidQ0AndNoFlush: assert property (mul_unit.valid_q[1] |=> ($past(mul_unit.valid_q[0]) && !mul_unit.flush_i[1]));

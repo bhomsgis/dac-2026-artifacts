@@ -1,0 +1,11 @@
+1. Explanation of failure:  
+The original assertion checks the value of `div_unit.same_sign_d` in the same cycle when `valid_i && div_unit.op_32_d` is true. However, `same_sign_d` is a combinational signal assigned inside an always_comb block that depends on `valid_i` and `op_32bits_i`. The problem is that the assertion only considers the 32-bit operation case (`div_unit.op_32_d`) and ignores the 64-bit case. Also, `op_32_d` is a registered signal updated on the clock edge, so using it combinationally in the precondition with `valid_i` (which is a wire) may cause mismatch in timing. The assertion fails because it does not properly consider the pipeline timing and the 64-bit case.
+
+2. Proposed fix:  
+Use a next-cycle assertion (`|=>`) triggered by `valid_i` (wire) to check the registered signal `div_unit.same_sign_q` in the next cycle. This matches the pipeline behavior where `same_sign_q` is updated on the clock edge after `valid_i` is asserted. Also, consider both 32-bit and 64-bit cases by using `div_unit.op_32_q` in the postcondition to select the correct sign bits for comparison. Use `$past()` on the inputs `data_rs1_i` and `data_rs2_i` in the postcondition to refer to their values at the cycle of the precondition, since the postcondition is evaluated in the next cycle.
+
+3. Corrected assertion:
+
+```systemverilog
+as__SameSignDReflectsOperandSigns32: assert property (valid_i |=> (div_unit.same_sign_q == (div_unit.op_32_q ? ~($past(data_rs2_i)[31] ^ $past(data_rs1_i)[31]) : ~($past(data_rs2_i)[63] ^ $past(data_rs1_i)[63]))));
+```

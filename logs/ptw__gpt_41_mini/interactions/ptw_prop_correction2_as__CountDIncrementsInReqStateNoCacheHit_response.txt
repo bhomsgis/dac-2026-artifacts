@@ -1,0 +1,7 @@
+1. The original assertion fails because it uses a same-cycle implication (|->) to check that count_d increments when in state S_REQ and no cache hit. However, count_d is a combinational signal updated in always_comb and count_q is the registered version updated on the clock edge. The increment of count_q reflecting count_d happens in the next cycle after the state transition. Also, the original assertion does not consider that the increment only happens when dmem_ready is asserted to move forward. Hence, the assertion is checking count_d increment in the same cycle as the precondition, which is not guaranteed.
+
+2. The fix is to use a next-cycle implication (|=>) to check that when in state S_REQ with no cache hit and dmem_ready asserted in the current cycle, the registered count_q in the next cycle equals the previous count_q plus one. This matches the pipeline behavior where count_q updates on the clock edge following the conditions. Also, the postcondition uses $past() to refer to the previous cycle's count_q and dmem_ready signals, as per the rules.
+
+3. Corrected assertion:
+
+as__CountDIncrementsInReqStateNoCacheHit: assert property((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && ptw.dmem_ptw_comm_i.dmem_ready) |=> (ptw.count_q == ($past(ptw.count_q) + 1'b1)));

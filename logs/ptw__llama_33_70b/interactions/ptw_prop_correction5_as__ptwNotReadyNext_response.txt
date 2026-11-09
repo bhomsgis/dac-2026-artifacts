@@ -1,0 +1,3 @@
+```systemverilog
+as__ptwNotReadyNext: assert property(!ptw.ptw_ready |=> (ptw.next_state != ptw.S_READY) && ($past(ptw.ptw_ready) == 1'b0) && ($past(ptw.current_state) != ptw.S_ERROR) && ($past(ptw.current_state) != ptw.S_DONE) && ($past(ptw.current_state) != ptw.S_WAIT) && ($past(ptw.current_state) != ptw.S_REQ) && ($past(ptw.count_q) < $unsigned(LEVELS-1)));
+```

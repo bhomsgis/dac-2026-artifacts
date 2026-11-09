@@ -1,0 +1,6 @@
+// The original assertion fails because it checks mul_unit.result_32 (a wire) at the same cycle as mul_unit.valid_q[1], but mul_unit.result_32 is combinational and updated from mul_unit.result_low_d and neg_q, which are registered at the previous cycle. The assertion should check the registered version mul_unit.result_32_q at cycle valid_q[1], and sign-extend from the lower 32 bits of mul_unit.result_32_q itself, not from mul_unit.result_32_aux which is not registered. Also, the assertion should be a next-cycle assertion (|=>) because valid_q[1] is a register updated at posedge clk, so the result_32_q is valid at the same cycle as valid_q[1]. The postcondition should use $past() on the signals that are wires in the precondition cycle to avoid mismatch.
+
+// The fix is to use a next-cycle assertion on mul_unit.valid_q[1] and check that mul_unit.result_32_q equals the sign-extended lower 32 bits of mul_unit.result_32_q itself, using $past() on the lower 32 bits and the sign bit to reflect the value at the precondition cycle. This matches the pipeline timing and uses registered signals consistently.
+
+// Corrected assertion:
+as__Result32SignExtendedCorrectOnValidQ1: assert property (mul_unit.valid_q[1] |=> mul_unit.result_32_q == {{{(mul_unit.WIDTH-32){$past(mul_unit.result_32_q[31])}}, $past(mul_unit.result_32_q[31:0])}});

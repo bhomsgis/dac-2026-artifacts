@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking the value of `ptw_arb.tlb_ptw_comm_o` in the same cycle as the precondition, but `ptw_arb.tlb_ptw_comm_o` is a wire that is assigned a value in the same cycle based on the current state and other inputs. However, the value of `ptw_arb.tlb_ptw_comm_o` is not guaranteed to be updated yet, as it depends on the combinational logic in the `always_comb` block.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), to check the value of `ptw_arb.tlb_ptw_comm_o` in the next cycle, after the combinational logic has had a chance to update its value.
+
+Here is the corrected assertion:
+
+```
+as__IdleToServingdTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && itlb_ptw_comm_i.req.valid == 1'b0 |=> ptw_arb.tlb_ptw_comm_o == $past(dtlb_ptw_comm_i));
+```
+
+This assertion checks that when the current state is IDLE, and there is a valid request from the dTLB but not from the iTLB, then in the next cycle, the value of `ptw_arb.tlb_ptw_comm_o` is equal to the value of `dtlb_ptw_comm_i` in the previous cycle.

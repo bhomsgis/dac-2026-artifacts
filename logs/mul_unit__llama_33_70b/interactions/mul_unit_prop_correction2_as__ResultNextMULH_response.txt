@@ -1,0 +1,17 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultNextMULH: assert property(valid_i && op_i == mul_unit.MULH |=> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` checks if the result of the MULH operation is correctly assigned to the output `result_o` in the next cycle.
+2. **Identifying the issue**: The assertion might be failing because it does not consider the pipeline behavior and timing of the `mul_unit`. Specifically, it does not account for the fact that the `result_2width_def` signal is updated in the next cycle, and its value in the current cycle is not the same as the value that will be assigned to `result_o` in the next cycle.
+3. **Analyzing the RTL**: The RTL code shows that the `result_2width_def` signal is assigned in the same cycle, but its value depends on the `neg_q_final` signal, which is updated in the next cycle. This means that the value of `result_2width_def` in the current cycle is not the same as the value that will be assigned to `result_o` in the next cycle.
+
+# Fixed solution:
+```systemverilog
+as__ResultNextMULH: assert property(valid_i && op_i == mul_unit.MULH |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Using $past()**: The `$past()` function is used to refer to the value of the `result_2width_def` signal in the previous cycle, which is the value that will be assigned to `result_o` in the next cycle.
+* **Correcting the indexing**: The indexing of the `result_2width_def` signal is corrected to match the width of the `result_o` signal.
+
+# Tests and example uses:
+* This assertion can be tested by simulating the `mul_unit` module with different input values and checking if the assertion passes or fails.
+* The assertion can be used to verify the correctness of the `mul_unit` module and ensure that it produces the expected output for the MULH operation.

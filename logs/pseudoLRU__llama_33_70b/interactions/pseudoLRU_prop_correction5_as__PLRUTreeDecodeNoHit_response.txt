@@ -1,0 +1,12 @@
+```systemverilog
+// Check that when there is no hit, the access array should not have all bits set
+as__PLRUTreeDecodeNoHit: assert property(!access_hit_i |-> !(&pseudoLRU.access_array[access_idx_i]));
+// Check that when there is a hit, the access array should have the corresponding bit set
+as__PLRUTreeDecodeHit: assert property(access_hit_i |-> pseudoLRU.access_array[access_idx_i]);
+// Check that the replacement index is valid
+as__PLRUTreeReplacementIndexValid: assert property(|pseudoLRU.replace_en |-> $countones(pseudoLRU.replace_en) == 1);
+// Check that the replacement index is correctly encoded
+as__PLRUTreeReplacementIndexEncoded: assert property(|pseudoLRU.replace_en |-> pseudoLRU.replacement_idx_o == cast_integer($past(pseudoLRU.access_idx_i)));
+// Check that the PLRU tree is updated correctly
+as__PLRUTreeUpdate: assert property(access_hit_i |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+```

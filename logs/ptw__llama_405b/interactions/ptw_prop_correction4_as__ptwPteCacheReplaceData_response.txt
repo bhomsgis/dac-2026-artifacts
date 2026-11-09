@@ -1,0 +1,29 @@
+The current assertion is failing because it's checking if the `ptecache_entry` at the `plru_eviction_idx` index is updated with the new PTE data in the same cycle when the cache is full and there's a hit. However, the update of the `ptecache_entry` happens in the next cycle, as it's a registered signal.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) and check the value of `ptecache_entry` at the `plru_eviction_idx` index in the next cycle.
+
+Here's the corrected assertion:
+
+```
+as__ptwPteCacheReplaceData: assert property(ptw.full_cache && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[ptw.plru_eviction_idx].data == $past(ptw.pte.ppn));
+```
+
+However, this assertion is still not correct, as it's using `$past(ptw.pte.ppn)` which is not necessary. The `ptw.pte.ppn` is already available in the current cycle, so we can use it directly.
+
+Here's the corrected assertion:
+
+```
+as__ptwPteCacheReplaceData: assert property(ptw.full_cache && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[ptw.plru_eviction_idx].data == ptw.pte.ppn);
+```
+
+However, this is the same as Attempt 2, which didn't work. Let's re-examine the code.
+
+The issue is that the `ptecache_entry` is updated in the next cycle, but the `plru_eviction_idx` is also updated in the next cycle. So, we need to use the current value of `plru_eviction_idx` to access the `ptecache_entry` in the next cycle.
+
+Here's the corrected assertion:
+
+```
+as__ptwPteCacheReplaceData: assert property(ptw.full_cache && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[$past(ptw.plru_eviction_idx)].data == ptw.pte.ppn);
+```
+
+This assertion should correctly check if the `ptecache_entry` at the `plru_eviction_idx` index is updated with the new PTE data in the next cycle when the cache is full and there's a hit.

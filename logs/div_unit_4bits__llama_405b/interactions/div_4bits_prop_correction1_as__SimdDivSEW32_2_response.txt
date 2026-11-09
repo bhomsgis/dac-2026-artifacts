@@ -1,0 +1,17 @@
+The current assertion is failing because it is trying to check the value of `tmp_remanent[0]` in the same cycle as `sew_i` is checked. However, `tmp_remanent[0]` is a combinatorial signal that depends on `tmp_remanent_sub[1]` and `tmp_dividend_quotient[1]`, which are also combinatorial signals that depend on `sew_i`. This means that there is a delay of at least one cycle between the time `sew_i` is set and the time `tmp_remanent[0]` is updated.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). We also need to use `$past()` to refer to the value of `sew_i` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__SimdDivSEW32_2: assert property(sew_i == 2'b10 |=> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][31]});
+```
+
+However, this is still not correct, because we are not considering the case where `SIMD_ENABLE` is 0. In this case, `tmp_remanent[0]` is updated differently. To fix this, we need to add a condition to the assertion to check if `SIMD_ENABLE` is 1.
+
+Here is the corrected assertion:
+
+```
+as__SimdDivSEW32_2: assert property(SIMD_ENABLE && sew_i == 2'b10 |=> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][31]});
+```

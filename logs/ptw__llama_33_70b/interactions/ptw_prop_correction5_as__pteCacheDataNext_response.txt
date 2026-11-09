@@ -1,0 +1,1 @@
+as__pteCacheDataNext: assert property(ptw.pte_cache_hit |=> (ptw.pte_cache_data_q == ptw.ptecache_entry[trunc_ptw_cache_size($past(ptw.hit_idx))].data));

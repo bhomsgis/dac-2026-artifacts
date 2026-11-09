@@ -1,0 +1,13 @@
+The current assertion `as__NoInvalidOp: assert property(!(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));` is failing because it is checking if the operation is valid and the operation code is unknown (`{MUL_OPS_BITS{1'bx}}`) in the same cycle. However, this assertion does not consider the pipeline behavior and timing of the `mul_unit` module.
+
+The proposed fix is to check if the operation is valid and the operation code is unknown in the same cycle, considering the pipeline behavior and timing. Since `op_i` is a wire and its value can change in the same cycle, we should use a same-cycle assertion (`|->`) to reason about its behavior.
+
+However, the issue here is that `op_i` is being compared to `{MUL_OPS_BITS{1'bx}}`, which means all bits are unknown. In SystemVerilog, comparing a signal to an unknown value (`1'bx`) will always result in unknown, because the comparison itself is unknown. 
+
+To fix this, we need to check if `op_i` is unknown, which can be done using the `$isunknown` function. 
+
+Here is the corrected assertion:
+
+```systemverilog
+as__NoInvalidOp: assert property(!(valid_o && $isunknown(op_i)));
+```

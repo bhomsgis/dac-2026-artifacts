@@ -1,0 +1,10 @@
+The current assertion `as__pmuPtwhitONotNext: assert property(!pmu_ptw_hit_o |=> (ptw.current_state != ptw.S_REQ || !ptw.pte_cache_hit));` might be failing because it does not accurately capture the relationship between `pmu_ptw_hit_o` and the state of the page table walker.
+
+The assertion checks that if `pmu_ptw_hit_o` is not asserted in the current cycle, then in the next cycle, either the page table walker is not in the `S_REQ` state or `pte_cache_hit` is not asserted. However, this assertion does not consider the case where `pmu_ptw_hit_o` is asserted in the current cycle, and the page table walker is in the `S_REQ` state but `pte_cache_hit` is asserted.
+
+A corrected version of the assertion should consider the relationship between `pmu_ptw_hit_o`, `ptw.current_state`, and `ptw.pte_cache_hit` in the context of the page table walker's state machine.
+
+Here is a corrected assertion:
+```systemverilog
+as__pmuPtwhitONotNext: assert property(!pmu_ptw_hit_o |=> ($past(ptw.current_state) == ptw.S_REQ && $past(ptw.pte_cache_hit) && ptw.current_state != ptw.S_REQ || ptw.current_state != ptw.S_REQ || !$past(ptw.pte_cache_hit)));
+```

@@ -1,0 +1,16 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The assertion `as__ResultNextMULH` checks if the result of the `MULH` operation is correct. It asserts that when `valid_i` is high and `op_i` is `MULH`, the result in the next cycle (`result_o`) should be equal to the high part of the result of the multiplication (`mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]`).
+2. **Identifying the issue**: The assertion is failing because it does not correctly account for the pipeline behavior of the `mul_unit`. Specifically, it does not consider the case where the result is not yet available in the next cycle.
+3. **Analyzing the pipeline behavior**: The `mul_unit` has a pipeline with two stages. The first stage computes the low and high parts of the result, and the second stage combines these parts to produce the final result. The assertion should account for this pipeline behavior.
+
+# Fixed solution:
+```systemverilog
+as__ResultNextMULH: assert property(valid_i && op_i == mul_unit.MULH |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Using `$past`**: We use `$past` to refer to the value of `mul_unit.result_2width_def` in the previous cycle, which is when the result was computed.
+* **Correcting the indexing**: We use the correct indexing for the high part of the result, which is `mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH`.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` with different inputs and checking that the assertion passes. For example, we can test the `MULH` operation with different operands and check that the result is correct.

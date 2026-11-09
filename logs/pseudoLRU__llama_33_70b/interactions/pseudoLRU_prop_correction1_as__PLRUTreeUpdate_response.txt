@@ -1,0 +1,3 @@
+```systemverilog
+as__PLRUTreeUpdate: assert property(pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+```

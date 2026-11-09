@@ -1,0 +1,60 @@
+// Check that store_hit is set correctly based on dirty bit and write permission
+as__store_hit_correct: assert property ((cache_tlb_comm_i.req.store && tlb_hit) |-> (store_hit == (tlb_entries[hit_idx].dirty || !write_ok)));
+// Check that tlb_hit implies vm_enable and hit_cam and store_hit
+as__tlb_hit_correct: assert property (tlb_hit |-> (vm_enable && hit_cam && store_hit));
+// Check that tlb_miss implies vm_enable and no hit_cam
+as__tlb_miss_correct: assert property (tlb_miss |-> (vm_enable && !hit_cam));
+// Check that eviction_idx is either invalid_idx if has_invalid_entry or plru_eviction_idx otherwise
+as__eviction_idx_valid: assert property (((has_invalid_entry && (eviction_idx == invalid_idx)) || (!has_invalid_entry && (eviction_idx == plru_eviction_idx))));
+// Check that if send_tlb_req is asserted then tlb_ptw_comm_o.req fields match tlb_req_tmp and cache_tlb_comm_i.priv_lvl
+as__ptw_req_fields_correct: assert property (send_tlb_req |-> (tlb_ptw_comm_o.req.valid && (tlb_ptw_comm_o.req.vpn == tlb_req_tmp.vpn) && (tlb_ptw_comm_o.req.asid == tlb_req_tmp.asid) && (tlb_ptw_comm_o.req.prv == cache_tlb_comm_i.priv_lvl) && (tlb_ptw_comm_o.req.store == tlb_req_tmp.store) && (tlb_ptw_comm_o.req.fetch == tlb_req_tmp.fetch)));
+// Check that when not sending tlb request, tlb_ptw_comm_o.req is zero
+as__ptw_req_zero_when_not_send: assert property ((!send_tlb_req) |-> (tlb_ptw_comm_o.req == '0));
+// Check that pmu_tlb_access_o is asserted only when pmu_tlb_access is asserted in IDLE state with valid request
+as__pmu_tlb_access_correct: assert property ((current_state == IDLE && cache_tlb_comm_i.req.valid) |-> pmu_tlb_access_o);
+// Check that pmu_tlb_miss_o is asserted only when pmu_tlb_miss is asserted in IDLE state with tlb_miss
+as__pmu_tlb_miss_correct: assert property ((current_state == IDLE && cache_tlb_comm_i.req.valid && tlb_miss) |-> pmu_tlb_miss_o);
+// Check that tlb_ready is asserted only in IDLE state
+as__tlb_ready_only_in_idle: assert property (tlb_ready |-> (current_state == IDLE));
+// Check that write_tlb is asserted only in WAIT_RESPONSE state when ptw_tlb_comm_i.resp.valid is asserted
+as__write_tlb_correct: assert property ((current_state == WAIT_RESPONSE && ptw_tlb_comm_i.resp.valid) |-> write_tlb);
+// Check that clear_tlb is asserted when ptw_tlb_comm_i.invalidate_tlb or clean_tlb is asserted
+as__clear_tlb_correct: assert property ((ptw_tlb_comm_i.invalidate_tlb || clean_tlb) |-> clear_tlb);
+// Check that clear_mask bits are set only for invalid entries or for hit_idx when hit_cam and !store_hit during clean_tlb
+as__clear_mask_correct: assert property (clean_tlb |-> (&(clear_mask <= ({TLB_ENTRIES{1'b1}})) && (|clear_mask)));
+// Check that tlb_entries[write_idx].valid is set to !ptw_tlb_comm_i.resp.error when write_tlb is asserted
+as__tlb_entry_valid_set: assert property (write_tlb |-> (tlb_entries[write_idx].valid == !ptw_tlb_comm_i.resp.error));
+// Check that tlb_entries[write_idx].nempty is set to 1 when write_tlb is asserted
+as__tlb_entry_nempty_set: assert property (write_tlb |-> (tlb_entries[write_idx].nempty == 1'b1));
+// Check that tlb_entries[write_idx].perms fields are set correctly based on ptw_tlb_comm_i.resp.pte fields when write_tlb is asserted
+as__tlb_entry_perms_set: assert property (write_tlb |-> (tlb_entries[write_idx].perms.ur == (ptw_tlb_comm_i.resp.pte.r && ptw_tlb_comm_i.resp.pte.u && ptw_tlb_comm_i.resp.pte.v) && tlb_entries[write_idx].perms.uw == (ptw_tlb_comm_i.resp.pte.w && ptw_tlb_comm_i.resp.pte.u && ptw_tlb_comm_i.resp.pte.v) && tlb_entries[write_idx].perms.ux == (ptw_tlb_comm_i.resp.pte.x && ptw_tlb_comm_i.resp.pte.u && ptw_tlb_comm_i.resp.pte.v) && tlb_entries[write_idx].perms.sr == (ptw_tlb_comm_i.resp.pte.r && !ptw_tlb_comm_i.resp.pte.u && ptw_tlb_comm_i.resp.pte.v) && tlb_entries[write_idx].perms.sw == (ptw_tlb_comm_i.resp.pte.w && !ptw_tlb_comm_i.resp.pte.u && ptw_tlb_comm_i.resp.pte.v) && tlb_entries[write_idx].perms.sx == (ptw_tlb_comm_i.resp.pte.x && !ptw_tlb_comm_i.resp.pte.u && ptw_tlb_comm_i.resp.pte.v)));
+// Check that tlb_entries[write_idx].vpn and asid and ppn and level and dirty and access are set correctly when write_tlb is asserted
+as__tlb_entry_fields_set: assert property (write_tlb |-> (tlb_entries[write_idx].vpn == tlb_req_tmp.vpn && tlb_entries[write_idx].asid == tlb_req_tmp.asid && tlb_entries[write_idx].ppn == ptw_tlb_comm_i.resp.pte.ppn && tlb_entries[write_idx].level == ptw_tlb_comm_i.resp.level && tlb_entries[write_idx].dirty == ptw_tlb_comm_i.resp.pte.d && tlb_entries[write_idx].access == ptw_tlb_comm_i.resp.pte.a));
+// Check that hit_idx is one of the indices where hits_cam is 1 when hit_cam is asserted
+as__hit_idx_valid: assert property (hit_cam |-> hits_cam[hit_idx]);
+// Check that only one bit of hits_cam is set at a time
+as__hits_cam_one_hot: assert property (|hits_cam |-> ($countones(hits_cam) == 1));
+// Check that hit_k, hit_m, hit_g correspond to hits_k, hits_m, hits_g respectively
+as__hit_level_correct: assert property ((hit_k == (|hits_k)) && (hit_m == (|hits_m)) && (hit_g == (|hits_g)));
+// Check that tlb_cache_comm_o.resp.miss matches tlb_miss
+as__resp_miss_matches_tlb_miss: assert property (tlb_cache_comm_o.resp.miss == tlb_miss);
+// Check that tlb_cache_comm_o.tlb_ready matches tlb_ready
+as__resp_ready_matches_tlb_ready: assert property (tlb_cache_comm_o.tlb_ready == tlb_ready);
+// Check that pmu_tlb_access_o matches pmu_tlb_access
+as__pmu_tlb_access_o_correct: assert property (pmu_tlb_access_o == pmu_tlb_access);
+// Check that pmu_tlb_miss_o matches pmu_tlb_miss
+as__pmu_tlb_miss_o_correct: assert property (pmu_tlb_miss_o == pmu_tlb_miss);
+// Check that xcpt_if is asserted only when vm_enable and (tlb_hit and !exec_ok) or tlb_entry_access_is_zero
+as__xcpt_if_correct: assert property (xcpt_if == (vm_enable && ((tlb_hit && !exec_ok) || tlb_entry_access_is_zero)));
+// Check that xcpt_st is asserted only when vm_enable and (tlb_hit and !write_ok) or tlb_entry_access_is_zero or tlb_entry_dirty_is_zero
+as__xcpt_st_correct: assert property (xcpt_st == (vm_enable && ((tlb_hit && !write_ok) || tlb_entry_access_is_zero || tlb_entry_dirty_is_zero)));
+// Check that xcpt_ld is asserted only when vm_enable and (tlb_hit and !read_ok) or tlb_entry_access_is_zero
+as__xcpt_ld_correct: assert property (xcpt_ld == (vm_enable && ((tlb_hit && !read_ok) || tlb_entry_access_is_zero)));
+// Check that tlb_cache_comm_o.resp.xcpt.load matches xcpt_ld
+as__resp_xcpt_load_correct: assert property (tlb_cache_comm_o.resp.xcpt.load == xcpt_ld);
+// Check that tlb_cache_comm_o.resp.xcpt.store matches xcpt_st
+as__resp_xcpt_store_correct: assert property (tlb_cache_comm_o.resp.xcpt.store == xcpt_st);
+// Check that tlb_cache_comm_o.resp.xcpt.fetch matches xcpt_if
+as__resp_xcpt_fetch_correct: assert property (tlb_cache_comm_o.resp.xcpt.fetch == xcpt_if);
+// Check that tlb_cache_comm_o.resp.hit_idx is zero
+as__resp_hit_idx_zero: assert property (tlb_cache_comm_o.resp.hit_idx == 'h0);

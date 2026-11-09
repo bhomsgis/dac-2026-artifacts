@@ -1,0 +1,37 @@
+The current assertion is failing because it is checking if the `flush` signal is high, then in the next cycle, it checks if the `valid` bit of the `ptecache_entry` at the `hit_idx` index is low. However, the `flush` signal is used to invalidate all the entries in the PTE cache, not just the one at the `hit_idx` index.
+
+The proposed fix is to check if all the `valid` bits of the `ptecache_entry` are low after the `flush` signal is high.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> !(|ptw.ptecache_entry.valid));
+```
+
+However, this assertion is still not correct because it will fail when the PTE cache is not full. A better approach is to check if the `valid` bits of the `ptecache_entry` are all low after the `flush` signal is high, regardless of the state of the PTE cache.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> &(!ptw.ptecache_entry.valid));
+```
+
+However, this is the same as Attempt 3, which didn't work. Let's try a different approach.
+
+The issue is that the `flush` signal is used to invalidate all the entries in the PTE cache, but the `ptecache_entry` is a vector of structures, and the `valid` bit is a field of each structure. To check if all the `valid` bits are low, we need to use a generate loop to iterate over the `ptecache_entry` vector.
+
+However, since we cannot use a foreach loop or a generate loop inside an assertion, we need to find a different way to check if all the `valid` bits are low.
+
+One possible solution is to create a new signal that is the OR of all the `valid` bits, and then check if this signal is low after the `flush` signal is high.
+
+However, since we cannot add new signals to the property file, we need to find a different way to check if all the `valid` bits are low.
+
+After re-reading the RTL code, I noticed that there is a signal called `full_cache` that is the AND of all the `valid` bits. We can use this signal to check if all the `valid` bits are low.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> !ptw.full_cache);
+```
+
+This assertion checks if the `full_cache` signal is low after the `flush` signal is high, which means that all the `valid` bits are low.

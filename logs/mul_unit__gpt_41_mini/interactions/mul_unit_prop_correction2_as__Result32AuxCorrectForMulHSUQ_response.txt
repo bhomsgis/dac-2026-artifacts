@@ -1,0 +1,9 @@
+// The original assertion fails because it uses a same-cycle assertion (|->) to check a registered signal result_32_aux which is combinationally assigned from neg_q and result_low_d, both registered signals updated in the previous cycle. The assertion checks result_32_aux in the same cycle as op_q == 2, but result_32_aux reflects neg_q and result_low_d from the previous cycle. Thus, the assertion should be a next-cycle assertion (|=>) and use $past() on neg_q and result_low_d to match the pipeline timing.
+
+// The previous attempt used a next-cycle assertion but only referenced $past() on neg_q and result_low_d without considering that result_32_aux is combinationally assigned from neg_q and result_low_d in the same cycle. Also, it did not consider op_32bits_q which affects the width of the result. The assertion should check that when op_q == 2 (MULHSU) and op_32bits_q is set, result_32_aux matches the sign-corrected low part of result_low_d from the previous cycle.
+
+// Corrected assertion uses a next-cycle assertion (|=>) with precondition on op_q == 2 and op_32bits_q, and postcondition comparing mul_unit.result_32_aux to the expected value computed from $past(mul_unit.neg_q) and $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]).
+
+// Corrected assertion:
+
+as__Result32AuxCorrectForMulHSUQ: assert property ((mul_unit.op_q == 2 && mul_unit.op_32bits_q) |=> mul_unit.result_32_aux == ($past(mul_unit.neg_q) ? (~$past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0])));

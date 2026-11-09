@@ -1,0 +1,166 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a mul_unit. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the mul_unit interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of mul_unit but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+
+Our SystemVerilog Assertions property file has assertions that are flawed, the name of the RTL module ismul_unit
+Correct the syntax errors of the assertions. The current error output from JasperGold is:
+[ERROR (VERI-1128)] ft_mul_unit/sva/mul_unit_prop.sv(54): 'MULHU' is not declared
+
+Here is the current version of the assertions:
+  as__NoInvalidValidNext: assert property(valid_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNext: assert property(valid_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNext: assert property(valid_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNext: assert property(valid_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULHUNext: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult64Next: assert property(valid_i && op_i != MULHU && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidResult32Next: assert property(valid_i && op_i == MULHU && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidValidNext64: assert property(valid_i && op_i != MULHU && !op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNext64: assert property(valid_i && op_i != MULHU && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNext64: assert property(valid_i && op_i != MULHU && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNext64: assert property(valid_i && op_i != MULHU && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNext64: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNext64: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNext64: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNext64: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32Next64: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__ValidOutputNextMULH: assert property(valid_i && op_i == MULH |=> valid_o == 1'b1);
+  as__ValidOutputNextMULHSU: assert property(valid_i && op_i == MULHSU |=> valid_o == 1'b1);
+  as__ValidOutputNextMULHU: assert property(valid_i && op_i == MULHU |=> valid_o == 1'b1);
+  as__NoInvalidValidNextMUL: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMUL: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMUL: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMUL: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMUL: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMUL: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMUL: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMUL: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMUL: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidValidNextMUL32: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMUL32: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMUL32: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMUL32: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMUL32: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidResultMULHNextMUL32: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMUL32: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMUL32: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMUL32: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidValidNextMUL64: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMUL64: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMUL64: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMUL64: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMUL64: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMUL64: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMUL64: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMUL64: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMUL64: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__ValidOutputNextMULHSU_1: assert property(valid_i && op_i == MULHSU |=> valid_o == 1'b1);
+  as__NoInvalidValidNextMULHSU: assert property(valid_i && op_i == MULHSU |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMULHSU: assert property(valid_i && op_i == MULHSU |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMULHSU: assert property(valid_i && op_i == MULHSU |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMULHSU: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMULHSU: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMULHSU: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMULHSU: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMULHSU: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMULHSU: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__ValidOutputNextMULHU_1: assert property(valid_i && op_i == MULHU |=> valid_o == 1'b1);
+  as__NoInvalidValidNextMULHU: assert property(valid_i && op_i == MULHU |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMULHU: assert property(valid_i && op_i == MULHU |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMULHU: assert property(valid_i && op_i == MULHU |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMULHU: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMULHU: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMULHU: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMULHU: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMULHU: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMULHU: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidValidNextMUL32_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMUL32_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMUL32_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMUL32_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMUL32_2: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMUL32_2: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMUL32_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMUL32_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMUL32_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidValidNextMUL64_2: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMUL64_2: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMUL64_2: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMUL64_2: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMUL64_2: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMUL64_2: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMUL64_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMUL64_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMUL64_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__ValidOutputNextMULHSU_2: assert property(valid_i && op_i == MULHSU |=> valid_o == 1'b1);
+  as__NoInvalidValidNextMULHSU_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMULHSU_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMULHSU_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMULHSU_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMULHSU_2: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMULHSU_2: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMULHSU_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMULHSU_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMULHSU_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__ValidOutputNextMULHU_2: assert property(valid_i && op_i == MULHU |=> valid_o == 1'b1);
+  as__NoInvalidValidNextMULHU_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMULHU_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMULHU_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMULHU_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMULHU_2: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMULHU_2: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMULHU_2: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMULHU_2: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMULHU_2: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidValidNextMUL32_3: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMUL32_3: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMUL32_3: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMUL32_3: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMUL32_3: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMUL32_3: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMUL32_3: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMUL32_3: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMUL32_3: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__NoInvalidValidNextMUL64_3: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && valid_i == 1'b0));
+  as__NoInvalidOpNextMUL64_3: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));
+  as__NoInvalidDataNextMUL64_3: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));
+  as__NoInvalidResultNextMUL64_3: assert property(valid_i && op_i != MUL && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));
+  as__NoInvalidResultMULNextMUL64_3: assert property(valid_i && op_i == MUL && op_32bits_i |=> !(valid_o && result_o != (mul_unit.neg_q ? (~mul_unit.result_low_d[WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[WIDTH-1:0])));
+  as__NoInvalidResultMULHNextMUL64_3: assert property(valid_i && op_i == MULH |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHSUNextMUL64_3: assert property(valid_i && op_i == MULHSU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResultMULHUNextMUL64_3: assert property(valid_i && op_i == MULHU |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH*2-1:WIDTH]));
+  as__NoInvalidResult32NextMUL64_3: assert property(valid_i && op_i == MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));
+  as__ValidOutputNextMULHSU_3: assert property(valid_i && op_i == MULHSU |=> valid_o == 1'b1);
+  as__NoInvalidValidNextMULHSU_3: assert property(valid_i && op_i == MULHSU |=> !(valid_o && valid_i == 1'b0));
+Here is the RTL:
+[Internal RTL for mul_unit.sv omitted from this release.]
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'mul_unit.'
+TRY TO NOT REMOVE ANY ASSERTIONS, ONLY CORRECT THE SYNTAX ERRORS.

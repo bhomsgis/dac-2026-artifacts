@@ -1,0 +1,1 @@
+as__StateTransition4: assert property((ptw_arb.current_state == ptw_arb.SERVING_dTLB) && (ptw_tlb_comm_i.resp.valid) |=> (ptw_arb.next_state == ptw_arb.IDLE) && ($past(ptw_arb.current_state) == ptw_arb.SERVING_dTLB) && ($past(ptw_tlb_comm_i.resp.valid)) && ($past(ptw_arb.is_req_waiting_q) == 1'b0 || $past(ptw_arb.itlb_req_waiting_q.req.valid) == 1'b0));

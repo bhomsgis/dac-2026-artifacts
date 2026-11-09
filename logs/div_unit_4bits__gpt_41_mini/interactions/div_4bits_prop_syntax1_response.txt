@@ -1,0 +1,10 @@
+// Quotient bit 1 is set correctly based on comparison of tmp_remanent[1] and divisor_i
+as__QuotientBit1Correcteotid: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) |-> (div_4bits.quotient_bit[1] == 1'b1)) && ((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) |-> (div_4bits.quotient_bit[1] == 1'b0)));
+// tmp_remanent_sub[1] is correctly computed based on tmp_remanent[1] and divisor_i
+as__TmpRemanentSub1Correcteotid: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - div_4bits.divisor_i)) && ((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1])));
+// tmp_remanent[1] is correctly formed by shifting remanent_i and concatenating dividend_quotient_i bit WIDTH-1
+as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+// Quotient bit 0 is set correctly based on comparison of tmp_remanent[0] and divisor_i
+as__QuotientBit0Correcteotid: assert property(((div_4bits.tmp_remanent[0] >= div_4bits.divisor_i) |-> (div_4bits.quotient_bit[0] == 1'b1)) && ((div_4bits.tmp_remanent[0] < div_4bits.divisor_i) |-> (div_4bits.quotient_bit[0] == 1'b0)));
+// tmp_remanent_sub[0] is correctly computed based on tmp_remanent[0] and divisor_i
+as__TmpRemanentSub0Correcteotid: assert property(((div_4bits.tmp_remanent[0] >= div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - div_4bits.divisor_i)) && ((div_4bits.tmp_remanent[0] < div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0])));

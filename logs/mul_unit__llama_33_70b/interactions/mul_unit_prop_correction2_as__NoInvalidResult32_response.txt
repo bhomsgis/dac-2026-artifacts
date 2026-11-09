@@ -1,0 +1,18 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__NoInvalidResult32: assert property(!(valid_o && op_i == mul_unit.MUL && !op_32bits_i && result_o != mul_unit.result_2width_def[WIDTH-1:0]));` checks that when the output is valid, the operation is multiplication (`MUL`), and it's not a 32-bit operation, the result should be equal to the lower 32 bits of `result_2width_def`.
+2. **Identifying the issue**: The assertion is failing because it's not considering the pipeline behavior and timing of the `mul_unit`. Specifically, it's not accounting for the fact that `result_o` is assigned in the next cycle after the operation is performed.
+3. **Analyzing the RTL**: In the RTL, `result_o` is assigned in the next cycle after the operation is performed. This means that when `valid_o` is high, `result_o` is the result of the previous operation, not the current one.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidResult32: assert property(!(valid_o && $past(op_i) == mul_unit.MUL && !$past(op_32bits_i) && result_o != $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));
+```
+
+# Explanation of changes:
+* **Added `$past()`**: We added `$past()` to `op_i`, `op_32bits_i`, and `result_2width_def` to refer to their values in the previous cycle, which is when the operation was performed.
+* **Changed `op_i` to `$past(op_i)`**: We changed `op_i` to `$past(op_i)` to refer to the operation that was performed in the previous cycle, not the current one.
+* **Changed `op_32bits_i` to `$past(op_32bits_i)`**: We changed `op_32bits_i` to `$past(op_32bits_i)` to refer to the value of `op_32bits_i` in the previous cycle, not the current one.
+* **Changed `result_2width_def` to `$past(result_2width_def)`**: We changed `result_2width_def` to `$past(result_2width_def)` to refer to the value of `result_2width_def` in the previous cycle, not the current one.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` with different inputs and checking that the assertion is not triggered when the output is valid and the operation is multiplication, and it's not a 32-bit operation.

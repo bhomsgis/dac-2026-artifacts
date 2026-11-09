@@ -1,0 +1,9 @@
+The current assertion is failing because it's trying to check the value of `same_sign_q` in the next cycle after `valid_i` is asserted, but it's using the current cycle's values of `op_32bits_i`, `data_rs2_i`, and `data_rs1_i` to calculate the expected value of `same_sign_q`. 
+
+However, the values of `op_32bits_i`, `data_rs2_i`, and `data_rs1_i` are only used to calculate the value of `same_sign_d` in the same cycle when `valid_i` is asserted. The value of `same_sign_q` in the next cycle will be the value of `same_sign_d` from the current cycle, which is not necessarily the same as the value calculated using the current cycle's values of `op_32bits_i`, `data_rs2_i`, and `data_rs1_i`.
+
+To fix this, we need to use the values of `op_32bits_i`, `data_rs2_i`, and `data_rs1_i` from the current cycle to calculate the expected value of `same_sign_d` in the current cycle, and then compare it with the value of `same_sign_q` in the next cycle.
+
+Here is the corrected assertion:
+
+as__SameSignQUpdate: assert property(valid_i |=> div_unit.same_sign_q == $past((div_unit.op_32_q) ? ~(data_rs2_i[31] ^ data_rs1_i[31]) : ~(data_rs2_i[63] ^ data_rs1_i[63])));

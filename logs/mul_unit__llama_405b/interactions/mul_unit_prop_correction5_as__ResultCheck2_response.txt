@@ -1,0 +1,11 @@
+The current assertion is failing because it's not considering the pipeline behavior and timing of the `mul_unit` module. The `result_o` signal is assigned based on the `op_32bits_q_final` and `REG_32` parameters, which are updated in the second stage of the pipeline. However, the assertion is checking the `result_o` signal in the same cycle as the `valid_i` and `op_i` signals, which are inputs to the first stage of the pipeline.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the `result_o` signal in the next cycle, after the pipeline has updated the `op_32bits_q_final` and `REG_32` parameters.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck2: assert property((valid_i && (op_i == mul_unit.MUL)) |=> ((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? (result_o == $past(mul_unit.result_32_q)) : (result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0]))));
+```
+
+This assertion checks that if the input `valid_i` is high and the operation is a multiply (`op_i == mul_unit.MUL`), then in the next cycle, the `result_o` signal should match either the `result_32_q` signal (if `op_32bits_q_final` and `REG_32` are high and `CONFIG32` is low) or the `result_2width_def` signal (otherwise). The `$past` function is used to refer to the values of `result_32_q` and `result_2width_def` in the previous cycle.

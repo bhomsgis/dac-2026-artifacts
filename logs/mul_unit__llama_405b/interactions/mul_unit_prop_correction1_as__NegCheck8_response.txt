@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking the value of `neg_d` in the same cycle as the inputs `valid_i` and `op_i`. However, `neg_d` is a combinational signal that depends on `data_rs1_d` and `data_rs2_d`, which are also combinational signals that depend on `data_rs1_i` and `data_rs2_i`. This means that `neg_d` may not be stable yet when the assertion is checked.
+
+To fix this, we need to check the value of `neg_d` in the next cycle, after it has been registered in `neg_q`. We can do this by using a next-cycle assertion (`|=>`) and checking the value of `neg_q` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__NegCheck8: assert property((valid_i && (op_i == 2'b10)) |=> (mul_unit.neg_q == !mul_unit.same_sign));
+```
+
+This assertion checks that if `valid_i` is high and `op_i` is 2'b10 in the current cycle, then in the next cycle, `neg_q` should be equal to the inverse of `same_sign`. This ensures that the `neg_d` signal is correctly registered in `neg_q` and that the assertion is checking the correct value.

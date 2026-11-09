@@ -1,0 +1,4 @@
+```systemverilog
+// Check that the result of MULH operation is correct
+as__NoInvalidResultMULH: assert property(valid_o && op_i == mul_unit.MULH |=> result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+```

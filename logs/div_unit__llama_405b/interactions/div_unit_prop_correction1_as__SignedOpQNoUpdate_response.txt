@@ -1,0 +1,29 @@
+The current assertion is failing because it is checking if the `signed_op_q` signal does not update when `valid_i` is low. However, this is not entirely accurate. The `signed_op_q` signal is updated based on the `valid_i` signal, but it also depends on the `op_unsigned_i` signal. When `valid_i` is low, `signed_op_q` will retain its previous value, which is not necessarily the same as the previous value of `signed_op_q`.
+
+The proposed fix is to check if the `signed_op_q` signal does not update when `valid_i` is low, and also consider the case when `op_unsigned_i` is high. We can do this by checking if `signed_op_q` is equal to its previous value when `valid_i` is low, and also if `op_unsigned_i` is high.
+
+Here is the corrected assertion:
+
+```
+as__SignedOpQNoUpdate: assert property(!valid_i |=> div_unit.signed_op_q == !div_unit.op_unsigned_i);
+```
+
+However, this is still not accurate, because `op_unsigned_i` is not necessarily the same as the previous value of `op_unsigned_i`. To fix this, we need to check if `signed_op_q` is equal to its previous value when `valid_i` is low.
+
+Here is the corrected assertion:
+
+```
+as__SignedOpQNoUpdate: assert property(!valid_i |=> div_unit.signed_op_q == $past(div_unit.signed_op_q));
+```
+
+Wait, this is the same as the original assertion. The issue here is that we are trying to check if `signed_op_q` does not update when `valid_i` is low, but we are not considering the fact that `signed_op_q` is a registered signal, and its value changes on the next clock cycle.
+
+To fix this, we need to check if `signed_op_q` is equal to its previous value on the next clock cycle when `valid_i` is low.
+
+Here is the corrected assertion:
+
+```
+as__SignedOpQNoUpdate: assert property(!valid_i |=> $stable(div_unit.signed_op_q));
+```
+
+The `$stable` function checks if the signal is stable, i.e., its value does not change on the next clock cycle. This is exactly what we need to check if `signed_op_q` does not update when `valid_i` is low.

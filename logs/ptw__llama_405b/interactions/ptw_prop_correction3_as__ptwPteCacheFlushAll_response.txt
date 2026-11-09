@@ -1,0 +1,27 @@
+The current assertion is failing because it is checking if all bits of `ptw.valid_vector` are zeros in the next cycle after `csr_ptw_comm_i.flush` is asserted. However, the `valid_vector` is updated in the same cycle as the `flush` signal, not in the next cycle.
+
+The proposed fix is to use a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`), like this:
+
+as__ptwPteCacheFlushAll: assert property(csr_ptw_comm_i.flush |-> !(&ptw.valid_vector));
+
+However, this fix was already tried in Attempt 1 and did not work.
+
+Upon further analysis, the issue is that the `valid_vector` is updated in the same cycle as the `flush` signal, but the update is done in a combinational block, not in a sequential block. This means that the update is not guaranteed to happen immediately, but rather after the combinational logic has settled.
+
+To fix this, we need to check the `valid_vector` in the next cycle, but after the combinational logic has settled. We can do this by using a next-cycle assertion (`|=>`) and checking the `$past` value of `csr_ptw_comm_i.flush`, like this:
+
+as__ptwPteCacheFlushAll: assert property($past(csr_ptw_comm_i.flush) |=> !(&ptw.valid_vector));
+
+However, this is not the correct solution either, as we are not supposed to use `$past` in the precondition of an assertion.
+
+The correct solution is to realize that the `flush` signal is not just a one-cycle pulse, but rather a level signal that remains high until the flush operation is complete. Therefore, we can check the `valid_vector` in the same cycle as the `flush` signal, but only when the `flush` signal is high, like this:
+
+as__ptwPteCacheFlushAll: assert property(csr_ptw_comm_i.flush |-> !(&ptw.valid_vector) || !csr_ptw_comm_i.flush);
+
+However, this is not the most elegant solution.
+
+A better solution is to check the `valid_vector` only when the `flush` signal is high and the `ptw` is in the `S_READY` state, which is the state where the `flush` operation is completed, like this:
+
+as__ptwPteCacheFlushAll: assert property(csr_ptw_comm_i.flush && ptw.current_state == ptw.S_READY |-> !(&ptw.valid_vector));
+
+This solution is more elegant and accurate, as it checks the `valid_vector` only when the `flush` operation is complete.

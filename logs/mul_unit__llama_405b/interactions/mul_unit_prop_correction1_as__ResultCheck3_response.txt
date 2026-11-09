@@ -1,0 +1,35 @@
+The assertion `as__ResultCheck3` is failing because it's checking the result of the multiplication in the same cycle as the input is provided, but the multiplication operation takes two cycles to complete. The result is not available until the next cycle.
+
+The assertion is also not considering the pipeline behavior of the `mul_unit` module. The result of the multiplication is stored in the `result_2width_def` signal, but this signal is not updated until the next cycle.
+
+To fix this assertion, we need to use a next-cycle assertion (`|=>`) to check the result of the multiplication in the next cycle. We also need to use `$past()` to refer to the value of the `op_i` signal in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |=> (result_o == mul_unit.result_2width_def[127:64]));
+```
+
+However, this is still not correct because the `result_o` signal is not necessarily updated with the result of the multiplication in the next cycle. The `result_o` signal is updated based on the `valid_q` signal, which is delayed by one cycle.
+
+To fix this, we need to check the `result` signal instead of `result_o`, and we need to use `$past()` to refer to the value of the `valid_q` signal in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |=> (mul_unit.result == mul_unit.result_2width_def[127:64]));
+```
+
+However, this is still not correct because we are not considering the case where `op_32bits_q_final` is high.
+
+Here is the corrected assertion:
+
+```
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |=> ((mul_unit.op_32bits_q_final) ? (result_o == mul_unit.result_32_q) : (mul_unit.result == mul_unit.result_2width_def[127:64])));
+```
+
+But we can simplify it:
+
+```
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |=> (result_o == mul_unit.result_2width_def[127:64]));
+```

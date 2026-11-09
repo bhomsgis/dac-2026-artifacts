@@ -1,0 +1,1 @@
+as__reqNotValidNext: assert property(!tlb_ptw_comm_i.req.valid |=> (ptw.next_state == ptw.S_READY) && ptw.count_q == $past(ptw.count_q) && ptw.current_state == $past(ptw.current_state) && !ptw.ptw_dmem_comm_o.req.valid && ptw.ptw_tlb_comm_o.resp.valid == $past(ptw.ptw_tlb_comm_o.resp.valid));

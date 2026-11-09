@@ -1,0 +1,9 @@
+The current assertion is failing because it's not considering the pipeline behavior of the `same_sign_q` signal. The `same_sign_q` signal is updated in the next cycle after `valid_i` is asserted, so the assertion should check the value of `same_sign_q` in the next cycle.
+
+The proposed fix is to use the `$past()` function to refer to the value of `op_32bits_i`, `data_rs2_i`, and `data_rs1_i` in the previous cycle, and compare it with the current value of `div_unit.same_sign_q`.
+
+Here is the corrected assertion:
+
+```
+as__SameSignQUpdate: assert property(valid_i |=> div_unit.same_sign_q == (( $past(op_32bits_i) ) ? ~( $past(data_rs2_i[31]) ^ $past(data_rs1_i[31]) ) : ~( $past(data_rs2_i[63]) ^ $past(data_rs1_i[63]) ) ));
+```

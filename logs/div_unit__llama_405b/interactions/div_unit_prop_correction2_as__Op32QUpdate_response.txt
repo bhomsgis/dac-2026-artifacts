@@ -1,0 +1,23 @@
+The current assertion is failing because it's checking if `div_unit.op_32_q` is equal to `op_32bits_i` in the next cycle after `valid_i` is asserted. However, `div_unit.op_32_q` is updated in the same cycle as `valid_i`, not in the next cycle.
+
+The proposed fix is to use a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`), since we want to check the value of `div_unit.op_32_q` in the same cycle as `valid_i`.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |-> div_unit.op_32_q == op_32bits_i);`
+
+However, this was already tried in Attempt 1 and didn't work. Let's analyze further.
+
+Upon closer inspection, we can see that `div_unit.op_32_q` is updated in the same cycle as `valid_i` only when `valid_i` is asserted. If `valid_i` is not asserted, `div_unit.op_32_q` will be updated with the value of `div_unit.op_32_d`, which is the previous value of `div_unit.op_32_q`. Therefore, we need to check if `valid_i` is asserted before checking the value of `div_unit.op_32_q`.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |-> (div_unit.op_32_q == op_32bits_i) || !valid_i);`
+
+However, this is not the best solution, as it will not check the value of `div_unit.op_32_q` when `valid_i` is not asserted. A better solution is to use a next-cycle assertion (`|=>`) and check the value of `div_unit.op_32_q` in the next cycle, but only when `valid_i` is asserted in the current cycle.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |=> div_unit.op_32_q == $past(op_32bits_i));`
+
+This assertion will check if `div_unit.op_32_q` is equal to the previous value of `op_32bits_i` in the next cycle after `valid_i` is asserted.

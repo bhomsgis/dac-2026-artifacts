@@ -1,0 +1,7 @@
+1. The current assertion is failing because it assumes a fixed bit index (div_4bits.WIDTH/2-1) for the bit concatenated to remanent_i[div_4bits.WIDTH-2:0] in tmp_remanent[1]. However, the RTL uses a dynamic bit index depending on the sew_i value when SIMD_ENABLE is set, selecting bit 7, 15, 31, or 63 accordingly. The original assertion does not account for this dynamic selection, causing mismatches in the expected value.
+
+2. The proposed fix is to write the assertion to reflect the dynamic selection of the bit from dividend_quotient_i based on sew_i when SIMD_ENABLE is enabled, and to use the highest bit (WIDTH-1) when SIMD_ENABLE is disabled (scalar mode). This matches the RTL behavior exactly. Since assertions cannot use foreach, we use a conditional expression on sew_i to select the correct bit index. This will ensure the assertion matches the RTL logic for all configurations and SEW values.
+
+3. Corrected assertion:
+
+as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63]})) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]}));

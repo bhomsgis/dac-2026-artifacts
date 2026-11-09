@@ -1,0 +1,6 @@
+// The original assertion fails because it checks op_32bits_i in the same cycle as op_i == 0, but op_32bits_i is registered to op_32bits_q and op_32bits_q_final in pipeline stages. The assertion must consider pipeline timing and check op_32bits_q or op_32bits_q_final depending on the latency of the operation. Also, op_i is registered to op_q and op_q_final, so the assertion should check these registered signals for correctness in the pipeline stage where op_32bits_q or op_32bits_q_final is valid.
+
+// The fix is to check that when the registered operation is MUL (op_q or op_q_final == 0), the corresponding registered op_32bits signal (op_32bits_q or op_32bits_q_final) is asserted. This must be done in a next-cycle assertion (|=>) to reflect pipeline register updates. Using op_q_final and op_32bits_q_final is appropriate for the final stage where the operation is valid and stable.
+
+// Corrected assertion:
+as__Op32BitsSetOnlyForMul: assert property (valid_q[1] && (op_q_final == 0) |=> op_32bits_q_final);

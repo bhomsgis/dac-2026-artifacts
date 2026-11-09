@@ -1,0 +1,9 @@
+The current assertion `as__ResultNextMULH: assert property(valid_i && op_i == mul_unit.MULH |=> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` might be failing because it does not consider the case when `op_32bits_i` is high and `REG_32` is true. In this case, the result is selected from `result_32_q` instead of `result_2width_def`.
+
+To fix this, we need to modify the assertion to consider the selection of the result based on `op_32bits_q_final` and `REG_32`. However, since we are checking the result of `MULH` operation, we should only consider the case when `op_i` is `MULH`. 
+
+Here is the corrected assertion:
+
+```systemverilog
+as__ResultNextMULH: assert property(valid_i && op_i == mul_unit.MULH |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```

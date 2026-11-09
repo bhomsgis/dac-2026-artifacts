@@ -1,0 +1,2 @@
+// The assertion fails because it checks same_sign_d (a combinational signal) in the same cycle as valid_i, but same_sign_d depends on op_32bits_i and operands which are registered into same_sign_q in the next cycle. The assertion should check same_sign_q in the next cycle after valid_i, using $past() to reference inputs at the time of valid_i.
+as__SameSignDReflectsOperandSigns: assert property (valid_i |=> div_unit.same_sign_q == ~($past(div_unit.op_32bits_i) ? ($past(data_rs2_i[31]) ^ $past(data_rs1_i[31])) : ($past(data_rs2_i[63]) ^ $past(data_rs1_i[63]))));

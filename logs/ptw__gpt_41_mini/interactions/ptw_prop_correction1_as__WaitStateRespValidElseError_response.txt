@@ -1,0 +1,3 @@
+// The assertion fails because the transition to S_ERROR occurs in the same cycle as dmem_ptw_comm_i.resp.valid is asserted, but next_state is updated only on the next clock edge. Therefore, the assertion should check next_state in the next cycle, not in the same cycle. Also, the original assertion does not consider the case when invalid_pte is true and is_pte_table and is_pte_leaf are false, which leads to S_ERROR. The fix is to use a next-cycle assertion (|=>) and include the correct precondition and postcondition with proper signal prefixes and timing.
+
+as__WaitStateRespValidElseError: assert property((ptw.current_state == ptw.S_WAIT && ptw.dmem_ptw_comm_i.resp.valid && !ptw.invalid_pte && !ptw.is_pte_table && !ptw.is_pte_leaf) |=> (ptw.next_state == ptw.S_ERROR));

@@ -1,0 +1,11 @@
+The current assertion is failing because it does not consider the case when there is a pending iTLB request waiting to be served. In this scenario, even if the dTLB request is valid, the arbiter will not transition to the SERVING_dTLB state immediately.
+
+The proposed fix is to add a condition to check if there is no pending iTLB request waiting to be served. This can be done by checking the `is_req_waiting_q` signal.
+
+Here is the corrected assertion:
+
+```
+as__IdleToServingdTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && ptw_arb.is_req_waiting_q == 1'b0 && itlb_ptw_comm_i.req.valid == 1'b0 |=> ptw_arb.next_state == ptw_arb.SERVING_dTLB);
+```
+
+This assertion checks that when the arbiter is in the IDLE state, and a valid dTLB request is received, and there is no pending iTLB request waiting to be served, and no valid iTLB request is received, then the arbiter transitions to the SERVING_dTLB state in the next cycle.

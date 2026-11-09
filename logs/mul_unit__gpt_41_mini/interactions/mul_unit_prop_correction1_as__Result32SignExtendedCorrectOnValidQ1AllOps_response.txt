@@ -1,0 +1,6 @@
+// The original assertion fails because it compares mul_unit.result_32 (a wire) directly in the next cycle after valid_q[1] is asserted, but result_32 is combinational and updated in the same cycle as valid_q[1]. The assertion uses |=> (next-cycle implication), so the postcondition is evaluated one cycle after valid_q[1], where result_32 may have changed. Also, the sign extension should be applied to result_32_aux, which is combinational and corresponds to the current cycle's result_32 value. The assertion must refer to the correct timing of signals and use $past() for wires in the postcondition of next-cycle assertions.
+
+// The fix is to use a same-cycle assertion (|->) because valid_q[1] and result_32 are combinationally related in the same cycle. This ensures the postcondition checks the assigned value of result_32 in the same cycle valid_q[1] is asserted. Also, the sign extension should be applied to mul_unit.result_32_aux, which is combinational and valid in the same cycle.
+
+// Corrected assertion:
+as__Result32SignExtendedCorrectOnValidQ1AllOps: assert property(mul_unit.valid_q[1] |-> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}}, mul_unit.result_32_aux[31:0]});

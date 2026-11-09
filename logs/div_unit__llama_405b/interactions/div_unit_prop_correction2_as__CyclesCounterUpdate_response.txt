@@ -1,0 +1,7 @@
+The current assertion is failing because it does not consider the case when `valid_i` is high. In this case, the `cycles_counter` is updated with a new value, which is not necessarily one less than the previous value.
+
+The proposed fix is to add a condition to the assertion to check if `valid_i` is high. If it is, then the `cycles_counter` should be updated with the new value. If not, then the `cycles_counter` should decrement by one.
+
+Here is the corrected assertion:
+
+as__CyclesCounterUpdate: assert property(div_unit.cycles_counter != 6'd0 && !div_unit.valid_i |=> div_unit.cycles_counter == $past(div_unit.cycles_counter) - 6'd1);

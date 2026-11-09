@@ -1,0 +1,11 @@
+Here is the corrected property file:
+
+```
+as__SignCheck2: assert property((valid_i && (op_i == 2'b10)) |-> (mul_unit.same_sign == ~(data_rs2_i[63] ^ data_rs1_i[63])));
+as__SignCheck3: assert property((valid_i && (op_i == 2'b11)) |-> (mul_unit.same_sign == ~(data_rs2_i[63] ^ data_rs1_i[63])));
+as__SignCheck4: assert property((valid_i && (op_i == 2'b00)) |-> (mul_unit.same_sign == ~(data_rs2_i[63] ^ data_rs1_i[63])));
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |-> (result_o == mul_unit.result_2width_def[127:64]));
+as__ResultCheck4: assert property((valid_i && (op_i == 2'b11)) |-> (result_o == mul_unit.result_2width_def[127:64]));
+as__ResultCheck5: assert property((valid_i && (op_i == 2'b00)) |-> (result_o == mul_unit.result_2width_def[127:64]));
+as__ValidCheck5: assert property((valid_i && !op_32bits_i) |-> (valid_o == mul_unit.valid_q[1]));
+```

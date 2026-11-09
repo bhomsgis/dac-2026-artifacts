@@ -1,0 +1,9 @@
+1. Analysis of failure:
+The original assertion checks that when op_q == 2 (MULHSU), the signal result_32_aux equals the sign-corrected lower WIDTH bits of result_low_d. However, the assertion directly compares mul_unit.result_32_aux to an expression involving mul_unit.result_low_d in the same cycle (|->). According to the RTL, result_32_aux is a wire assigned combinationally from neg_q and result_low_d. But neg_q and result_low_d are registered or combinational signals updated at different pipeline stages. Also, the assertion does not consider that for MULHSU, the negation depends on data_rs1_i sign bit, which is registered into neg_q, and that the timing of neg_q and result_low_d might not align in the same cycle as op_q == 2. This mismatch in timing and pipeline stages can cause the assertion to fail.
+
+2. Proposed fix:
+To fix this, the assertion should use a next-cycle implication (|=>) because op_q is a registered signal, and result_32_aux and result_low_d are combinational or registered signals updated in the next cycle relative to op_q. Also, the assertion should compare mul_unit.result_32_aux to the expected value computed from the previous cycle's result_low_d and neg_q using $past(). This respects the pipeline timing and ensures the comparison is done with stable registered values. This approach aligns with the RTL pipeline where op_q is registered at cycle N, and result_32_aux and result_low_d are valid at cycle N+1.
+
+3. Corrected assertion:
+
+as__Result32AuxCorrectForMulHSUQ: assert property (mul_unit.op_q == 2 |=> mul_unit.result_32_aux == ( $past(mul_unit.neg_q) ? (~$past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) ));

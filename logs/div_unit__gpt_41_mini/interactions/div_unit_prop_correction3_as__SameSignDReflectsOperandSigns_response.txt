@@ -1,0 +1,5 @@
+// The original assertion fails because it checks same_sign_d in the same cycle as valid_i, but same_sign_d is combinationally assigned based on inputs valid_i and op_32bits_i, which may not be stable or correctly reflect the latched value in the pipeline. The assertion should check same_sign_q in the next cycle after valid_i, using the latched op_32_q and operands from the previous cycle.  
+// The previous attempts failed because they used incorrect signal names or did not properly handle the timing and signal naming conventions.  
+// The fix is to write a next-cycle assertion triggered by valid_i, checking that same_sign_q matches the XOR of the sign bits of data_rs1_i and data_rs2_i from the previous cycle, selected by the latched op_32_q signal. This respects pipeline timing and signal naming.
+
+as__SameSignDReflectsOperandSigns: assert property (valid_i |=> div_unit.same_sign_q == ~((div_unit.op_32_q) ? ($past(data_rs2_i[31]) ^ $past(data_rs1_i[31])) : ($past(data_rs2_i[63]) ^ $past(data_rs1_i[63]))));

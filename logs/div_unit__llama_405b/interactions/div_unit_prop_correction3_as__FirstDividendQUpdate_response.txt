@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking if `div_unit.first_dividend_q` is equal to `data_rs1_i` in the next cycle after `valid_i` is asserted. However, this is not accurate because `div_unit.first_dividend_q` is updated with the value of `data_rs1_i` only when `valid_i` is asserted and the unit is not busy (`!div_unit.busy_o`).
+
+The proposed fix is to add a check for `!div_unit.busy_o` in the precondition of the assertion. This ensures that the assertion only checks the value of `div_unit.first_dividend_q` when the unit is not busy and `valid_i` is asserted.
+
+Here is the corrected assertion:
+
+`as__FirstDividendQUpdate: assert property(valid_i && !div_unit.busy_o |=> div_unit.first_dividend_q == $past(data_rs1_i));`

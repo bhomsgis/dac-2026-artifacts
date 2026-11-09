@@ -1,0 +1,3 @@
+// The original assertion fails because it checks op_32bits_q immediately updated in the same cycle as valid_i, but op_32bits_q is registered and updated on the next clock edge. Therefore, the assertion should use a next-cycle implication (|=>) and refer to $past(op_32bits_i && (op_i == 0)) to match the registered signal timing.
+
+as__Op32BitsQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |=> mul_unit.op_32bits_q == $past(op_32bits_i && (op_i == 0)));

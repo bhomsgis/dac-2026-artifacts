@@ -1,0 +1,3 @@
+```systemverilog
+as__vpnIdxNext: assert property(ptw.vpn_idx |=> ptw.vpn_req[$past(ptw.count_q)]);
+```

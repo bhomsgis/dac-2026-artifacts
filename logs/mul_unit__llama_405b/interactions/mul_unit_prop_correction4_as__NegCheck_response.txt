@@ -1,0 +1,21 @@
+The current assertion is failing because it is trying to check the value of `neg_q_final` in the same cycle as `valid_i`, but `neg_q_final` is a registered signal that is updated in the next cycle.
+
+The issue is that `neg_q_final` is assigned the value of `neg_q` in the second stage of the pipeline, which is one cycle after `valid_i` is asserted. Therefore, when `valid_i` is high, `neg_q_final` has not yet been updated with the correct value.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `neg_q_final` in the next cycle, after it has been updated.
+
+Here is the corrected assertion:
+
+```
+as__NegCheck: assert property((valid_i) |=> (mul_unit.neg_q_final == $past(mul_unit.neg_d)));
+```
+
+However, this is still not correct, because `neg_d` is a combinational signal that is updated in the same cycle as `valid_i`. Therefore, we need to use the value of `neg_d` in the same cycle as `valid_i`, not the past value.
+
+Here is the corrected assertion:
+
+```
+as__NegCheck: assert property((valid_i) |=> (mul_unit.neg_q_final == mul_unit.neg_q));
+```
+
+This assertion checks that `neg_q_final` is equal to `neg_q` in the next cycle, after `neg_q` has been updated with the correct value.

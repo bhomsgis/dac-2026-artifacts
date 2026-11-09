@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking the value of `tlb_ptw_comm_o` in the same cycle as the precondition, but `tlb_ptw_comm_o` is a wire that is assigned a value in the same cycle based on the current state and other inputs. However, the value of `tlb_ptw_comm_o` is not guaranteed to be updated in the same cycle as the precondition.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), and to use `$past()` to refer to the value of `itlb_ptw_comm_i` in the previous cycle. However, this approach was already tried in Attempt 1 and did not work.
+
+A different approach is to check the value of `tlb_ptw_comm_o` in the same cycle as the precondition, but to also check that the `next_state` is `SERVING_iTLB`. This ensures that the `tlb_ptw_comm_o` value is updated correctly in the same cycle as the precondition.
+
+Here is the corrected assertion:
+
+`as__IdleToServingiTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 |-> ptw_arb.next_state == ptw_arb.SERVING_iTLB && tlb_ptw_comm_o == itlb_ptw_comm_i);`
+
+This assertion checks that when the current state is `IDLE`, `itlb_ptw_comm_i` is valid, and `dtlb_ptw_comm_i` is not valid, then the next state is `SERVING_iTLB` and `tlb_ptw_comm_o` is equal to `itlb_ptw_comm_i`.

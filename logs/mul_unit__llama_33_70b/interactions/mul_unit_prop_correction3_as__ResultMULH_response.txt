@@ -1,0 +1,18 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultMULH: assert property(valid_i && op_i == mul_unit.MULH |-> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` checks if the result of the MULH operation is correct. It asserts that when the input is valid and the operation is MULH, the output result should be equal to the high part of the result_2width_def signal.
+
+2. **Identifying the issue**: The assertion is failing because it does not consider the pipeline behavior and timing of the mul_unit. The result_o signal is assigned in the next cycle after the valid_i and op_i signals are evaluated. Therefore, the assertion should use a next-cycle assertion (|=>) instead of a same-cycle assertion (|->).
+
+3. **Proposing a fix**: To fix the assertion, we need to use a next-cycle assertion (|=>) and reference the value of the result_2width_def signal in the previous cycle using $past(). We also need to consider the case when the operation is MULH and the result is negative.
+
+# Fixed solution:
+```systemverilog
+as__ResultMULH: assert property(valid_i && op_i == mul_unit.MULH |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Changed the assertion operator**: Changed the assertion operator from |-> (same-cycle) to |=> (next-cycle) to account for the pipeline behavior and timing of the mul_unit.
+* **Added $past()**: Added $past() to reference the value of the result_2width_def signal in the previous cycle.
+* **Kept the same assertion name**: Kept the same assertion name as__ResultMULH to maintain consistency.
+* **Used the correct module prefix**: Used the correct module prefix mul_unit. to reference internal signals.
+* **Considered pipeline behavior and timing**: Considered the pipeline behavior and timing of the mul_unit to ensure that the assertion is correct.

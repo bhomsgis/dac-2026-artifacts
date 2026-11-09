@@ -1,0 +1,5 @@
+I believe the current assertion is failing because it does not consider the case when `div_zero_q` is true. In this case, `rmd_aux` is assigned the value of `first_dividend_q`, not `remanent_q`.
+
+My proposed fix is to add a condition to check if `div_zero_q` is true, and if so, compare `rmd_aux` with `first_dividend_q` instead of `remanent_q`. Here is the corrected assertion:
+
+as__RmdAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |-> div_unit.rmd_aux == (div_unit.div_zero_q ? div_unit.first_dividend_q : div_unit.remanent_q));

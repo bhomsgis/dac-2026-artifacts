@@ -1,0 +1,19 @@
+The current assertion is failing because it checks if `access_hit_i` is high whenever `pseudoLRU.access_array` is high, which is not necessarily true. The `access_array` is set to high when the `access_idx_i` matches the current index being checked in the loop, regardless of the value of `access_hit_i`.
+
+The corrected assertion should check if `access_hit_i` is high whenever `pseudoLRU.access_array` is high and the corresponding index in `pseudoLRU.access_array` matches the `access_idx_i`. However, this is already taken care of in the RTL code, so we can simplify the assertion to check if `access_hit_i` is high whenever any bit in `pseudoLRU.access_array` is high.
+
+Here is the corrected assertion:
+
+```
+as__AccessArraySetImpliesAccessHit: assert property(|pseudoLRU.access_array |-> |pseudoLRU.access_array == access_hit_i);
+```
+
+However, this assertion is still not correct, as it checks if any bit in `pseudoLRU.access_array` is high, not if the corresponding index in `pseudoLRU.access_array` matches the `access_idx_i`. 
+
+A better approach is to check if `access_hit_i` is high whenever `pseudoLRU.access_array[access_idx_i]` is high:
+
+```
+as__AccessArraySetImpliesAccessHit: assert property(pseudoLRU.access_array[access_idx_i] |-> access_hit_i);
+```
+
+This assertion correctly checks the intended behavior.

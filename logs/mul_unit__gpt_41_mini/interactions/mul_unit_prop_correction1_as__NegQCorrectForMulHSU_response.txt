@@ -1,0 +1,3 @@
+// The assertion fails because it compares neg_q (a registered signal) directly to data_rs1_i (a wire) in the same cycle, ignoring pipeline latency and the effect of op_32bits_q. The sign bit used for neg_q depends on whether the operation is 32-bit or 64-bit and is latched in neg_q at the next cycle. The assertion should use a next-cycle implication (|=>) and compare neg_q to the sign bit of data_rs1_i sampled at the precondition cycle, considering op_32bits_q to select the correct sign bit.
+
+as__NegQCorrectForMulHSU: assert property((mul_unit.op_q == 2) |=> mul_unit.neg_q == (mul_unit.op_32bits_q ? mul_unit.data_rs1_i[31] : mul_unit.data_rs1_i[mul_unit.WIDTH-1]));

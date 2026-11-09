@@ -1,0 +1,2 @@
+// Check that when in S_WAIT state and dmem response is valid with invalid_pte, next state is S_ERROR
+as__WaitStateInvalidPteNextError: assert property((ptw.current_state == ptw.S_WAIT && $past(ptw.dmem_ptw_comm_i.resp.valid) && $past(ptw.invalid_pte)) |=> (ptw.next_state == ptw.S_ERROR));

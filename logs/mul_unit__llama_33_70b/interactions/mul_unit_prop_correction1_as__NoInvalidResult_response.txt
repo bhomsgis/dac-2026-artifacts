@@ -1,0 +1,1 @@
+as__NoInvalidResult: assert property(!(valid_o && !(&result_o) && !(|result_o)));

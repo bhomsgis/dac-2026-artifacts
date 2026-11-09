@@ -1,0 +1,2 @@
+// Check that result_32_aux correctly represents the 2's complement negation of result_low_d when neg_q is set, considering pipeline timing and using $past on result_low_d and neg_q
+as__Result32AuxCorrect: assert property (mul_unit.valid_q[0] |=> (mul_unit.result_32_aux == ( $past(mul_unit.neg_q) ? (~$past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) )));

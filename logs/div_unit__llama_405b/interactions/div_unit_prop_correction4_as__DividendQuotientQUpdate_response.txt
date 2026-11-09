@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking if `div_unit.cycles_counter` is not equal to 0, and if so, it checks if `div_unit.dividend_quotient_q` is equal to `div_unit.dividend_quotient_out`. However, this assertion is incorrect because `div_unit.dividend_quotient_q` is updated with the value of `div_unit.dividend_quotient_out` in the next cycle, not in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) and check if `div_unit.dividend_quotient_q` is equal to the past value of `div_unit.dividend_quotient_out`. However, we should also consider the case where `div_unit.cycles_counter` is 1, because in this case, `div_unit.dividend_quotient_q` is not updated with the value of `div_unit.dividend_quotient_out`.
+
+Here is the corrected assertion:
+
+as__DividendQuotientQUpdate: assert property(div_unit.cycles_counter > 6'd1 |=> div_unit.dividend_quotient_q == $past(div_unit.dividend_quotient_out) || div_unit.cycles_counter == 6'd1);

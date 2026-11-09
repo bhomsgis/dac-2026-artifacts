@@ -1,0 +1,1 @@
+as__ptecacheEntryValid: assert property(ptw.ptecache_entry[ptw.hit_idx].valid |-> (ptw.pte_cache_hit && ptw.ptecache_entry[ptw.hit_idx].tags == ptw.pte_addr));

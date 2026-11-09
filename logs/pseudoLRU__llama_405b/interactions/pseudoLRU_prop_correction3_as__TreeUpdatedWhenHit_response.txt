@@ -1,0 +1,23 @@
+The current assertion is failing because it is checking if the `plru_tree_q` register is updated in the same cycle when `access_hit_i` is high. However, the `plru_tree_q` register is updated in the next cycle, not in the same cycle, due to the sequential process in the `always_ff` block.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`) to check if the `plru_tree_q` register is updated in the next cycle when `access_hit_i` is high. Additionally, we need to use `$past()` to refer to the value of `plru_tree_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+`as__TreeUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));`
+
+However, this is the same as Attempt 2, which didn't work. Let's try a different approach.
+
+The issue might be that the assertion is not checking if the `plru_tree_d` signal is updated correctly in the same cycle when `access_hit_i` is high. We can check this by using a same-cycle assertion (`|->`) to check if the `plru_tree_d` signal is updated correctly.
+
+Here is the corrected assertion:
+
+`as__TreeUpdatedWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);`
+
+However, this is the same as Attempt 1, which didn't work. Let's try another approach.
+
+We can check if the `plru_tree_d` signal is updated correctly by checking if any of its bits have changed. We can use the `$countones()` function to count the number of ones in the `plru_tree_d` signal and compare it with the number of ones in the `plru_tree_q` signal.
+
+Here is the corrected assertion:
+
+`as__TreeUpdatedWhenHit: assert property(access_hit_i == 1'b1 |-> $countones(pseudoLRU.plru_tree_d) != $countones(pseudoLRU.plru_tree_q));`

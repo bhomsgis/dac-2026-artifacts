@@ -1,0 +1,13 @@
+The assertion `as__ptwPteCacheAccessHit: assert property(ptw.access_hit == ptw.pte_cache_hit);` might be failing because `ptw.access_hit` and `ptw.pte_cache_hit` are not necessarily updated in the same cycle.
+
+`ptw.access_hit` is updated in the always_ff block when `current_state` is `S_REQ` and `pte_cache_hit` is true. On the other hand, `ptw.pte_cache_hit` is a combinational signal that is updated immediately when `hit_vector` changes.
+
+The issue is that the assertion is checking for equality between `ptw.access_hit` and `ptw.pte_cache_hit` in the same cycle, but `ptw.access_hit` might not have been updated yet.
+
+To fix this, we need to use a next-cycle assertion (|=>) to check that `ptw.access_hit` is updated correctly in the next cycle after `ptw.pte_cache_hit` is asserted.
+
+Here is the corrected assertion:
+
+`as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit |=> ptw.access_hit);`
+
+This assertion checks that whenever `ptw.pte_cache_hit` is true, `ptw.access_hit` will be true in the next cycle.

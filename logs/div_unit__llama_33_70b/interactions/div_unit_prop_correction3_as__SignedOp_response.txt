@@ -1,0 +1,1 @@
+as__SignedOp: assert property(valid_i && !op_unsigned_i |=> div_unit.signed_op_q == $past(!op_unsigned_i));

@@ -1,0 +1,33 @@
+The current assertion is failing because it is checking if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` in the same cycle when `access_hit_i` is 1. However, the update of `pseudoLRU.plru_tree_q` happens in the next cycle, so this assertion will not catch the update.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check if `pseudoLRU.plru_tree_q` is not equal to its previous value in the next cycle when `access_hit_i` is 1. We also need to use `$past()` to refer to the previous value of `pseudoLRU.plru_tree_q`.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));`
+
+However, this assertion is the same as Attempt 1, which didn't work. Let's analyze the problem again.
+
+The issue is that `pseudoLRU.plru_tree_d` is updated in the same cycle as `access_hit_i`, but `pseudoLRU.plru_tree_q` is updated in the next cycle. So, we need to check if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` in the same cycle when `access_hit_i` is 1.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);`
+
+Wait, this is the same as the original assertion! However, we can try another approach.
+
+We can check if `pseudoLRU.plru_tree_d` is not equal to its previous value in the same cycle when `access_hit_i` is 1.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != $past(pseudoLRU.plru_tree_d));`
+
+No, this is not correct. We are comparing `pseudoLRU.plru_tree_d` with its previous value, but we should compare it with `pseudoLRU.plru_tree_q`.
+
+Let's think about it again. We want to check if `pseudoLRU.plru_tree_q` is updated when `access_hit_i` is 1. We can check if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` in the next cycle when `access_hit_i` is 1.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d != $past(pseudoLRU.plru_tree_q));`
+
+Yes, this is the correct assertion.

@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to check the value of `result_32_aux` in the same cycle as the inputs are being checked. However, `result_32_aux` is a signal that is generated after the inputs have been processed by the `mul_unit`, so it is not available in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `result_32_aux` in the next cycle, after the inputs have been processed.
+
+Here is the corrected assertion:
+
+```
+as__Result32AuxCheck: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_aux == ($past(mul_unit.neg_q) ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));
+```
+
+This assertion checks that if the inputs are valid and the operation is a 32-bit multiplication, then in the next cycle, the value of `result_32_aux` is correct based on the values of `neg_q` and `result_low_q`. The `$past` function is used to refer to the value of `neg_q` in the previous cycle, which is the cycle in which the inputs were checked.

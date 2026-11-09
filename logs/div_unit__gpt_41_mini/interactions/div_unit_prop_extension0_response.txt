@@ -1,0 +1,66 @@
+// Check that when valid_i is asserted, the cycles_counter is loaded with correct value based on op_32bits_i
+as__CyclesCounterLoadOnValidI: assert property((valid_i) |=> (div_unit.cycles_counter == ((op_32bits_i) ? div_unit.CYCLES_32[5:0] : div_unit.CYCLES_64[5:0])));
+// Check that busy_o is asserted whenever cycles_counter is non-zero
+as__BusyOReflectsCyclesCounterNonZero: assert property((div_unit.cycles_counter != 6'd0) |-> busy_o);
+// Check that busy_o is deasserted when cycles_counter is zero
+as__BusyONotSetWhenCyclesZero: assert property((div_unit.cycles_counter == 6'd0) |-> !busy_o);
+// Check that cycles_counter decrements by 1 each cycle when busy and no valid_i or flush_i
+as__CyclesCounterDecrementsWhenBusyNoValidFlush: assert property((busy_o && !valid_i && !flush_i) |=> (div_unit.cycles_counter == $past(div_unit.cycles_counter) - 6'd1));
+// Check that valid_q is set on valid_i
+as__ValidQSetOnValidI: assert property((valid_i) |=> div_unit.valid_q);
+// Check that op_q is latched correctly on valid_i
+as__OpQLatchedOnValidI: assert property((valid_i) |=> div_unit.op_q == op_i);
+// Check that op_32_q is latched correctly on valid_i
+as__Op32QLatchedOnValidI: assert property((valid_i) |=> div_unit.op_32_q == op_32bits_i);
+// Check that signed_op_q is latched correctly on valid_i
+as__SignedOpQLatchedOnValidI: assert property((valid_i) |=> div_unit.signed_op_q == !op_unsigned_i);
+// Check that div_zero_q is latched correctly on valid_i
+as__DivZeroQLatchedOnValidI: assert property((valid_i) |=> div_unit.div_zero_q == div_unit.div_zero_d);
+// Check that same_sign_q is latched correctly on valid_i
+as__SameSignQLatchedOnValidI: assert property((valid_i) |=> div_unit.same_sign_q == div_unit.same_sign_d);
+// Check that dividend_quotient_q is latched correctly on valid_i
+as__DividendQuotientQLatchedOnValidI: assert property((valid_i) |=> div_unit.dividend_quotient_q == div_unit.dividend_d);
+// Check that divisor_q is latched correctly on valid_i
+as__DivisorQLatchedOnValidI: assert property((valid_i) |=> div_unit.divisor_q == div_unit.divisor_d);
+// Check that remanent_q is zeroed on valid_i
+as__RemanentQZeroOnValidI: assert property((valid_i) |=> div_unit.remanent_q == {WIDTH{1'b0}});
+// Check that first_dividend_q is latched correctly on valid_i
+as__FirstDividendQLatchedOnValidI: assert property((valid_i) |=> div_unit.first_dividend_q == data_rs1_i);
+// Check that flush_i clears valid_q
+as__ValidQClearedOnFlush: assert property((flush_i) |=> !div_unit.valid_q);
+// Check that flush_i clears busy_o
+as__BusyOClearedOnFlush: assert property((flush_i) |=> !busy_o);
+// Check that flush_i clears cycles_counter
+as__CyclesCounterClearedOnFlush: assert property((flush_i) |=> div_unit.cycles_counter == 6'd0);
+// Check that flush_i clears internal control registers
+as__ControlRegsClearedOnFlush: assert property((flush_i) |=> (!div_unit.div_zero_q && !div_unit.same_sign_q && !div_unit.op_32_q && !div_unit.signed_op_q));
+// Check that valid_o is asserted only when cycles_counter is 1 and valid_q is set
+as__ValidOOnlyWhenCyclesCounterOneAndValidQ: assert property((valid_o) |-> (div_unit.cycles_counter == 6'd1 && div_unit.valid_q));
+// Check that result_o matches quo_aux when op_q is DIV and valid_o is set
+as__ResultOMatchesQuoAuxWhenDivValidO: assert property((valid_o && !div_unit.op_q) |-> result_o == div_unit.quo_aux);
+// Check that result_o matches rmd_aux when op_q is REM and valid_o is set
+as__ResultOMatchesRmdAuxWhenRemValidO: assert property((valid_o && div_unit.op_q) |-> result_o == div_unit.rmd_aux);
+// Check that result_o is zero when valid_o is not set
+as__ResultOZeroWhenNotValidO: assert property((!valid_o) |-> result_o == {WIDTH{1'b0}});
+// Check that quo is all ones when div_zero_q is set
+as__QuoAllOnesWhenDivZeroQ: assert property(div_unit.div_zero_q |-> (&div_unit.quo));
+// Check that rmd equals first_dividend_q when div_zero_q is set
+as__RmdEqualsFirstDividendQWhenDivZeroQ: assert property(div_unit.div_zero_q |-> (div_unit.rmd == div_unit.first_dividend_q));
+// Check that quo equals dividend_quotient_q when signed_op_q and same_sign_q and not div_zero_q
+as__QuoSignCorrectWhenSignedOpSameSign: assert property((!div_unit.div_zero_q && div_unit.signed_op_q && div_unit.same_sign_q) |-> (div_unit.quo == div_unit.dividend_quotient_q));
+// Check that quo equals two's complement of dividend_quotient_q when signed_op_q and !same_sign_q and not div_zero_q
+as__QuoSignCorrectWhenSignedOpDiffSign: assert property((!div_unit.div_zero_q && div_unit.signed_op_q && !div_unit.same_sign_q) |-> (div_unit.quo == (~div_unit.dividend_quotient_q + div_unit.ONE)));
+// Check that quo equals dividend_quotient_q when unsigned operation and not div_zero_q
+as__QuoEqualsDividendQuotientQWhenUnsignedOp: assert property((!div_unit.div_zero_q && !div_unit.signed_op_q) |-> (div_unit.quo == div_unit.dividend_quotient_q));
+// Check that rmd equals two's complement of remanent_q when signed_op_q and dividend negative and not div_zero_q
+as__RmdSignCorrectWhenSignedOpNegDividend: assert property((!div_unit.div_zero_q && div_unit.signed_op_q && ((div_unit.first_dividend_q[(WIDTH-1)] & !div_unit.op_32_q) || (div_unit.first_dividend_q[31] & div_unit.op_32_q))) |-> (div_unit.rmd == (~div_unit.remanent_q + div_unit.ONE)));
+// Check that rmd equals remanent_q when signed_op_q and dividend positive and not div_zero_q
+as__RmdSignCorrectWhenSignedOpPosDividend: assert property((!div_unit.div_zero_q && div_unit.signed_op_q && !((div_unit.first_dividend_q[(WIDTH-1)] & !div_unit.op_32_q) || (div_unit.first_dividend_q[31] & div_unit.op_32_q))) |-> (div_unit.rmd == div_unit.remanent_q));
+// Check that rmd equals remanent_q when unsigned operation and not div_zero_q
+as__RmdEqualsRemanentQWhenUnsignedOp: assert property((!div_unit.div_zero_q && !div_unit.signed_op_q) |-> (div_unit.rmd == div_unit.remanent_q));
+// Check that remanent_q updates to remanent_out when busy and no valid_i or flush_i
+as__RemanentQUpdatesWhenBusyNoValidFlush: assert property((busy_o && !valid_i && !flush_i) |=> div_unit.remanent_q == $past(div_unit.remanent_out));
+// Check that dividend_quotient_q updates to dividend_quotient_out when busy and no valid_i or flush_i
+as__DividendQuotientQUpdatesWhenBusyNoValidFlush: assert property((busy_o && !valid_i && !flush_i) |=> div_unit.dividend_quotient_q == $past(div_unit.dividend_quotient_out));
+// Check that divisor_q updates to divisor_out when busy and no valid_i or flush_i
+as__DivisorQUpdatesWhenBusyNoValidFlush: assert property((busy_o && !valid_i && !flush_i) |=> div_unit.divisor_q == $past(div_unit.divisor_out));

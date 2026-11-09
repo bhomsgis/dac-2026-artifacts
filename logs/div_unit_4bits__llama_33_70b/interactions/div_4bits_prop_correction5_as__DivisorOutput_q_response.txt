@@ -1,0 +1,6 @@
+The current assertion `as__DivisorOutput_q: assert property((div_4bits.divisor_o_q == $past(div_4bits.divisor_i)) |=> (div_4bits.divisor_o_q == $past(div_4bits.divisor_i)));` is failing because it is trying to assert that the output `divisor_o_q` is equal to the past value of the input `divisor_i` in the next cycle, which is not the correct behavior. The correct behavior is that the output `divisor_o` (not `divisor_o_q`) is equal to the input `divisor_i` in the same cycle.
+
+The proposed fix is to change the assertion to check that the output `divisor_o` is equal to the input `divisor_i` in the same cycle, using a same-cycle assertion (`|->`).
+
+Here is the corrected assertion:
+as__DivisorOutput_q: assert property((div_4bits.divisor_i |-> div_4bits.divisor_o == div_4bits.divisor_i));

@@ -1,0 +1,31 @@
+The current assertion is failing because it is using a same-cycle assertion (`|->`) to check the value of `rmd_aux`, which depends on the updated value of `remanent_q`. However, the updated value of `remanent_q` is only available in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `rmd_aux` in the next cycle, after the update of `remanent_q`. Additionally, we need to use `$past()` to refer to the value of `first_dividend_q` and `op_32_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.rmd_aux == (((($past(div_unit.first_dividend_q[(WIDTH - 1)]) & (!$past(div_unit.op_32_q))) | ($past(div_unit.first_dividend_q[31]) & $past(div_unit.op_32_q))) ? ((~div_unit.remanent_q) + div_unit.ONE) : div_unit.remanent_q));
+```
+
+However, this is the same as Attempt 3, which didn't work. Let's try a different approach.
+
+The issue might be that the assertion is not correctly handling the case when `op_32_q` is 1. In this case, the remainder is sign-extended to 64 bits. We need to take this into account when calculating the expected value of `rmd_aux`.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.rmd_aux == (((($past(div_unit.first_dividend_q[(WIDTH - 1)]) & (!$past(div_unit.op_32_q))) | ($past(div_unit.first_dividend_q[31]) & $past(div_unit.op_32_q))) ? ((~div_unit.remanent_q) + div_unit.ONE) : div_unit.remanent_q) & {(WIDTH-1){($past(div_unit.op_32_q) & div_unit.rmd_aux[31])}});
+```
+
+However, this assertion is still not correct. We need to find a different approach.
+
+Let's try to simplify the assertion by removing the dependency on `remanent_q`. We can do this by using the fact that `rmd_aux` is equal to `rmd` when `op_32_q` is 0, and `rmd_aux` is equal to the sign-extended `rmd` when `op_32_q` is 1.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.rmd_aux == ((div_unit.op_32_q) ? {{32{div_unit.rmd[31]}}, div_unit.rmd[31:0]} : div_unit.rmd));
+```
+
+This assertion checks that `rmd_aux` is equal to the expected value based on the value of `op_32_q` and `rmd`.

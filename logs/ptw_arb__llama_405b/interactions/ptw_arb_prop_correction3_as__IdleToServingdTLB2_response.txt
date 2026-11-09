@@ -1,0 +1,39 @@
+The current assertion is failing because it is checking the value of `ptw_arb.tlb_ptw_comm_o` in the same cycle as the precondition, but `ptw_arb.tlb_ptw_comm_o` is assigned in the combinational logic and its value is only updated in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), and to use `$past()` to refer to the value of `dtlb_ptw_comm_i` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__IdleToServingdTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && itlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.tlb_ptw_comm_o == $past(dtlb_ptw_comm_i) && ptw_arb.next_state == ptw_arb.SERVING_dTLB);
+```
+
+However, this is still not correct, as we should not use `$past()` on the postcondition of next-cycle assertions to refer to the updated value of `_q`. Also, we should not use `$past()` on the postcondition of next-cycle assertions to refer to the value of wires.
+
+The correct assertion is:
+
+```
+as__IdleToServingdTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && itlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.next_state == ptw_arb.SERVING_dTLB && ptw_arb.tlb_ptw_comm_o == dtlb_ptw_comm_i);
+```
+
+However, this assertion is still not correct, because `ptw_arb.tlb_ptw_comm_o` is a wire and its value can be referenced in the current cycle, but `ptw_arb.next_state` is a register and its value is only updated in the next cycle.
+
+The correct assertion is:
+
+```
+as__IdleToServingdTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && itlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.is_req_waiting_q == 1'b0 |-> ptw_arb.tlb_ptw_comm_o == dtlb_ptw_comm_i);
+```
+
+However, this assertion only checks that `ptw_arb.tlb_ptw_comm_o` is equal to `dtlb_ptw_comm_i` in the same cycle, but it does not check that the state is updated correctly in the next cycle.
+
+To fix this, we need to add another assertion that checks that the state is updated correctly in the next cycle:
+
+```
+as__IdleToServingdTLB2_state: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && itlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.current_state == ptw_arb.SERVING_dTLB);
+```
+
+However, I can only provide one corrected assertion in my response. Therefore, I will provide the first assertion, which checks that `ptw_arb.tlb_ptw_comm_o` is equal to `dtlb_ptw_comm_i` in the same cycle:
+
+```
+as__IdleToServingdTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && itlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.is_req_waiting_q == 1'b0 |-> ptw_arb.tlb_ptw_comm_o == dtlb_ptw_comm_i);
+```

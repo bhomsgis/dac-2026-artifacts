@@ -1,0 +1,1105 @@
+[2025-08-22 21:20:52] Log file created
+Loading RTL from: sources/modules/func_units/div_4bits/rtl/div_4bits.sv
+Initial Assertions:
+
+as__QuotientBitCorrecteotid: assert property((tmp_remanent[0] >= divisor_i) |-> quotient_bit[0] == 1'b1 && (tmp_remanent[0] < divisor_i) |-> quotient_bit[0] == 1'b0 && (tmp_remanent[1] >= divisor_i) |-> quotient_bit[1] == 1'b1 && (tmp_remanent[1] < divisor_i) |-> quotient_bit[1] == 1'b0);
+as__TmpRemanentSubCorrecteotid: assert property((tmp_remanent[0] >= divisor_i) |-> tmp_remanent_sub[0] == tmp_remanent[0] - divisor_i && (tmp_remanent[0] < divisor_i) |-> tmp_remanent_sub[0] == tmp_remanent[0] && (tmp_remanent[1] >= divisor_i) |-> tmp_remanent_sub[1] == tmp_remanent[1] - divisor_i && (tmp_remanent[1] < divisor_i) |-> tmp_remanent_sub[1] == tmp_remanent[1]);
+as__RemanentOutputCorrecteotid: assert property(remanent_o == tmp_remanent_sub[0]);
+as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == tmp_dividend_quotient[0]);
+as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+as__TmpDividendQuotientShiftCorrecteotid: assert property(tmp_dividend_quotient[1] == {dividend_quotient_i[WIDTH-2:0], quotient_bit[1]});
+as__TmpRemanentShiftCorrecteotid: assert property(tmp_remanent[1] == {remanent_i[WIDTH-2:0], dividend_quotient_i[WIDTH/2-1]});
+as__TmpDividendQuotient0ShiftCorrecteotid: assert property(tmp_dividend_quotient[0] == {tmp_dividend_quotient[1][WIDTH-2:0], quotient_bit[0]});
+as__TmpRemanent0ShiftCorrecteotid: assert property(tmp_remanent[0] == {tmp_remanent_sub[1][WIDTH-2:0], tmp_dividend_quotient[1][WIDTH-1]});
+
+
+CodingAgent initialized with execution mode: golden
+RTL source: sources/modules/func_units/div_4bits/rtl/div_4bits.sv
+Assertions file: div_4bits_prop.sv
+Assertions directory: ft_div_4bits/sva/
+LLM: gpt-4.1-mini
+Module type: combinational
+Verbosity: 2
+Execution mode: golden
+
+Preprocessing: Fixing missing module prefixes on internal signals before syntax correction...
+
+Preprocessing: Checking for duplicate assertion names and fixing collisions...
+
+Assertions after automatic corrections:
+
+as__QuotientBitCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0 && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+as__TmpRemanentSubCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+as__TmpDividendQuotientShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+as__TmpRemanentShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH/2-1]});
+as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+
+
+Stored property file version for initial stage at ft_div_4bits/sva/versions/div_4bits_prop_initial.sv
+Correcting assertion syntax...
+
+Iteration 1
+Running JasperGold...
+Assertions compiled succesfuly
+==================================================
+Stored property file version for after_syntax stage at ft_div_4bits/sva/versions/div_4bits_prop_after_syntax.sv
+
+
+
+SYNTACTICALLY CORRECT ASSERTIONS:
+
+as__QuotientBitCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0 && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+as__TmpRemanentSubCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+as__TmpDividendQuotientShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+as__TmpRemanentShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH/2-1]});
+as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+
+
+
+Processing initial batch to establish base set...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__QuotientBitCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0 && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+
+Property 1: as__TmpRemanentSubCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+
+Property 2: as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+
+Property 3: as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+
+Property 4: as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+
+Property 5: as__TmpDividendQuotientShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+
+Property 6: as__TmpRemanentShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH/2-1]});
+
+Property 7: as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+
+Property 8: as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+
+Parser state statistics (processed 9 assertions in this batch):
+  Before this batch - Total stored properties: 0
+  After this batch  - Total stored properties: 9
+  New properties added in this batch: 9
+  Duplicates found in this batch: 0
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 9
+  Delay dictionary: 9
+  Postcondition dictionary: 9
+  Clauses dictionary: 9
+  Results dictionary: 0
+  Unprocessable properties: 0
+
+✅ Duplicate validation passed!
+Found 9 unique assertions in initial set
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             cex
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+
+
+Name - SVA String Pairs
+Name: as__QuotientBitCorrecteotid || Clauses: as__QuotientBitCorrecteotid:assertproperty((div_4bits.tmp_remanent[0]>=divisor_i)|->div_4bits.quotient_bit[0]==1'b1&&(div_4bits.tmp_remanent[0]<divisor_i)|->div_4bits.quotient_bit[0]==1'b0&&(div_4bits.tmp_remanent[1]>=divisor_i)|->div_4bits.quotient_bit[1]==1'b1&&(div_4bits.tmp_remanent[1]<divisor_i)|->div_4bits.quotient_bit[1]==1'b0);
+Name: as__TmpRemanentSubCorrecteotid || Clauses: as__TmpRemanentSubCorrecteotid:assertproperty((div_4bits.tmp_remanent[0]>=divisor_i)|->div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]-divisor_i&&(div_4bits.tmp_remanent[0]<divisor_i)|->div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]&&(div_4bits.tmp_remanent[1]>=divisor_i)|->div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]-divisor_i&&(div_4bits.tmp_remanent[1]<divisor_i)|->div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]);
+Name: as__RemanentOutputCorrecteotid || Clauses: as__RemanentOutputCorrecteotid:assertproperty(remanent_o==div_4bits.tmp_remanent_sub[0]);
+Name: as__DividendQuotientOutputCorrecteotid || Clauses: as__DividendQuotientOutputCorrecteotid:assertproperty(dividend_quotient_o==div_4bits.tmp_dividend_quotient[0]);
+Name: as__DivisorOutputCorrecteotid || Clauses: as__DivisorOutputCorrecteotid:assertproperty(divisor_o==divisor_i);
+Name: as__TmpDividendQuotientShiftCorrecteotid || Clauses: as__TmpDividendQuotientShiftCorrecteotid:assertproperty(div_4bits.tmp_dividend_quotient[1]=={dividend_quotient_i[div_4bits.WIDTH-2:0],div_4bits.quotient_bit[1]});
+Name: as__TmpRemanentShiftCorrecteotid || Clauses: as__TmpRemanentShiftCorrecteotid:assertproperty(div_4bits.tmp_remanent[1]=={remanent_i[div_4bits.WIDTH-2:0],dividend_quotient_i[div_4bits.WIDTH/2-1]});
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Clauses: as__TmpDividendQuotient0ShiftCorrecteotid:assertproperty(div_4bits.tmp_dividend_quotient[0]=={div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0],div_4bits.quotient_bit[0]});
+Name: as__TmpRemanent0ShiftCorrecteotid || Clauses: as__TmpRemanent0ShiftCorrecteotid:assertproperty(div_4bits.tmp_remanent[0]=={div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0],div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+
+
+Name - Delay Pairs
+Name: as__QuotientBitCorrecteotid || Delay: 0
+Name: as__TmpRemanentSubCorrecteotid || Delay: 0
+Name: as__RemanentOutputCorrecteotid || Delay: 0
+Name: as__DividendQuotientOutputCorrecteotid || Delay: 0
+Name: as__DivisorOutputCorrecteotid || Delay: 0
+Name: as__TmpDividendQuotientShiftCorrecteotid || Delay: 0
+Name: as__TmpRemanentShiftCorrecteotid || Delay: 0
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Delay: 0
+Name: as__TmpRemanent0ShiftCorrecteotid || Delay: 0
+
+
+Name - Postcondition Pairs
+Name: as__QuotientBitCorrecteotid || Clauses: ["div_4bits.quotient_bit[0]==1'b1", '&&', '(', 'div_4bits.tmp_remanent[0]<divisor_i', ')', '->', "div_4bits.quotient_bit[0]==1'b0", '&&', '(', 'div_4bits.tmp_remanent[1]>=divisor_i', ')', '->', "div_4bits.quotient_bit[1]==1'b1", '&&', '(', 'div_4bits.tmp_remanent[1]<divisor_i', ')', '->', "div_4bits.quotient_bit[1]==1'b0"]
+Name: as__TmpRemanentSubCorrecteotid || Clauses: ['div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]-divisor_i', '&&', '(', 'div_4bits.tmp_remanent[0]<divisor_i', ')', '->', 'div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]', '&&', '(', 'div_4bits.tmp_remanent[1]>=divisor_i', ')', '->', 'div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]-divisor_i', '&&', '(', 'div_4bits.tmp_remanent[1]<divisor_i', ')', '->', 'div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]']
+Name: as__RemanentOutputCorrecteotid || Clauses: []
+Name: as__DividendQuotientOutputCorrecteotid || Clauses: []
+Name: as__DivisorOutputCorrecteotid || Clauses: []
+Name: as__TmpDividendQuotientShiftCorrecteotid || Clauses: []
+Name: as__TmpRemanentShiftCorrecteotid || Clauses: []
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Clauses: []
+Name: as__TmpRemanent0ShiftCorrecteotid || Clauses: []
+
+
+Name - Clause Pairs
+Name: as__QuotientBitCorrecteotid || Clauses: [['!!!!div_4bits.tmp_remanent[0]>=divisor_i', "div_4bits.quotient_bit[1]==1'b0"]]
+Name: as__TmpRemanentSubCorrecteotid || Clauses: [['!!!!div_4bits.tmp_remanent[0]>=divisor_i', 'div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]']]
+Name: as__RemanentOutputCorrecteotid || Clauses: [['remanent_o==div_4bits.tmp_remanent_sub[0]']]
+Name: as__DividendQuotientOutputCorrecteotid || Clauses: [['dividend_quotient_o==div_4bits.tmp_dividend_quotient[0]']]
+Name: as__DivisorOutputCorrecteotid || Clauses: [['divisor_o==divisor_i']]
+Name: as__TmpDividendQuotientShiftCorrecteotid || Clauses: [['div_4bits.tmp_dividend_quotient[1]=={dividend_quotient_i[div_4bits.WIDTH-2:0],div_4bits.quotient_bit[1]}']]
+Name: as__TmpRemanentShiftCorrecteotid || Clauses: [['div_4bits.tmp_remanent[1]=={remanent_i[div_4bits.WIDTH-2:0],dividend_quotient_i[div_4bits.WIDTH/2-1]}']]
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Clauses: [['div_4bits.tmp_dividend_quotient[0]=={div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0],div_4bits.quotient_bit[0]}']]
+Name: as__TmpRemanent0ShiftCorrecteotid || Clauses: [['div_4bits.tmp_remanent[0]=={div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0],div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]}']]
+
+
+Name - Proof Result Pairs
+Name: as__QuotientBitCorrecteotid || Proof Result: proven
+Name: as__TmpRemanentSubCorrecteotid || Proof Result: proven
+Name: as__RemanentOutputCorrecteotid || Proof Result: proven
+Name: as__DividendQuotientOutputCorrecteotid || Proof Result: proven
+Name: as__DivisorOutputCorrecteotid || Proof Result: proven
+Name: as__TmpDividendQuotientShiftCorrecteotid || Proof Result: proven
+Name: as__TmpRemanentShiftCorrecteotid || Proof Result: cex
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Proof Result: proven
+Name: as__TmpRemanent0ShiftCorrecteotid || Proof Result: proven
+div_4bits_prop.sv
+Files in SVA directory:
+Syntax iterations before extension: 0
+
+
+Initial correct assertions for extension iteration 0:
+as__QuotientBitCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0 && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+as__TmpRemanentSubCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+as__TmpDividendQuotientShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+as__TmpRemanentShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH/2-1]});
+as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+
+
+
+
+Requesting LLM for new assertions...
+Estimated input tokens: 2541
+Stored LLM interaction for extension stage iteration 0
+
+Found 11 assertions in response:
+Assertion 1: as__QuotientBit1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+Assertion 2: as__TmpRemanentSub1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+Assertion 3: as__TmpDividendQuotient1ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+Assertion 4: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]});
+Assertion 5: as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+Assertion 6: as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+Assertion 7: as__QuotientBit0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0);
+Assertion 8: as__TmpRemanentSub0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0]);
+Assertion 9: as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+Assertion 10: as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+Assertion 11: as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+
+=== PRE-SYNTAX DUPLICATE CHECK ===
+Checking assertion 1: as__QuotientBit1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+  -> UNIQUE (new assertion)
+Checking assertion 2: as__TmpRemanentSub1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+  -> UNIQUE (new assertion)
+Checking assertion 3: as__TmpDividendQuotient1ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+  -> DUPLICATE (already exists)
+Checking assertion 4: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 5: as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 6: as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+  -> DUPLICATE (already exists)
+Checking assertion 7: as__QuotientBit0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0);
+  -> UNIQUE (new assertion)
+Checking assertion 8: as__TmpRemanentSub0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0]);
+  -> UNIQUE (new assertion)
+Checking assertion 9: as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+  -> DUPLICATE (already exists)
+Checking assertion 10: as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+  -> DUPLICATE (already exists)
+Checking assertion 11: as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+  -> DUPLICATE (already exists)
+
+Pre-syntax check results:
+  Unique assertions: 5
+  Duplicate assertions: 6
+==================================================
+
+=== FILTERED DUPLICATE ASSERTIONS (Pre-Syntax Check) ===
+Duplicate 1: as__TmpDividendQuotient1ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+Duplicate 2: as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+Duplicate 3: as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+Duplicate 4: as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+Duplicate 5: as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+Duplicate 6: as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+======================================================================
+
+=== UNIQUE ASSERTIONS FOR SYNTAX CORRECTION ===
+Unique Assertion 1: as__QuotientBit1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+Unique Assertion 2: as__TmpRemanentSub1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+Unique Assertion 3: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]});
+Unique Assertion 4: as__QuotientBit0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0);
+Unique Assertion 5: as__TmpRemanentSub0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0]);
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+Fixed 2 missing module prefixes on 1 unique internal signals
+
+=== FIXED INTERNAL SIGNALS ===
+Signal 1: WIDTH -> div_4bits.WIDTH
+======================================================================
+
+Writing unique assertions to property file before syntax correction...
+Writing 5 unique assertions to property file
+Correcting assertion syntax...
+
+Iteration 1
+Running JasperGold...
+[ERROR (VERI-1103)] ft_div_4bits/sva/div_4bits_prop.sv(46): range index value is not constant
+
+Assertions contain syntax errors
+
+Scanning for "syntax error near" messages...
+No "syntax error near" messages found
+Tracking error for assertion: as__TmpRemanent1ShiftCorrecteotid
+Error pattern: [ERROR (VERI-N)] ft_div_Nbits/sva/div_Nbits_prop.sv(N): range index va
+Assertion as__TmpRemanent1ShiftCorrecteotid: 1 consecutive failures, 1 total failures
+Requesting LLM to correct assertion syntax...
+Estimated input tokens: 2438
+Stored LLM interaction for syntax stage iteration 0
+
+Found 5 assertions in response:
+Assertion 1: as__QuotientBit1Correcteotid: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) |-> (div_4bits.quotient_bit[1] == 1'b1)) && ((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) |-> (div_4bits.quotient_bit[1] == 1'b0)));
+Assertion 2: as__TmpRemanentSub1Correcteotid: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - div_4bits.divisor_i)) && ((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1])));
+Assertion 3: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+Assertion 4: as__QuotientBit0Correcteotid: assert property(((div_4bits.tmp_remanent[0] >= div_4bits.divisor_i) |-> (div_4bits.quotient_bit[0] == 1'b1)) && ((div_4bits.tmp_remanent[0] < div_4bits.divisor_i) |-> (div_4bits.quotient_bit[0] == 1'b0)));
+Assertion 5: as__TmpRemanentSub0Correcteotid: assert property(((div_4bits.tmp_remanent[0] >= div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - div_4bits.divisor_i)) && ((div_4bits.tmp_remanent[0] < div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0])));
+
+Iteration 2
+Running JasperGold...
+[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '&&'
+
+Assertions contain syntax errors
+
+Scanning for "syntax error near" messages...
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax errors at 4 unique line numbers: [42, 44, 48, 50]
+Processing syntax error near at line: 42
+Found problematic assertion: as__QuotientBit1Correcteotid
+Processing syntax error near at line: 44
+Found problematic assertion: as__TmpRemanentSub1Correcteotid
+Processing syntax error near at line: 48
+Found problematic assertion: as__QuotientBit0Correcteotid
+Processing syntax error near at line: 50
+Found problematic assertion: as__TmpRemanentSub0Correcteotid
+✓ Removed assertion with syntax error near: as__QuotientBit1Correcteotid
+✓ Removed assertion with syntax error near: as__TmpRemanentSub1Correcteotid
+✓ Removed assertion with syntax error near: as__QuotientBit0Correcteotid
+✓ Removed assertion with syntax error near: as__TmpRemanentSub0Correcteotid
+
+=== SYNTAX ERROR NEAR OPTIMIZATION ===
+Automatically removed 4 assertions with "syntax error near" messages
+Assertions before: 5, after: 1
+Will rerun JasperGold without LLM prompting...
+==================================================
+
+Iteration 2
+Running JasperGold...
+Assertions compiled succesfuly
+
+=== ERROR TRACKING STATISTICS ===
+Assertion: as__TmpRemanent1ShiftCorrecteotid
+  Total failures: 1
+  Error patterns: 1
+    "[ERROR (VERI-N)] ft_div_Nbits/sva/div_Nbits_prop.sv(N): range index va": 1 times
+
+=== CONSECUTIVE FAILURES ===
+Assertion: as__TmpRemanent1ShiftCorrecteotid
+  Consecutive count: 1
+  Last error pattern: [ERROR (VERI-N)] ft_div_Nbits/sva/div_Nbits_prop.sv(N): range index va
+==================================================
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+
+Parser state statistics (processed 1 assertions in this batch):
+  Before this batch - Total stored properties: 9
+  After this batch  - Total stored properties: 10
+  New properties added in this batch: 1
+  Duplicates found in this batch: 0
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 10
+  Delay dictionary: 10
+  Postcondition dictionary: 10
+  Clauses dictionary: 10
+  Results dictionary: 9
+  Unprocessable properties: 0
+
+✅ Duplicate validation passed!
+
+=== NEW ASSERTIONS ADDED (After Syntax Correction) ===
+Added Assertion 1: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+======================================================================
+Found 1 syntactically correct new properties
+
+Duplicate filtering summary:
+  Pre-syntax duplicates filtered: 6
+  Post-syntax duplicates filtered: 0
+  Properties successfully added: 1
+1 NEW PROPERTIES added to the set
+--------------------------------------- FINISHED EXTENSION LOOP ITERATION ---------------------------------------
+
+
+Initial correct assertions for extension iteration 1:
+as__QuotientBitCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0 && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+as__TmpRemanentSubCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+as__TmpDividendQuotientShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+as__TmpRemanentShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH/2-1]});
+as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+
+
+
+
+Requesting LLM for new assertions...
+Estimated input tokens: 2588
+Stored LLM interaction for extension stage iteration 1
+
+Found 8 assertions in response:
+Assertion 1: as__QuotientBit1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+Assertion 2: as__TmpRemanentSub1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+Assertion 3: as__TmpDividendQuotient1ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+Assertion 4: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]});
+Assertion 5: as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+Assertion 6: as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+Assertion 7: as__QuotientBit0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0);
+Assertion 8: as__TmpRemanentSub0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0]);
+
+=== PRE-SYNTAX DUPLICATE CHECK ===
+Checking assertion 1: as__QuotientBit1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+  -> UNIQUE (new assertion)
+Checking assertion 2: as__TmpRemanentSub1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+  -> UNIQUE (new assertion)
+Checking assertion 3: as__TmpDividendQuotient1ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+  -> DUPLICATE (already exists)
+Checking assertion 4: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 5: as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 6: as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+  -> DUPLICATE (already exists)
+Checking assertion 7: as__QuotientBit0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0);
+  -> UNIQUE (new assertion)
+Checking assertion 8: as__TmpRemanentSub0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0]);
+  -> UNIQUE (new assertion)
+
+Pre-syntax check results:
+  Unique assertions: 5
+  Duplicate assertions: 3
+==================================================
+
+=== FILTERED DUPLICATE ASSERTIONS (Pre-Syntax Check) ===
+Duplicate 1: as__TmpDividendQuotient1ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+Duplicate 2: as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+Duplicate 3: as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+======================================================================
+
+=== UNIQUE ASSERTIONS FOR SYNTAX CORRECTION ===
+Unique Assertion 1: as__QuotientBit1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+Unique Assertion 2: as__TmpRemanentSub1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+Unique Assertion 3: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]});
+Unique Assertion 4: as__QuotientBit0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0);
+Unique Assertion 5: as__TmpRemanentSub0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0]);
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+Fixed 2 missing module prefixes on 1 unique internal signals
+
+=== FIXED INTERNAL SIGNALS ===
+Signal 1: WIDTH -> div_4bits.WIDTH
+======================================================================
+
+Writing unique assertions to property file before syntax correction...
+Writing 5 unique assertions to property file
+Correcting assertion syntax...
+
+Iteration 2
+Running JasperGold...
+[ERROR (VERI-1103)] ft_div_4bits/sva/div_4bits_prop.sv(46): range index value is not constant
+
+Assertions contain syntax errors
+
+Scanning for "syntax error near" messages...
+No "syntax error near" messages found
+Tracking error for assertion: as__TmpRemanent1ShiftCorrecteotid
+Error pattern: [ERROR (VERI-N)] ft_div_Nbits/sva/div_Nbits_prop.sv(N): range index va
+Assertion as__TmpRemanent1ShiftCorrecteotid: 2 consecutive failures, 2 total failures
+Requesting LLM to correct assertion syntax...
+Estimated input tokens: 2438
+Stored LLM interaction for syntax stage iteration 1
+
+Found 5 assertions in response:
+Assertion 1: as__QuotientBit1Correcteotid: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) |-> (div_4bits.quotient_bit[1] == 1'b1)) && ((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) |-> (div_4bits.quotient_bit[1] == 1'b0)));
+Assertion 2: as__TmpRemanentSub1Correcteotid: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - div_4bits.divisor_i)) && ((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1])));
+Assertion 3: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+Assertion 4: as__QuotientBit0Correcteotid: assert property(((div_4bits.tmp_remanent[0] >= div_4bits.divisor_i) |-> (div_4bits.quotient_bit[0] == 1'b1)) && ((div_4bits.tmp_remanent[0] < div_4bits.divisor_i) |-> (div_4bits.quotient_bit[0] == 1'b0)));
+Assertion 5: as__TmpRemanentSub0Correcteotid: assert property(((div_4bits.tmp_remanent[0] >= div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - div_4bits.divisor_i)) && ((div_4bits.tmp_remanent[0] < div_4bits.divisor_i) |-> (div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0])));
+
+Iteration 3
+Running JasperGold...
+[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '&&'
+
+Assertions contain syntax errors
+
+Scanning for "syntax error near" messages...
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '&&'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '<'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '=='
+Found syntax error near: [ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(42): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(44): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(48): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '&&'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '<'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near '=='
+Found syntax error near: 	[ERROR (VERI-1137)] ft_div_4bits/sva/div_4bits_prop.sv(50): syntax error near ')'
+Found syntax errors at 4 unique line numbers: [42, 44, 48, 50]
+Processing syntax error near at line: 42
+Found problematic assertion: as__QuotientBit1Correcteotid
+Processing syntax error near at line: 44
+Found problematic assertion: as__TmpRemanentSub1Correcteotid
+Processing syntax error near at line: 48
+Found problematic assertion: as__QuotientBit0Correcteotid
+Processing syntax error near at line: 50
+Found problematic assertion: as__TmpRemanentSub0Correcteotid
+✓ Removed assertion with syntax error near: as__QuotientBit1Correcteotid
+✓ Removed assertion with syntax error near: as__TmpRemanentSub1Correcteotid
+✓ Removed assertion with syntax error near: as__QuotientBit0Correcteotid
+✓ Removed assertion with syntax error near: as__TmpRemanentSub0Correcteotid
+
+=== SYNTAX ERROR NEAR OPTIMIZATION ===
+Automatically removed 4 assertions with "syntax error near" messages
+Assertions before: 5, after: 1
+Will rerun JasperGold without LLM prompting...
+==================================================
+
+Iteration 3
+Running JasperGold...
+Assertions compiled succesfuly
+
+=== ERROR TRACKING STATISTICS ===
+Assertion: as__TmpRemanent1ShiftCorrecteotid
+  Total failures: 2
+  Error patterns: 1
+    "[ERROR (VERI-N)] ft_div_Nbits/sva/div_Nbits_prop.sv(N): range index va": 2 times
+
+=== CONSECUTIVE FAILURES ===
+Assertion: as__TmpRemanent1ShiftCorrecteotid
+  Consecutive count: 2
+  Last error pattern: [ERROR (VERI-N)] ft_div_Nbits/sva/div_Nbits_prop.sv(N): range index va
+==================================================
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+
+Parser state statistics (processed 1 assertions in this batch):
+  Before this batch - Total stored properties: 10
+  After this batch  - Total stored properties: 10
+  New properties added in this batch: 0
+  Duplicates found in this batch: 1
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 10
+  Delay dictionary: 10
+  Postcondition dictionary: 10
+  Clauses dictionary: 10
+  Results dictionary: 9
+  Unprocessable properties: 0
+
+✅ Duplicate validation passed!
+
+=== FILTERED DUPLICATE ASSERTIONS (Post-Syntax Check) ===
+Duplicate 1: as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+======================================================================
+No new properties found after syntax correction
+
+Duplicate filtering summary:
+  Pre-syntax duplicates filtered: 3
+  Post-syntax duplicates filtered: 1
+  Properties successfully added: 0
+0 NEW PROPERTIES added to the set
+
+Updating property file with complete set of assertions...
+Before update: self.assertions has 1 assertions
+Before update: self.initial_assertions has 10 assertions
+Property file now contains 10 total assertions
+After update: self.assertions has 10 assertions
+
+Running JasperGold after set extension to get fresh verification results for complete assertion set...
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             cex
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+[27]  div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid
+
+
+Name - SVA String Pairs
+Name: as__QuotientBitCorrecteotid || Clauses: as__QuotientBitCorrecteotid:assertproperty((div_4bits.tmp_remanent[0]>=divisor_i)|->div_4bits.quotient_bit[0]==1'b1&&(div_4bits.tmp_remanent[0]<divisor_i)|->div_4bits.quotient_bit[0]==1'b0&&(div_4bits.tmp_remanent[1]>=divisor_i)|->div_4bits.quotient_bit[1]==1'b1&&(div_4bits.tmp_remanent[1]<divisor_i)|->div_4bits.quotient_bit[1]==1'b0);
+Name: as__TmpRemanentSubCorrecteotid || Clauses: as__TmpRemanentSubCorrecteotid:assertproperty((div_4bits.tmp_remanent[0]>=divisor_i)|->div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]-divisor_i&&(div_4bits.tmp_remanent[0]<divisor_i)|->div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]&&(div_4bits.tmp_remanent[1]>=divisor_i)|->div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]-divisor_i&&(div_4bits.tmp_remanent[1]<divisor_i)|->div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]);
+Name: as__RemanentOutputCorrecteotid || Clauses: as__RemanentOutputCorrecteotid:assertproperty(remanent_o==div_4bits.tmp_remanent_sub[0]);
+Name: as__DividendQuotientOutputCorrecteotid || Clauses: as__DividendQuotientOutputCorrecteotid:assertproperty(dividend_quotient_o==div_4bits.tmp_dividend_quotient[0]);
+Name: as__DivisorOutputCorrecteotid || Clauses: as__DivisorOutputCorrecteotid:assertproperty(divisor_o==divisor_i);
+Name: as__TmpDividendQuotientShiftCorrecteotid || Clauses: as__TmpDividendQuotientShiftCorrecteotid:assertproperty(div_4bits.tmp_dividend_quotient[1]=={dividend_quotient_i[div_4bits.WIDTH-2:0],div_4bits.quotient_bit[1]});
+Name: as__TmpRemanentShiftCorrecteotid || Clauses: as__TmpRemanentShiftCorrecteotid:assertproperty(div_4bits.tmp_remanent[1]=={remanent_i[div_4bits.WIDTH-2:0],dividend_quotient_i[div_4bits.WIDTH/2-1]});
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Clauses: as__TmpDividendQuotient0ShiftCorrecteotid:assertproperty(div_4bits.tmp_dividend_quotient[0]=={div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0],div_4bits.quotient_bit[0]});
+Name: as__TmpRemanent0ShiftCorrecteotid || Clauses: as__TmpRemanent0ShiftCorrecteotid:assertproperty(div_4bits.tmp_remanent[0]=={div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0],div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+Name: as__TmpRemanent1ShiftCorrecteotid || Clauses: as__TmpRemanent1ShiftCorrecteotid:assertproperty(div_4bits.tmp_remanent[1]=={div_4bits.remanent_i[div_4bits.WIDTH-2:0],div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+
+
+Name - Delay Pairs
+Name: as__QuotientBitCorrecteotid || Delay: 0
+Name: as__TmpRemanentSubCorrecteotid || Delay: 0
+Name: as__RemanentOutputCorrecteotid || Delay: 0
+Name: as__DividendQuotientOutputCorrecteotid || Delay: 0
+Name: as__DivisorOutputCorrecteotid || Delay: 0
+Name: as__TmpDividendQuotientShiftCorrecteotid || Delay: 0
+Name: as__TmpRemanentShiftCorrecteotid || Delay: 0
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Delay: 0
+Name: as__TmpRemanent0ShiftCorrecteotid || Delay: 0
+Name: as__TmpRemanent1ShiftCorrecteotid || Delay: 0
+
+
+Name - Postcondition Pairs
+Name: as__QuotientBitCorrecteotid || Clauses: ["div_4bits.quotient_bit[0]==1'b1", '&&', '(', 'div_4bits.tmp_remanent[0]<divisor_i', ')', '->', "div_4bits.quotient_bit[0]==1'b0", '&&', '(', 'div_4bits.tmp_remanent[1]>=divisor_i', ')', '->', "div_4bits.quotient_bit[1]==1'b1", '&&', '(', 'div_4bits.tmp_remanent[1]<divisor_i', ')', '->', "div_4bits.quotient_bit[1]==1'b0"]
+Name: as__TmpRemanentSubCorrecteotid || Clauses: ['div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]-divisor_i', '&&', '(', 'div_4bits.tmp_remanent[0]<divisor_i', ')', '->', 'div_4bits.tmp_remanent_sub[0]==div_4bits.tmp_remanent[0]', '&&', '(', 'div_4bits.tmp_remanent[1]>=divisor_i', ')', '->', 'div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]-divisor_i', '&&', '(', 'div_4bits.tmp_remanent[1]<divisor_i', ')', '->', 'div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]']
+Name: as__RemanentOutputCorrecteotid || Clauses: []
+Name: as__DividendQuotientOutputCorrecteotid || Clauses: []
+Name: as__DivisorOutputCorrecteotid || Clauses: []
+Name: as__TmpDividendQuotientShiftCorrecteotid || Clauses: []
+Name: as__TmpRemanentShiftCorrecteotid || Clauses: []
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Clauses: []
+Name: as__TmpRemanent0ShiftCorrecteotid || Clauses: []
+Name: as__TmpRemanent1ShiftCorrecteotid || Clauses: []
+
+
+Name - Clause Pairs
+Name: as__QuotientBitCorrecteotid || Clauses: [['!!!!div_4bits.tmp_remanent[0]>=divisor_i', "div_4bits.quotient_bit[1]==1'b0"]]
+Name: as__TmpRemanentSubCorrecteotid || Clauses: [['!!!!div_4bits.tmp_remanent[0]>=divisor_i', 'div_4bits.tmp_remanent_sub[1]==div_4bits.tmp_remanent[1]']]
+Name: as__RemanentOutputCorrecteotid || Clauses: [['remanent_o==div_4bits.tmp_remanent_sub[0]']]
+Name: as__DividendQuotientOutputCorrecteotid || Clauses: [['dividend_quotient_o==div_4bits.tmp_dividend_quotient[0]']]
+Name: as__DivisorOutputCorrecteotid || Clauses: [['divisor_o==divisor_i']]
+Name: as__TmpDividendQuotientShiftCorrecteotid || Clauses: [['div_4bits.tmp_dividend_quotient[1]=={dividend_quotient_i[div_4bits.WIDTH-2:0],div_4bits.quotient_bit[1]}']]
+Name: as__TmpRemanentShiftCorrecteotid || Clauses: [['div_4bits.tmp_remanent[1]=={remanent_i[div_4bits.WIDTH-2:0],dividend_quotient_i[div_4bits.WIDTH/2-1]}']]
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Clauses: [['div_4bits.tmp_dividend_quotient[0]=={div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0],div_4bits.quotient_bit[0]}']]
+Name: as__TmpRemanent0ShiftCorrecteotid || Clauses: [['div_4bits.tmp_remanent[0]=={div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0],div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]}']]
+Name: as__TmpRemanent1ShiftCorrecteotid || Clauses: [['div_4bits.tmp_remanent[1]=={div_4bits.remanent_i[div_4bits.WIDTH-2:0],div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]}']]
+
+
+Name - Proof Result Pairs
+Name: as__QuotientBitCorrecteotid || Proof Result: proven
+Name: as__TmpRemanentSubCorrecteotid || Proof Result: proven
+Name: as__RemanentOutputCorrecteotid || Proof Result: proven
+Name: as__DividendQuotientOutputCorrecteotid || Proof Result: proven
+Name: as__DivisorOutputCorrecteotid || Proof Result: proven
+Name: as__TmpDividendQuotientShiftCorrecteotid || Proof Result: proven
+Name: as__TmpRemanentShiftCorrecteotid || Proof Result: cex
+Name: as__TmpDividendQuotient0ShiftCorrecteotid || Proof Result: proven
+Name: as__TmpRemanent0ShiftCorrecteotid || Proof Result: proven
+Name: as__TmpRemanent1ShiftCorrecteotid || Proof Result: proven
+Stored property file version for after_extension stage at ft_div_4bits/sva/versions/div_4bits_prop_after_extension.sv
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             cex
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+[27]  div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid
+
+Starting to fix unproven assertions...
+Stored property file version for after_extension stage at ft_div_4bits/sva/versions/div_4bits_prop_after_extension.sv
+Running JasperGold to get fresh property results...
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             cex
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+[27]  div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid
+
+Found 1 unproven assertions to fix
+Found 9 proven assertions
+
+Processing unproven assertion: as__TmpRemanentShiftCorrecteotid
+Original assertion: as__TmpRemanentShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH/2-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2262
+
+
+Full LLM Response:
+1. The current assertion is failing because it assumes a fixed bit index (div_4bits.WIDTH/2-1) for the bit concatenated from dividend_quotient_i, which does not account for the dynamic SEW (Standard Element Width) selection in SIMD mode. The RTL uses different bit indices (7, 15, 31, 63) depending on sew_i, and in scalar mode it uses WIDTH-1. Also, the assertion does not consider that tmp_remanent[1] is a combinational signal derived from remanent_i and dividend_quotient_i in the same cycle, so a same-cycle assertion (|->) should be used.
+
+2. The fix is to write the assertion to reflect the dynamic bit index selected based on sew_i and CONFIG32/SIMD_ENABLE parameters. We can express the bit index as a function of sew_i: for 2'b00 use 7, 2'b01 use 15, 2'b10 use 31, and default (2'b11) use 63. For scalar mode, use WIDTH-1. Since the assertion must be high-level and avoid implementation details, we can write a conditional expression that matches the RTL logic. Also, use a same-cycle assertion (|->) because tmp_remanent[1] is combinationally assigned.
+
+3. Corrected assertion:
+
+```systemverilog
+as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> ((div_4bits.tmp_remanent[1] == (remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63])))) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]}));
+```
+
+Note: The assertion uses a same-cycle implication (|->) with the precondition being SIMD_ENABLE or its negation, and the postcondition matching the corresponding concatenation. This covers both SIMD and scalar cases and respects the RTL behavior.
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> ((div_4bits.tmp_remanent[1] == (remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63])))) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]}));
+
+Selected last assertion from response: as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> ((div_4bits.tmp_remanent[1] == (remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63])))) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]}));
+
+Attempt 2 of 5
+Estimated input tokens: 2384
+
+
+Full LLM Response:
+1. The current assertion is failing because it assumes a fixed bit index (div_4bits.WIDTH/2-1) for the bit concatenated to remanent_i[div_4bits.WIDTH-2:0] in tmp_remanent[1]. However, the RTL uses a dynamic bit index depending on the sew_i value when SIMD_ENABLE is set, selecting bit 7, 15, 31, or 63 accordingly. The original assertion does not account for this dynamic selection, causing mismatches in the expected value.
+
+2. The proposed fix is to write the assertion to reflect the dynamic selection of the bit from dividend_quotient_i based on sew_i when SIMD_ENABLE is enabled, and to use the highest bit (WIDTH-1) when SIMD_ENABLE is disabled (scalar mode). This matches the RTL behavior exactly. Since assertions cannot use foreach, we use a conditional expression on sew_i to select the correct bit index. This will ensure the assertion matches the RTL logic for all configurations and SEW values.
+
+3. Corrected assertion:
+
+as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63]})) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]}));
+Stored LLM interaction for correction stage iteration 2
+
+Found 1 assertions in response:
+Assertion 1: as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63]})) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]}));
+
+Selected last assertion from response: as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63]})) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]}));
+
+Attempt 3 of 5
+Estimated input tokens: 2510
+
+
+Full LLM Response:
+1. Explanation of failure:  
+The original assertion fails because it does not consider the pipeline behavior and timing of the signals involved. The signal `tmp_remanent[1]` is combinationally assigned based on `remanent_i` and `dividend_quotient_i` in the same cycle, but the assertion is checking equality directly without considering that `dividend_quotient_i` might be updated or that the selection of the bit from `dividend_quotient_i` depends on the dynamic `sew_i` signal. Also, the original assertion does not handle the timing of the signals properly, especially for the SIMD_ENABLE case where the bit index depends on `sew_i`. The assertion should use a same-cycle assertion (`|->`) because `tmp_remanent[1]` is combinationally assigned from `remanent_i` and `dividend_quotient_i` in the same cycle.
+
+2. Proposed fix:  
+The fix is to write a same-cycle assertion (`|->`) that checks `tmp_remanent[1]` equals the concatenation of `remanent_i[WIDTH-2:0]` and the correct bit of `dividend_quotient_i` depending on `SIMD_ENABLE` and `sew_i`. For SIMD_ENABLE, the bit index depends on `sew_i` (8, 16, 32, or 64), otherwise it is `WIDTH-1`. The assertion must use the correct module prefix `div_4bits.` for internal signals and inputs. This assertion will check the combinational assignment in the same cycle, matching the RTL behavior.
+
+3. Corrected assertion:
+
+```systemverilog
+as__TmpRemanentShiftCorrecteotid: assert property((1'b1) |-> ((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], (div_4bits.SIMD_ENABLE ? (div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00 ? 7 : (div_4bits.sew_i == 2'b01 ? 15 : (div_4bits.sew_i == 2'b10 ? 31 : 63)))] ) : div_4bits.dividend_quotient_i[div_4bits.WIDTH-1])})));
+```
+Stored LLM interaction for correction stage iteration 3
+
+Found 1 assertions in response:
+Assertion 1: as__TmpRemanentShiftCorrecteotid: assert property((1'b1) |-> ((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], (div_4bits.SIMD_ENABLE ? (div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00 ? 7 : (div_4bits.sew_i == 2'b01 ? 15 : (div_4bits.sew_i == 2'b10 ? 31 : 63)))] ) : div_4bits.dividend_quotient_i[div_4bits.WIDTH-1])})));
+
+Selected last assertion from response: as__TmpRemanentShiftCorrecteotid: assert property((1'b1) |-> ((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], (div_4bits.SIMD_ENABLE ? (div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00 ? 7 : (div_4bits.sew_i == 2'b01 ? 15 : (div_4bits.sew_i == 2'b10 ? 31 : 63)))] ) : div_4bits.dividend_quotient_i[div_4bits.WIDTH-1])})));
+[1]   div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+Successfully fixed assertion as__TmpRemanentShiftCorrecteotid after 3 attempts
+
+Running JasperGold with all final assertions to collect complete results...
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid
+[27]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+Final comprehensive results collected for 10 assertions
+
+=== CORRECTION ATTEMPTS SUMMARY ===
+
+Assertion: as__TmpRemanentShiftCorrecteotid
+Original assertion:
+as__TmpRemanentShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH/2-1]});
+
+Correction attempts:
+Attempt 1: as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> ((div_4bits.tmp_remanent[1] == (remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63])))) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]}));
+Attempt 2: as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63]})) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]}));
+Attempt 3: as__TmpRemanentShiftCorrecteotid: assert property((1'b1) |-> ((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], (div_4bits.SIMD_ENABLE ? (div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00 ? 7 : (div_4bits.sew_i == 2'b01 ? 15 : (div_4bits.sew_i == 2'b10 ? 31 : 63)))] ) : div_4bits.dividend_quotient_i[div_4bits.WIDTH-1])})));
+----------------------------------------------------------------------
+
+=== SEMANTIC CORRECTION RESULTS ===
+Successfully corrected assertions: 1
+Failed to correct assertions: 0
+Total unproven assertions processed: 1
+
+Final property file contents:
+module div_4bits_prop
+
+
+#(
+		parameter ASSERT_INPUTS = 0,
+		parameter   CONFIG32    = 1'b0,         //! If HIGH (1'b1), the functional unit is configured for operations with 32-bits max size. If LOW (1'b0), the functional unit also handles 64-bit operations.,
+		parameter   SIMD_ENABLE = 1'b0,         //! If HIGH (1'b1), the functional unit is configured to work with dynamic widths (SEW). Setting this parameter overwrites CONFIG32
+		localparam  WIDTH = ((CONFIG32 == 1'b1) && (SIMD_ENABLE == 1'b0)) ? 32 : 64 //! Constant with size of operands and result.
+)
+(		/* verilator lint_off UNUSEDSIGNAL */
+		input  logic [WIDTH-1:0]      remanent_i,           //! Contains the remanent of the previous division without last bit
+		/* verilator lint_on UNUSEDSIGNAL */
+		input  logic [WIDTH-1:0]      dividend_quotient_i,  //! Contains at same time the dividend and the quotient of previous division
+		input  logic [WIDTH-1:0]      divisor_i,            //! Contains the divisor
+		/* verilator lint_off UNUSEDSIGNAL */
+		input  logic [1:0]                  sew_i,                //! Dynamic element widh for SIMD
+		/* verilator lint_on UNUSEDSIGNAL */
+		
+		input  logic [WIDTH-1:0]      remanent_o,           //! Contains the remanent of the actual 8 bit division //output
+		input  logic [WIDTH-1:0]      dividend_quotient_o,  //! Contains at same time dividend and quotient of actual 8 bit division //output
+		input  logic [WIDTH-1:0]      divisor_o //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+as__QuotientBitCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0 && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+
+as__TmpRemanentSubCorrecteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] && (div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+
+as__RemanentOutputCorrecteotid: assert property(remanent_o == div_4bits.tmp_remanent_sub[0]);
+
+as__DividendQuotientOutputCorrecteotid: assert property(dividend_quotient_o == div_4bits.tmp_dividend_quotient[0]);
+
+as__DivisorOutputCorrecteotid: assert property(divisor_o == divisor_i);
+
+as__TmpDividendQuotientShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+
+as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+
+as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+
+as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.WIDTH-1]});
+
+as__TmpRemanentShiftCorrecteotid: assert property((1'b1) |-> ((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], (div_4bits.SIMD_ENABLE ? (div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00 ? 7 : (div_4bits.sew_i == 2'b01 ? 15 : (div_4bits.sew_i == 2'b10 ? 31 : 63)))] ) : div_4bits.dividend_quotient_i[div_4bits.WIDTH-1])})));
+
+endmodule
+
+Stored property file version for after_semantic_correction stage at ft_div_4bits/sva/versions/div_4bits_prop_after_semantic_correction.sv
+
+Creating proven-only property file...
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid
+[27]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+Created proven-only property file: ft_div_4bits/sva/div_4bits_prop_only_proven.sv
+Proven assertions: 10
+Failing assertions: 0 (commented out)
+Total assertions: 10
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid
+[27]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+Stored property file version for after_semantic_correction stage at ft_div_4bits/sva/versions/div_4bits_prop_after_semantic_correction.sv
+
+Creating proven-only property file...
+[1]   div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid                                  proven
+div_4bits.u_div_4bits_sva.as__QuotientBitCorrecteotid
+[7]   div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentSubCorrecteotid
+[13]  div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid                               proven
+div_4bits.u_div_4bits_sva.as__RemanentOutputCorrecteotid
+[15]  div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid                       proven
+div_4bits.u_div_4bits_sva.as__DividendQuotientOutputCorrecteotid
+[17]  div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid                                proven
+div_4bits.u_div_4bits_sva.as__DivisorOutputCorrecteotid
+[19]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid                     proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotientShiftCorrecteotid
+[21]  div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid                    proven
+div_4bits.u_div_4bits_sva.as__TmpDividendQuotient0ShiftCorrecteotid
+[23]  div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent0ShiftCorrecteotid
+[25]  div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid                            proven
+div_4bits.u_div_4bits_sva.as__TmpRemanent1ShiftCorrecteotid
+[27]  div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid                             proven
+div_4bits.u_div_4bits_sva.as__TmpRemanentShiftCorrecteotid
+Created proven-only property file: ft_div_4bits/sva/div_4bits_prop_only_proven.sv
+Proven assertions: 10
+Failing assertions: 0 (commented out)
+Total assertions: 10
+
+================================================================================
+🚀 AI-SVA AGENT EXECUTION REPORT
+================================================================================
+
+📊 RTL MODULE ANALYSIS
+----------------------------------------
+Number of unique submodules:     0
+Total submodule instances:       0
+RTL module lines:                88
+Module type:                     Combinational
+
+📝 ASSERTION METRICS
+----------------------------------------
+Initial assertions:              9
+After syntax correction:         9
+After property set expansion:    10
+Added during expansion:          1
+Final assertions:                10
+
+🔧 AUTOMATIC SYNTACTICAL FIXES
+----------------------------------------
+Module prefix fixes:             52
+Duplicate name fixes:            0
+Total automatic fixes:           52
+
+✅ VERIFICATION RESULTS (Before Semantic Correction)
+----------------------------------------
+Passing assertions:              9
+Failing assertions:              1
+Undefined assertions:            0
+Total verified:                  10
+
+✅ VERIFICATION RESULTS (After Semantic Correction)
+----------------------------------------
+Passing assertions:              10
+Failing assertions:              0
+Undefined assertions:            0
+Total verified:                  10
+Improvement: +1 passing, -1 failing
+
+🎯 SEMANTIC CORRECTION RESULTS
+----------------------------------------
+Successfully corrected:          1
+Failed to correct:               0
+
+🕒 EXECUTION TIMING
+----------------------------------------
+Total execution time:            215.02s
+Preprocessing:                   0.03s (0.0%)
+Syntax correction:               11.44s (5.3%)
+Property set extension:          121.41s (56.5%)
+Semantic correction:             81.95s (38.1%)
+Core processing time:            214.82s (99.9%)
+JasperFPV time:                  113.34s (52.7%)
+LLM time:                        98.72s (45.9%)
+Other processing time:           2.77s (1.3%)
+
+🔢 LLM API USAGE STATISTICS
+----------------------------------------
+Total input tokens:              17,161
+Total output tokens:             2,037
+Total tokens:                    19,198
+Total API calls:                 7
+Syntax correction API calls:     2
+Semantic correction API calls:   3
+Avg input tokens per call:       2451.6
+Avg output tokens per call:      291.0
+Avg total tokens per call:       2742.6
+================================================================================
+
+=== COMPREHENSIVE EXECUTION REPORT ===
+RTL Analysis: 0 unique submodules, 0 instances, 88 lines, Combinational type
+Assertion Counts: 9 initial → 9 after syntax → 10 after expansion → 10 final
+Automatic Fixes: 52 prefix fixes, 0 name fixes
+Verification (Before): 9 passing, 1 failing
+Verification (After): 10 passing, 0 failing
+Semantic Correction: 1 corrected, 0 failed
+Timing: 215.02s total (0.03s preprocessing, 11.44s syntax, 121.41s extension, 81.95s semantic)
+Fine-grained Timing: 113.34s JasperFPV, 98.72s LLM
+API Usage: 19,198 tokens (17,161 input, 2,037 output), 7 calls (2 syntax, 3 semantic)
+==================================================
+Comprehensive results saved to: ft_div_4bits/sva/comprehensive_results.txt
+
+📁 PROPERTY FILE VERSIONS CREATED
+----------------------------------------
+Initial: ft_div_4bits/sva/versions/div_4bits_prop_initial.sv
+After Syntax: ft_div_4bits/sva/versions/div_4bits_prop_after_syntax.sv
+After Extension: ft_div_4bits/sva/versions/div_4bits_prop_after_extension.sv
+After Semantic Correction: ft_div_4bits/sva/versions/div_4bits_prop_after_semantic_correction.sv
+================================================================================
+[2025-08-22 21:24:27] [INFO] Agent execution completed
+================================================================================

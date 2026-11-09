@@ -1,0 +1,6 @@
+// The original assertion fails because target_reg_q is updated on the clock edge after reset_count_i is asserted, so the updated value appears in the next cycle. The assertion uses a next-cycle implication (|=>) but compares target_reg_q to target_value_i in the same cycle, which is not yet updated. Also, target_value_i is a wire and stable in the current cycle, so $past(target_value_i) should be used in the postcondition to refer to the value at the precondition cycle.
+
+// The fix is to assert that on the cycle after reset_count_i is asserted, target_reg_q equals the target_value_i from the previous cycle (using $past(target_value_i)) and that reset_count_i was asserted in the previous cycle ($past(reset_count_i)) to ensure synchronization.
+
+// Corrected assertion:
+as__TargetRegUpdateOnResetCount: assert property(reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i) && $past(reset_count_i)));

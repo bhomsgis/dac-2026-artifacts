@@ -1,0 +1,9 @@
+The current assertion `as__respPpnNext: assert property(ptw.r_resp_ppn |=> {{(64-(SIZE_VADDR-11)){1'b0}}, ptw.pte_addr[SIZE_VADDR:12]});` is failing because it does not correctly capture the behavior of the `r_resp_ppn` signal in relation to the `pte_addr` signal.
+
+The `r_resp_ppn` signal is assigned the value of `pte_addr` shifted right by 12 bits, but the assertion is trying to match the value of `r_resp_ppn` with the value of `pte_addr` shifted right by 12 bits and then concatenated with zeros. This is not the correct relationship between the two signals.
+
+To fix this, we need to modify the assertion to correctly capture the relationship between `r_resp_ppn` and `pte_addr`. We can do this by using the `$past` function to refer to the value of `pte_addr` in the previous cycle, and then shifting it right by 12 bits to match the assignment of `r_resp_ppn`.
+
+Here is the corrected assertion:
+
+`as__respPpnNext: assert property(ptw.r_resp_ppn |=> $past(ptw.pte_addr[SIZE_VADDR:12]) == ptw.r_resp_ppn[63:12]);`

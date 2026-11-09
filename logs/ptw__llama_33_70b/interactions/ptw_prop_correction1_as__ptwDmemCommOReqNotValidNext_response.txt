@@ -1,0 +1,1 @@
+as__ptwDmemCommOReqNotValidNext: assert property(!ptw_dmem_comm_o.req.valid |=> (ptw.current_state != ptw.S_REQ && ptw.current_state != ptw.S_WAIT));

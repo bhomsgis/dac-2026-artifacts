@@ -1,0 +1,60 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a skipper_counter. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the skipper_counter interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of skipper_counter but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+We want to increase the assertion set for this RTL module called skipper_counter
+Here are the current correct assertions:
+as__PriorityValidImpliesActiveVectorNonZero: assert property(skipper_counter.priority_valid |-> |skipper_counter.current_active_vector);
+as__OneHotImpliesSingleBitSet: assert property(skipper_counter.one_hot |-> $countones(skipper_counter.current_active_vector) == 1);
+as__ValidStateMatchesPriorityValid: assert property(valid_state_o == skipper_counter.priority_valid);
+as__TurnCountWithinLimit: assert property(turn_count_o <= CLOSE_LIMIT);
+as__StateCountWithinLimit: assert property(state_count_o <= CLOSE_LIMIT);
+as__StallHoldsTurnCount: assert property(stall_i |-> turn_count_o == $past(turn_count_o));
+as__ActiveVectorChangesUpdateCurrentActiveVector: assert property((!skipper_counter.same_vector || skipper_counter.one_hot) |-> skipper_counter.current_active_vector == active_vector_i);
+as__CurrentActiveVectorClearsBitAtStateCountWhenNoChange: assert property((skipper_counter.same_vector && !skipper_counter.one_hot) |-> skipper_counter.current_active_vector[skipper_counter.state_count] == 1'b0);
+as__LastActiveVectorTracksActiveVector: assert property($past(active_vector_i) == skipper_counter.last_active_vector);
+as__SameVectorSignalCorrect: assert property(skipper_counter.same_vector == (~|(active_vector_i ^ skipper_counter.last_active_vector)));
+as__OneHotSignalCorrect: assert property(skipper_counter.one_hot == (~|(skipper_counter.current_active_vector & (skipper_counter.current_active_vector - 1))));
+as__PriorityValidImpliesStateCountIsEncoded: assert property(skipper_counter.priority_valid |-> skipper_counter.state_count == priority_encoder_inst.encoded_value_o);
+as__TurnCountAdvancesWhenNotStalled: assert property((!stall_i && $past(!stall_i)) |=> turn_count_o != $past(turn_count_o));
+as__TurnCountHoldsWhenStalled: assert property(stall_i |=> turn_count_o == $past(turn_count_o));
+as__ValidStateOutputMatchesPriorityValid: assert property(valid_state_o == skipper_counter.priority_valid);
+as__StateCountMatchesPriorityEncoderOutput: assert property(state_count_o == priority_encoder_inst.encoded_value_o);
+as__LastStateTracksStateCount: assert property($past(state_count_o) == skipper_counter.last_state);
+as__OneHotQTracksOneHotD: assert property($past(skipper_counter.one_hot_d) == skipper_counter.one_hot_q);
+as__SameCountSignalCorrect: assert property(skipper_counter.same_count == (~|(skipper_counter.turn_count ^ skipper_counter.last_count)));
+as__LastCountTracksTurnCount: assert property($past(skipper_counter.turn_count) == skipper_counter.last_count);
+as__CurrentActiveVectorAssignsCorrectlyImmediateChange: assert property(skipper_counter.IMMEDIATE_CHANGE && (!skipper_counter.same_count || !skipper_counter.same_vector) |-> (( !skipper_counter.same_vector || skipper_counter.one_hot_q ) ? (skipper_counter.current_active_vector == active_vector_i) : (skipper_counter.current_active_vector[skipper_counter.last_state] == 1'b0)));
+as__CurrentActiveVectorAssignsCorrectlyNoImmediateChange: assert property(!skipper_counter.IMMEDIATE_CHANGE && !skipper_counter.same_count |-> (( !skipper_counter.same_vector || skipper_counter.one_hot_q ) ? (skipper_counter.current_active_vector == active_vector_i) : (skipper_counter.current_active_vector[skipper_counter.last_state] == 1'b0)));
+
+Here is the RTL:
+[Internal RTL for skipper_counter.sv omitted from this release.]
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'skipper_counter.'

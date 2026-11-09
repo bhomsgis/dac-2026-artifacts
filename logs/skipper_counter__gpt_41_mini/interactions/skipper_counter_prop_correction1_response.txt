@@ -1,0 +1,6 @@
+// The original assertion fails because it compares current_active_vector (a wire) and current_active_vector[skipper_counter.last_state] in the same cycle as IMMEDIATE_CHANGE and vector changes, but current_active_vector is combinationally assigned and depends on last_state and one_hot_q registered signals, so the timing is mismatched. Also, it does not consider the pipeline delay of last_state and one_hot_q properly, leading to incorrect evaluation of current_active_vector bits in the same cycle.
+
+// The fix is to use a next-cycle assertion (|=>) to check the updated registered signals (last_state, one_hot_q) and the updated current_active_vector combinationally assigned in the next cycle, referencing $past() for the precondition signals and last_state, one_hot_q. This aligns the timing and properly checks the current_active_vector after the combinational logic settles, considering pipeline behavior.
+
+// Corrected assertion:
+as__CurrentActiveVectorAssignsCorrectlyImmediateChange: assert property ((skipper_counter.IMMEDIATE_CHANGE && (!skipper_counter.same_count || !skipper_counter.same_vector)) |=> ((!skipper_counter.same_vector || skipper_counter.one_hot_q) ? (skipper_counter.current_active_vector == skipper_counter.active_vector_i) : (skipper_counter.current_active_vector[$past(skipper_counter.last_state)] == 1'b0)));

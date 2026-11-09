@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion as__ValidQ0SetOnValid checks that if valid_i is asserted and flush_i[0] is not asserted, then valid_q[0] is asserted in the same cycle. However, valid_q[0] is a register updated on the clock edge, so its updated value is visible only in the next cycle. The assertion uses a same-cycle implication (|->), which expects the postcondition in the same cycle as the precondition, but valid_q[0] updates only after the clock edge. This timing mismatch causes the assertion to fail.
+
+2. Proposed fix:  
+Use a next-cycle implication (|=>) to check that when valid_i is asserted and flush_i[0] is not asserted in the current cycle, then valid_q[0] will be asserted in the next cycle. Also, to be precise, use $past(valid_i && !mul_unit.flush_i[0]) in the postcondition to refer to the precondition cycle's signals. This matches the RTL behavior where valid_q[0] is updated on the clock edge based on valid_i and flush_i[0].
+
+3. Corrected assertion:  
+as__ValidQ0SetOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |=> mul_unit.valid_q[0]);

@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking the value of `tlb_ptw_comm_o` in the same cycle as the precondition, but `tlb_ptw_comm_o` is assigned in the combinational logic block, which means its value will not be updated until the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), and to use `$past()` to refer to the value of `itlb_ptw_comm_i` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__IdleToServingiTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 |=> tlb_ptw_comm_o == $past(itlb_ptw_comm_i) && ptw_arb.next_state == ptw_arb.SERVING_iTLB);
+```
+
+This assertion checks that when the `ptw_arb` is in the `IDLE` state and receives a valid request from the `itlb`, it will transition to the `SERVING_iTLB` state and output the `itlb_ptw_comm_i` request on the `tlb_ptw_comm_o` signal in the next cycle.

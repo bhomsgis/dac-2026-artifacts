@@ -1,0 +1,1 @@
+as__Valid: assert property(valid_i |=> div_unit.valid_q == $past(valid_i) && div_unit.cycles_counter != 6'd0 && $past(div_unit.cycles_counter) != 6'd1 && $past(div_unit.valid_q) == 1'b0 && $past(div_unit.cycles_counter) == (div_unit.op_32bits_i ? 6'd17 : 6'd33));

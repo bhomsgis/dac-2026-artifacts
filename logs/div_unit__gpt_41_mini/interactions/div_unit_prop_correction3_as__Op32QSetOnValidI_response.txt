@@ -1,0 +1,3 @@
+// The assertion fails because op_32_q is a registered signal updated one cycle after valid_i is asserted, so checking op_32_q in the same cycle as valid_i is incorrect. The assertion should check that when valid_i is asserted, op_32_q is set to op_32bits_i in the next cycle (i.e., op_32_q updates one cycle after valid_i). Using a next-cycle assertion with $past(div_unit.op_32_q) == op_32bits_i ensures we compare the registered value before update to the input at valid_i cycle, matching pipeline timing.
+
+as__Op32QSetOnValidI: assert property (valid_i |=> (div_unit.op_32_q == $past(op_32bits_i)));

@@ -1,0 +1,8 @@
+The current assertion `as__ResultNextMULHSU: assert property(valid_i && op_i == mul_unit.MULHSU |=> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` might be failing because it does not consider the pipeline behavior and timing of the `mul_unit` module. Specifically, it does not account for the fact that the `result_o` signal is assigned in the next cycle after the `valid_i` and `op_i` signals are evaluated.
+
+A proposed fix is to use the `$past` function to refer to the value of the `result_2width_def` signal in the previous cycle, and to consider the `op_32bits_q_final` signal to determine whether the result should be taken from the high or low part of the `result_2width_def` signal.
+
+Here is the corrected assertion:
+```systemverilog
+as__ResultNextMULHSU: assert property(valid_i && op_i == mul_unit.MULHSU |=> result_o == $past(mul_unit.result_2width_def)[($past(mul_unit.op_32bits_q_final) && mul_unit.REG_32 && !mul_unit.CONFIG32) ? mul_unit.WIDTH-1 : 0] : mul_unit.WIDTH-1);
+```

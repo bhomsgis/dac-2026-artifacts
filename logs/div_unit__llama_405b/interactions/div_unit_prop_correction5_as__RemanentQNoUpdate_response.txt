@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if `div_unit.cycles_counter` is equal to 0 in the current cycle, then in the next cycle, it checks if `div_unit.remanent_q` is equal to its previous value. However, this assertion does not consider the case when `div_unit.cycles_counter` is not equal to 0 but `div_unit.remanent_q` is still not updated.
+
+The proposed fix is to check if `div_unit.cycles_counter` is not equal to 1 instead of 0. This is because `div_unit.remanent_q` is updated when `div_unit.cycles_counter` is not equal to 1.
+
+Here is the corrected assertion:
+
+as__RemanentQNoUpdate: assert property(div_unit.cycles_counter != 6'd1 |=> div_unit.remanent_q == $past(div_unit.remanent_q));

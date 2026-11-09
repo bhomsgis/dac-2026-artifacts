@@ -1,0 +1,33 @@
+The current assertion is failing because it is checking if the `plru_tree_q` register is updated when `access_hit_i` is high, but it is not considering the fact that the update of `plru_tree_q` happens in the next cycle due to the sequential process.
+
+The assertion is using the same-cycle assertion operator (`|->`), which means that it is checking if the condition on the right-hand side is true in the same cycle as the condition on the left-hand side. However, since `plru_tree_q` is updated in the next cycle, this assertion will fail.
+
+The proposed fix is to use the next-cycle assertion operator (`|=>`) instead, which checks if the condition on the right-hand side is true in the next cycle. Additionally, we need to use `$past()` to refer to the value of `plru_tree_q` in the previous cycle, before the update.
+
+Here is the corrected assertion:
+
+```
+as__TreeUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+```
+
+However, this is the same as Attempt 2, which didn't work. Let's try a different approach.
+
+A different way to check if the `plru_tree_q` register is updated when `access_hit_i` is high is to check if the `plru_tree_d` signal is different from `plru_tree_q` when `access_hit_i` is high. This is because `plru_tree_d` is the signal that is used to update `plru_tree_q` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__TreeUpdatedWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+```
+
+However, this is the same as Attempt 1, which didn't work. Let's try another approach.
+
+Another way to check if the `plru_tree_q` register is updated when `access_hit_i` is high is to check if any of the bits of `plru_tree_d` are different from the corresponding bits of `plru_tree_q` when `access_hit_i` is high.
+
+Here is the corrected assertion:
+
+```
+as__TreeUpdatedWhenHit: assert property(access_hit_i == 1'b1 |-> |(pseudoLRU.plru_tree_d ^ pseudoLRU.plru_tree_q));
+```
+
+This assertion uses the bitwise XOR operator (`^`) to compare the bits of `plru_tree_d` and `plru_tree_q`, and the `|` operator to check if any of the resulting bits are high. If any of the bits are high, it means that `plru_tree_d` is different from `plru_tree_q`, and the assertion passes.

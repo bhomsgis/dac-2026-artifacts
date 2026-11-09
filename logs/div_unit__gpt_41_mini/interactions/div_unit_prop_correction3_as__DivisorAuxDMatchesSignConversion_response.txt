@@ -1,0 +1,7 @@
+// The assertion fails because divisor_aux_d is a wire assigned combinationally from data_rs2_i, op_32bits_i, and op_unsigned_i, which are inputs valid in the current cycle. The original assertion uses a next-cycle implication (|->) but references divisor_aux_d without $past(), mixing timing. Also, the sign bit indexing and signal names must match the internal signals and inputs properly. The assertion should be a same-cycle assertion (|->) since divisor_aux_d is a wire updated combinationally in the current cycle from inputs valid_i, op_32bits_i, op_unsigned_i, and data_rs2_i.
+
+// The fix is to use a same-cycle assertion (|->) with the correct signals and indexing, referencing inputs directly (not $past), and using the internal signal div_unit.divisor_aux_d. The sign bit depends on op_32bits_i: if 32-bit, use bit 31; else use bit WIDTH-1. The condition for two's complement conversion is if the operand is signed (not op_unsigned_i) and the sign bit is set.
+
+// Corrected assertion:
+
+as__DivisorAuxDMatchesSignConversion: assert property (valid_i |-> (div_unit.divisor_aux_d == (((!op_unsigned_i && ((op_32bits_i ? data_rs2_i[31] : data_rs2_i[div_unit.WIDTH-1]))) ? (~data_rs2_i + div_unit.ONE) : data_rs2_i))));

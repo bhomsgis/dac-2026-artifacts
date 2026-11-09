@@ -1,0 +1,1 @@
+as__Op: assert property(valid_i |=> div_unit.op_q == $past(op_i) && div_unit.valid_q == $past(valid_i));

@@ -1,0 +1,7 @@
+1. The current assertion might be failing because it assumes that when in S_REQ state with no pte_cache_hit and dmem_ready, the next_state will immediately be S_WAIT. However, the RTL shows that next_state transitions to S_WAIT only if dmem_ptw_comm_o.req.valid is asserted and dmem_ready is true. Also, the assertion does not consider the condition that ptw_dmem_comm_o.req.valid must be asserted in the same cycle as dmem_ready for the state to transition. Moreover, the assertion uses dmem_ptw_comm_i.dmem_ready, but the RTL uses ptw.dmem_ptw_comm_i.dmem_ready, so the prefix must be correct.
+
+2. The fix is to add the condition that ptw.ptw_dmem_comm_o.req.valid is asserted in the same cycle as dmem_ready in the precondition. This matches the RTL logic where the state moves from S_REQ to S_WAIT only if the request is valid and dmem_ready is true. This should make the assertion pass because it aligns with the actual state machine behavior.
+
+3. Corrected assertion:
+
+as__ReqStateDmemReadyNextWait: assert property ((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && ptw.ptw_dmem_comm_o.req.valid && ptw.dmem_ptw_comm_i.dmem_ready) |=> (ptw.next_state == ptw.S_WAIT));

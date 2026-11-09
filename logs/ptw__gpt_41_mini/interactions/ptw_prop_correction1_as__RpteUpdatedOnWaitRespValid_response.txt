@@ -1,0 +1,4 @@
+// The original assertion fails because r_pte is updated on the clock edge when in S_WAIT and dmem_ptw_comm_i.resp.valid is asserted, so the updated r_pte is visible in the next cycle, not the same cycle. The assertion uses a next-cycle implication (|=>) but compares r_pte directly without considering the pipeline delay and the fact that pte is combinationally derived from dmem_ptw_comm_i.resp.data. The fix is to check that when in S_WAIT and dmem_ptw_comm_i.resp.valid is asserted, in the next cycle r_pte equals the pte from the previous cycle, using $past(pte) in the postcondition to refer to the pte value at the precondition cycle. This accounts for the register update timing and pipeline behavior.
+
+// Corrected assertion:
+as__RpteUpdatedOnWaitRespValid: assert property((ptw.current_state == ptw.S_WAIT && ptw.dmem_ptw_comm_i.resp.valid) |=> (ptw.r_pte == $past(ptw.pte)));

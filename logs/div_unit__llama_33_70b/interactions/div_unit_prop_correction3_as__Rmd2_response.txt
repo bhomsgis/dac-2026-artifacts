@@ -1,0 +1,1 @@
+as__Rmd2: assert property(!div_unit.div_zero_q && div_unit.signed_op_q && (div_unit.first_dividend_q[WIDTH-1] && !div_unit.op_32_q || div_unit.first_dividend_q[31] && div_unit.op_32_q) |=> div_unit.rmd_aux == ~$past(div_unit.remanent_q) + {WIDTH{1'b1}});

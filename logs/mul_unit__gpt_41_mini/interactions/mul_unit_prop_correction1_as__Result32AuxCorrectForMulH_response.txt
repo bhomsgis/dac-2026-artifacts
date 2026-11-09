@@ -1,0 +1,19 @@
+1. The current assertion is failing because it compares mul_unit.result_32_aux (a wire assigned combinationally) directly to a value computed from mul_unit.result_low_d and mul_unit.neg_d in the same cycle when op_i == 1 (MULH). However, result_32_aux is only defined inside the CONFIG32==0 block and is not a top-level signal; also, the assertion does not consider pipeline timing and the fact that neg_d and result_low_d are combinational signals that may not be stable or valid in the same cycle as op_i == 1. The assertion also ignores the pipeline registers and the fact that the result_32_aux is registered into result_32_q in the next cycle. Moreover, the assertion does not handle the difference between 32-bit and 64-bit operations and the pipeline latency properly.
+
+2. The fix is to check the correctness of result_32_aux by relating it to the registered signals at the appropriate pipeline stage. Since result_32_aux is combinational and used to generate result_32 which is registered into result_32_q, the assertion should check the registered signals on the cycle when valid_q[1] and op_q_final == MUL and op_32bits_q_final are asserted. Also, neg_q_final is the registered negation flag corresponding to neg_d. The assertion should use a next-cycle assertion (|=>) with precondition on op_q_final and valid_q[1] and postcondition on result_32_q and neg_q_final and result_low_q. This respects the pipeline timing and uses registered signals. The assertion should also handle the sign extension of the 32-bit result_32_aux to WIDTH bits as done in the RTL.
+
+3. Corrected assertion:
+
+as__Result32AuxCorrectForMulH: assert property ((mul_unit.op_q_final == 0 && mul_unit.op_32bits_q_final && mul_unit.valid_q[1]) |=> (mul_unit.result_32_q == {{(mul_unit.WIDTH-32){mul_unit.neg_q_final ? ~mul_unit.result_low_q[31] : mul_unit.result_low_q[31]}}, (mul_unit.neg_q_final ? (~mul_unit.result_low_q[31:0] + mul_unit.ONE) : mul_unit.result_low_q[31:0])}));
+
+Explanation:  
+- op_q_final == 0 corresponds to MUL operation (low part)  
+- op_32bits_q_final is asserted for 32-bit operation  
+- valid_q[1] is the valid signal at the second pipeline stage  
+- result_32_q is the registered 32-bit result  
+- neg_q_final is the registered negation flag  
+- result_low_q is the registered full-width multiplication low result  
+- The sign extension uses the MSB of the 32-bit result_low_q[31] or its inverted value if negated  
+- The 32-bit result is negated if neg_q_final is set, otherwise taken as is  
+
+This assertion respects pipeline timing and uses registered signals, avoiding direct combinational comparisons in the same cycle as op_i.

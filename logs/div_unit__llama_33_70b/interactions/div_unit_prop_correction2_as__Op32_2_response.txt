@@ -1,0 +1,1 @@
+as__Op32_2: assert property(valid_i |=> div_unit.op_32_q == $past(op_32bits_i) && div_unit.valid_q == $past(valid_i));

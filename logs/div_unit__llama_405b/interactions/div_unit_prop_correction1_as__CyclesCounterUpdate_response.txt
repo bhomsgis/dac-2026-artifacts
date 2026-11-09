@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking if the `cycles_counter` is not equal to 0, and then in the next cycle, it's checking if the `cycles_counter` is equal to its previous value minus 1. However, this assertion doesn't consider the case when the `cycles_counter` is being initialized or updated with a new value.
+
+The corrected assertion should check if the `cycles_counter` is not equal to 0 and not being initialized or updated with a new value. We can do this by adding a condition to check if `valid_i` is 0, which means no new operation is being started.
+
+Here is the corrected assertion:
+
+```
+as__CyclesCounterUpdate: assert property(div_unit.cycles_counter != 6'd0 && !div_unit.valid_i |=> div_unit.cycles_counter == $past(div_unit.cycles_counter) - 6'd1);
+```
+
+This assertion checks if the `cycles_counter` is not equal to 0 and no new operation is being started (`valid_i` is 0), then in the next cycle, the `cycles_counter` should be equal to its previous value minus 1.

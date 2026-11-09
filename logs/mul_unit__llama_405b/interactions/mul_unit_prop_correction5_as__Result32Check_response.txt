@@ -1,0 +1,21 @@
+The current assertion is failing because it is checking the result of a 32-bit multiplication operation in the same cycle as the input is received, but the result is actually registered and available in the next cycle.
+
+The assertion is using a same-cycle assertion (`|->`) which means that the precondition and postcondition are evaluated in the same cycle. However, the result of the multiplication is registered and available in the next cycle, so the postcondition is not true in the same cycle as the precondition.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) which allows us to check the postcondition in the next cycle after the precondition is true.
+
+Here is the corrected assertion:
+
+```
+as__Result32Check: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (result_o == mul_unit.result_32_q));
+```
+
+However, this is still not correct because `result_o` is not necessarily equal to `mul_unit.result_32_q` in the next cycle. The correct output is selected based on several conditions, including `op_32bits_q_final` and `REG_32`.
+
+A more accurate assertion would be:
+
+```
+as__Result32Check: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (result_o == (mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32 ? mul_unit.result_32_q : mul_unit.result)));
+```
+
+This assertion checks that the result of a 32-bit multiplication operation is correctly selected and output in the next cycle.

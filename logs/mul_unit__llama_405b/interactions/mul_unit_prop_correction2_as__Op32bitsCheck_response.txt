@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking the value of `op_32bits_q_final` and `op_i` in the same cycle, but `op_32bits_q_final` is a registered signal that is updated in the next cycle.
+
+The assertion is trying to check if the `op_32bits_i` input is correctly propagated to the `op_32bits_q_final` signal when the operation is MUL. However, since `op_32bits_q_final` is a registered signal, its value is updated in the next cycle, so the assertion should check its value in the next cycle, not in the same cycle.
+
+Here is the corrected assertion:
+
+as__Op32bitsCheck: assert property((valid_i && op_i == mul_unit.MUL) |=> (mul_unit.op_32bits_q_final == $past(op_32bits_i)));
+
+This assertion checks if the `op_32bits_i` input is correctly propagated to the `op_32bits_q_final` signal when the operation is MUL, by checking the value of `op_32bits_q_final` in the next cycle. The `$past` function is used to refer to the value of `op_32bits_i` in the previous cycle, which is the cycle when the operation was valid.

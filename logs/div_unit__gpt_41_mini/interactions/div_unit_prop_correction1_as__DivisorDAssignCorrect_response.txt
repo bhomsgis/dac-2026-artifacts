@@ -1,0 +1,6 @@
+// The assertion is likely failing because it checks div_unit.divisor_d in the same cycle as valid_i, but divisor_d is assigned combinationally and depends on op_32bits_i and CONFIG32, which may not be stable or correctly reflected at valid_i cycle. Also, the original assertion does not consider the pipeline delay of op_32bits_i to op_32_d, which is registered. The correct divisor value is available in divisor_d only after op_32bits_i is registered into op_32_d. Therefore, the assertion should check divisor_d in the next cycle after valid_i, using op_32_d and CONFIG32 registered signals to match the pipeline timing.
+
+// The fix is to use a next-cycle assertion (|=>) with precondition valid_i, and in the postcondition check div_unit.divisor_d against the expected value computed using div_unit.op_32_d and div_unit.CONFIG32. This aligns the timing of the signals and avoids mismatches due to pipeline delays.
+
+// Corrected assertion:
+as__DivisorDAssignCorrect: assert property (valid_i |=> (div_unit.divisor_d == ((div_unit.CONFIG32 == 1'b1) ? div_unit.divisor_aux_d : (div_unit.op_32_d ? {32'b0, div_unit.divisor_aux_d[31:0]} : div_unit.divisor_aux_d))));

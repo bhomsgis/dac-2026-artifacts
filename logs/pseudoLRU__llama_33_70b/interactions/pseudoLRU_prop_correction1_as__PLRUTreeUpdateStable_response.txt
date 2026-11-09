@@ -1,0 +1,2 @@
+// Check that when plru_tree_d is equal to plru_tree_q, then in the next cycle plru_tree_q is updated to plru_tree_d
+as__PLRUTreeUpdateStable: assert property(pseudoLRU.plru_tree_q == pseudoLRU.plru_tree_d |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));

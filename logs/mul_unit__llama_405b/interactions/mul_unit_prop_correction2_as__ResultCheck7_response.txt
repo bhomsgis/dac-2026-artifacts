@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking the result of a 32-bit multiplication operation against the wrong register. The `result_2width_def` register is used for 64-bit multiplication operations, not 32-bit operations.
+
+The corrected assertion should check the result of a 32-bit multiplication operation against the `result_32_q` register. However, we also need to consider the pipeline behavior and timing. The `result_32_q` register is updated one cycle after the `valid_i` signal is asserted. Therefore, we need to use a next-cycle assertion (`|=>`) to check the result.
+
+Here is the corrected assertion:
+
+as__ResultCheck7: assert property((valid_i && (op_i == 2'b01) && op_32bits_i) |=> (result_o == mul_unit.result_32_q));

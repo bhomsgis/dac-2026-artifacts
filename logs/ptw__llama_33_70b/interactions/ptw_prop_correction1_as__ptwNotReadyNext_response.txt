@@ -1,0 +1,1 @@
+as__ptwNotReadyNext: assert property(!ptw.ptw_ready |=> (ptw.next_state != ptw.S_READY) && ($past(ptw.ptw_ready) == 1'b0));

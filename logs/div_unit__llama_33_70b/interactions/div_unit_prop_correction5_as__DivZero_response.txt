@@ -1,0 +1,1 @@
+as__DivZero: assert property(valid_i && op_i == 1'b0 && (!(|data_rs2_i) || (op_32bits_i && !(|data_rs2_i[31:0]))) |=> div_unit.div_zero_q == $past(!(|data_rs2_i) || (op_32bits_i && !(|data_rs2_i[31:0]))));

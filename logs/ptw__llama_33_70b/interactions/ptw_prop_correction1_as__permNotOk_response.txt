@@ -1,0 +1,24 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__permNotOk` checks if the `perm_ok` signal is not asserted when the `prv_req[0]` is not set and `is_pte_ux` is not set, or when `prv_req[0]` is set and `is_pte_sx` or `is_pte_ux` is not set.
+2. **Identifying the issue**: The assertion might be failing because it does not consider the case when `prv_req[0]` is set and `is_pte_sx` or `is_pte_ux` is set, but `perm_ok` is still not asserted due to other conditions.
+3. **Analyzing the `perm_ok` signal**: The `perm_ok` signal is assigned based on the `prv_req`, `r_req`, and `csr_ptw_comm_i.mstatus` signals. It is asserted when the requested privilege level has the required permissions.
+4. **Considering pipeline behavior and timing**: The assertion should consider the pipeline behavior and timing of the `perm_ok` signal. The `perm_ok` signal is assigned in the same cycle as the `prv_req` and `r_req` signals.
+
+# Fixed solution:
+```systemverilog
+as__permNotOk: assert property(!ptw.perm_ok |-> ((!ptw.prv_req[0] && !(ptw.is_pte_ux)) || (ptw.prv_req[0] && !(ptw.is_pte_sx || ptw.is_pte_ux))));
+```
+However, this assertion still might not cover all the cases. A more comprehensive assertion would be:
+```systemverilog
+as__permNotOk: assert property((!ptw.perm_ok) |-> ((ptw.prv_req[0] == 1'b0 && !(ptw.is_pte_ux)) || (ptw.prv_req[0] == 1'b1 && ((ptw.r_req.fetch && !(ptw.is_pte_sx || ptw.is_pte_ux)) || (ptw.r_req.store && !(ptw.is_pte_sw || ptw.is_pte_uw)) || (ptw.r_req.load && !(ptw.is_pte_sr || ptw.is_pte_ur || ptw.is_pte_sx || ptw.is_pte_ux))))));
+```
+This assertion checks the `perm_ok` signal based on the `prv_req`, `r_req`, and `is_pte_*` signals, considering the pipeline behavior and timing.
+
+# Explanation of changes:
+* The new assertion considers the `prv_req`, `r_req`, and `is_pte_*` signals to check the `perm_ok` signal.
+* The assertion checks the `perm_ok` signal based on the requested privilege level and the required permissions.
+* The assertion considers the pipeline behavior and timing of the `perm_ok` signal.
+
+# Tests and example uses:
+* The assertion can be tested by simulating the `ptw` module with different inputs and checking if the `perm_ok` signal is asserted correctly.
+* The assertion can be used to verify the correctness of the `perm_ok` signal in the `ptw` module.

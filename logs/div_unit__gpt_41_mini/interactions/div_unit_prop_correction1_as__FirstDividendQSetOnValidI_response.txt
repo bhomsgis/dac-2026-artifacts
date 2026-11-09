@@ -1,0 +1,2 @@
+// The assertion fails because first_dividend_q is a register updated on the clock edge after valid_i is asserted, so the expected value appears in first_dividend_q in the next cycle, not the same cycle. Using a next-cycle assertion with $past() on data_rs1_i captures this pipeline delay correctly.
+as__FirstDividendQSetOnValidI: assert property (valid_i |=> (div_unit.first_dividend_q == $past(data_rs1_i)));

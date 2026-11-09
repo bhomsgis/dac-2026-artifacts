@@ -1,0 +1,7 @@
+The current assertion is failing because it does not consider the case when there is a pending request waiting to be served. In the `IDLE` state, if `is_req_waiting_q` is `1'b1`, the next state will be `SERVING_iTLB`, regardless of the value of `itlb_ptw_comm_i.req.valid`.
+
+The proposed fix is to add a check for `ptw_arb.is_req_waiting_q` in the assertion. However, simply adding this check, as done in Attempt 1, is not sufficient. We need to consider the case when `ptw_arb.is_req_waiting_q` is `1'b1` and `itlb_ptw_comm_i.req.valid` is `1'b1`. In this case, the next state should still be `SERVING_iTLB`.
+
+Here is the corrected assertion:
+
+as__IdleToServingiTLB6: assert property(ptw_arb.current_state == ptw_arb.IDLE && (ptw_arb.is_req_waiting_q == 1'b1 || (itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0)) |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB);

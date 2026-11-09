@@ -1,0 +1,2 @@
+// Check that for MUL operations with 32-bit operands registered (op_32bits_q), result_32 is sign-extended correctly from result_32_aux at the cycle after op_q and op_32bits_q are registered
+as__Result32SignExtendedCorrectForAllOpsQ: assert property((mul_unit.op_q == 0 && mul_unit.op_32bits_q) |=> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}}, mul_unit.result_32_aux[31:0]});

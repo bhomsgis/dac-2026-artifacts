@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking if the `access_array` remains the same when there is no hit, but it is not considering the fact that the `access_array` is updated in the same cycle based on the `access_idx_i` input. 
+
+When `access_hit_i` is 0, the `access_array` is still updated based on the `access_idx_i` value, which means that the `access_array` can change even when there is no hit. 
+
+The proposed fix is to check if the `access_array` remains the same when there is no hit and the `access_idx_i` is also the same. This can be achieved by adding a condition to check if the `access_idx_i` is the same in the current and previous cycles.
+
+Here is the corrected assertion:
+
+as__AccessArrayStableWhenNoHit: assert property(access_hit_i == 1'b0 && $stable(access_idx_i) |-> pseudoLRU.access_array == $past(pseudoLRU.access_array, 1));

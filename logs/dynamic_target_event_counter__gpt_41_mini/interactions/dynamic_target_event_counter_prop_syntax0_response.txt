@@ -1,0 +1,48 @@
+[
+`as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);`,
+
+`as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);`,
+
+`as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);`,
+
+`as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);`,
+
+`as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);`,
+
+`as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);`,
+
+`as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);`,
+
+`as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);`,
+
+`as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);`,
+
+`as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);`,
+
+`as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);`
+]

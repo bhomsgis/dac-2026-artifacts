@@ -1,0 +1,25 @@
+The current assertion is failing because it's checking if the `ptecache_entry` at the `plru_eviction_idx` index is valid when the cache is full and there's an access hit. However, this assertion doesn't consider the timing of when the cache entry is actually updated.
+
+The `ptecache_entry` is updated in the next cycle after the `dmem_ptw_comm_i.resp.valid` signal is asserted, as shown in the always_ff block that updates the `ptecache_entry`. Therefore, the assertion should check the value of `ptecache_entry` in the next cycle, not in the same cycle.
+
+Here's the corrected assertion:
+
+as__ptwPteCacheReplace: assert property(ptw.full_cache && ptw.access_hit |=> $past(ptw.ptecache_entry[ptw.plru_eviction_idx].valid, 1));
+
+However, this assertion is still not correct because it's checking the value of `ptecache_entry` in the previous cycle, but it should check the value in the next cycle. We can't use `$past` to refer to the future value of a signal. Instead, we should use a next-cycle assertion (`|=>`) and check the value of `ptecache_entry` without using `$past`.
+
+The correct assertion should be:
+
+as__ptwPteCacheReplace: assert property(ptw.full_cache && dmem_ptw_comm_i.resp.valid && is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[ptw.plru_eviction_idx].valid);
+
+However, this assertion is similar to Attempt 1, which didn't work. Let's try a different approach.
+
+The issue with the original assertion is that it's checking the value of `ptecache_entry` at the `plru_eviction_idx` index, but it should check the value of `ptecache_entry` at the index where the new entry is being written.
+
+The new entry is being written at the `priorityEncoder_idx` index when the cache is not full, or at the `plru_eviction_idx` index when the cache is full. We can create a new signal that indicates the index where the new entry is being written, and then check the value of `ptecache_entry` at that index.
+
+Here's the corrected assertion:
+
+as__ptwPteCacheReplace: assert property(ptw.full_cache && dmem_ptw_comm_i.resp.valid && is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[ptw.full_cache ? ptw.plru_eviction_idx : ptw.priorityEncoder_idx].valid);
+
+This assertion checks the value of `ptecache_entry` at the correct index, depending on whether the cache is full or not. It also checks that the new entry is being written when the cache is not full, which is a more accurate representation of the behavior.

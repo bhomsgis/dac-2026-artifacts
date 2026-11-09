@@ -1,0 +1,17 @@
+Here is the analysis and corrected assertion:
+
+**Analysis:**
+
+The original assertion is failing because it is checking the value of `tlb_ptw_comm_o` in the same cycle as the precondition, but `tlb_ptw_comm_o` is assigned in the combinational logic block, which means its value is not guaranteed to be updated in the same cycle. Additionally, the assertion is not considering the case where `is_req_waiting_q` is 1, which affects the value of `tlb_ptw_comm_o`.
+
+**Proposed Fix:**
+
+To fix the assertion, we need to use a next-cycle assertion (`|=>`) to check the value of `tlb_ptw_comm_o` in the next cycle, after the combinational logic has updated its value. We also need to consider the case where `is_req_waiting_q` is 1.
+
+**Corrected Assertion:**
+
+```
+as__IdleToServingiTLB2: assert property(ptw_arb.current_state == ptw_arb.IDLE && itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 |=> (ptw_arb.is_req_waiting_q ? tlb_ptw_comm_o == $past(ptw_arb.itlb_req_waiting_q) : tlb_ptw_comm_o == $past(itlb_ptw_comm_i)));
+```
+
+This assertion checks that when the `ptw_arb` is in the `IDLE` state and receives a valid request from the `itlb`, the `tlb_ptw_comm_o` output is correctly assigned in the next cycle, considering the case where `is_req_waiting_q` is 1.

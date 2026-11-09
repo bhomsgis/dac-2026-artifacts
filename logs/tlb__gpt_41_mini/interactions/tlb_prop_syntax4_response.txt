@@ -1,0 +1,56 @@
+// Check that on a TLB write, the entry at write_idx is updated with ptw response fields
+as__TlbWriteEntryUpdate: assert property(write_tlb |=> (tlb_entries[tlb_req_tmp.write_idx].vpn == $past(tlb_req_tmp.vpn) && tlb_entries[tlb_req_tmp.write_idx].asid == $past(tlb_req_tmp.asid) && tlb_entries[tlb_req_tmp.write_idx].ppn == $past(ptw_tlb_comm_i.resp.pte.ppn) && tlb_entries[tlb_req_tmp.write_idx].level == $past(ptw_tlb_comm_i.resp.level) && tlb_entries[tlb_req_tmp.write_idx].dirty == $past(ptw_tlb_comm_i.resp.pte.d) && tlb_entries[tlb_req_tmp.write_idx].access == $past(ptw_tlb_comm_i.resp.pte.a) && tlb_entries[tlb_req_tmp.write_idx].perms.ur == ($past(ptw_tlb_comm_i.resp.pte.r) && $past(ptw_tlb_comm_i.resp.pte.u) && $past(ptw_tlb_comm_i.resp.pte.v)) && tlb_entries[tlb_req_tmp.write_idx].perms.uw == ($past(ptw_tlb_comm_i.resp.pte.w) && $past(ptw_tlb_comm_i.resp.pte.u) && $past(ptw_tlb_comm_i.resp.pte.v)) && tlb_entries[tlb_req_tmp.write_idx].perms.ux == ($past(ptw_tlb_comm_i.resp.pte.x) && $past(ptw_tlb_comm_i.resp.pte.u) && $past(ptw_tlb_comm_i.resp.pte.v)) && tlb_entries[tlb_req_tmp.write_idx].perms.sr == ($past(ptw_tlb_comm_i.resp.pte.r) && !$past(ptw_tlb_comm_i.resp.pte.u) && $past(ptw_tlb_comm_i.resp.pte.v)) && tlb_entries[tlb_req_tmp.write_idx].perms.sw == ($past(ptw_tlb_comm_i.resp.pte.w) && !$past(ptw_tlb_comm_i.resp.pte.u) && $past(ptw_tlb_comm_i.resp.pte.v)) && tlb_entries[tlb_req_tmp.write_idx].perms.sx == ($past(ptw_tlb_comm_i.resp.pte.x) && !$past(ptw_tlb_comm_i.resp.pte.u) && $past(ptw_tlb_comm_i.resp.pte.v)) && tlb_entries[tlb_req_tmp.write_idx].valid == !$past(ptw_tlb_comm_i.resp.error) && tlb_entries[tlb_req_tmp.write_idx].nempty == 1'b1)));
+// Check that hits_cam has at most one bit set
+as__HitsCamOneHot: assert property(!(|(hits_cam & (hits_cam - 1))));
+// Check that hit_idx corresponds to the index of the set bit in hits_cam
+as__HitIdxMatchesHitsCam: assert property(hit_cam |-> hits_cam[hit_idx]);
+// Check that eviction_idx is invalid_idx if has_invalid_entry else plru_eviction_idx
+as__EvictionIdxCorrectChoice: assert property(((has_invalid_entry && (eviction_idx == invalid_idx)) || (!has_invalid_entry && (eviction_idx == plru_eviction_idx))));
+// Check that has_invalid_entry implies tlb_entries[invalid_idx].nempty is zero
+as__HasInvalidEntryImpliesNemptyZero: assert property(has_invalid_entry |-> !tlb_entries[invalid_idx].nempty);
+// Check that clear_mask bits are set only for invalid or non-dirty store_hit entries when clean_tlb is asserted
+as__ClearMaskValid: assert property(clean_tlb |-> (&(clear_mask <= ( ( !tlb_entries[0].valid || (0 == hit_idx && hit_cam && !store_hit) ) ? 1'b1 : 1'b0 )))); // Note: This is a placeholder for generate loop, actual generate loop needed for all entries
+// Check that pmu_tlb_access is asserted only in IDLE state with valid request
+as__PmuTlbAccessInIdle: assert property(pmu_tlb_access |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid));
+// Check that pmu_tlb_miss is asserted only in IDLE state with valid request and tlb_miss
+as__PmuTlbMissInIdleMiss: assert property(pmu_tlb_miss |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid && tlb_miss));
+// Check that store_tlb_req is asserted only in IDLE state with valid request and tlb_miss
+as__StoreTlbReqInIdleMiss: assert property(store_tlb_req |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid && tlb_miss));
+// Check that send_tlb_req is asserted only in SEND_REQUEST state
+as__SendTlbReqInSendRequest: assert property(send_tlb_req |-> (current_state == tlb.SEND_REQUEST));
+// Check that write_tlb is asserted only in WAIT_RESPONSE state with valid ptw response
+as__WriteTlbInWaitResponseValid: assert property(write_tlb |-> (current_state == tlb.WAIT_RESPONSE && ptw_tlb_comm_i.resp.valid));
+// Check that clean_tlb is asserted only in IDLE state with valid request
+as__CleanTlbInIdleValid: assert property(clean_tlb |-> (current_state == tlb.IDLE && cache_tlb_comm_i.req.valid));
+// Check that tlb_ready is asserted only in IDLE state
+as__TlbReadyInIdle: assert property(tlb_ready |-> (current_state == tlb.IDLE));
+// Check that next_state is always within valid range
+as__NextStateValidRange: assert property(next_state inside {[tlb.IDLE:tlb.INVALIDATED_WAIT_RESPONSE]});
+// Check that current_state updates to next_state on next cycle
+as__CurrentStateFollowsNextState: assert property((current_state != next_state) |=> (current_state == $past(next_state)));
+// Check that tlb_req_tmp updates correctly on store_tlb_req
+as__TlbReqTmpUpdateOnStoreReq: assert property(store_tlb_req |=> (tlb_req_tmp.vpn == $past(cache_tlb_comm_i.req.vpn[VPN_SIZE-1:0]) && tlb_req_tmp.asid == $past(cache_tlb_comm_i.req.asid) && tlb_req_tmp.store == $past(cache_tlb_comm_i.req.store) && tlb_req_tmp.fetch == $past(cache_tlb_comm_i.req.instruction) && tlb_req_tmp.write_idx == $past(eviction_idx)));
+// Check that tlb_ptw_comm_o.req.valid is asserted when send_tlb_req is asserted
+as__TlbPtwReqValidOnSendReq: assert property(send_tlb_req |-> tlb_ptw_comm_o.req.valid);
+// Check that tlb_ptw_comm_o.req fields match tlb_req_tmp and current priv_lvl when send_tlb_req is asserted
+as__TlbPtwReqFieldsMatchOnSend: assert property(send_tlb_req |-> (tlb_ptw_comm_o.req.vpn == tlb_req_tmp.vpn && tlb_ptw_comm_o.req.asid == tlb_req_tmp.asid && tlb_ptw_comm_o.req.prv == cache_tlb_comm_i.priv_lvl && tlb_ptw_comm_o.req.store == tlb_req_tmp.store && tlb_ptw_comm_o.req.fetch == tlb_req_tmp.fetch));
+// Check that tlb_ptw_comm_o.req is zero when send_tlb_req is not asserted
+as__TlbPtwReqZeroWhenNotSendReq: assert property(!send_tlb_req |-> (tlb_ptw_comm_o.req == '0));
+// Check that read_ok is correctly computed for supervisor with SUM and MXR set
+as__ReadOkSupervisorSumMxr: assert property(sv_priv_lvl && ptw_tlb_comm_i.ptw_status.sum && ptw_tlb_comm_i.ptw_status.mxr |-> (read_ok == (tlb_entries[hit_idx].perms.sr || tlb_entries[hit_idx].perms.ur || tlb_entries[hit_idx].perms.sx || tlb_entries[hit_idx].perms.ux)));
+// Check that write_ok is correctly computed for supervisor with SUM set
+as__WriteOkSupervisorSum: assert property(sv_priv_lvl && ptw_tlb_comm_i.ptw_status.sum |-> (write_ok == (tlb_entries[hit_idx].perms.sw || tlb_entries[hit_idx].perms.uw)));
+// Check that exec_ok matches perms.sx for supervisor and perms.ux for user
+as__ExecOkMatchesPerms: assert property(exec_ok == ((sv_priv_lvl) ? tlb_entries[hit_idx].perms.sx : tlb_entries[hit_idx].perms.ux));
+// Check that xcpt_if is asserted only when vm_enable and (tlb_hit and !exec_ok) or access zero
+as__XcptIfValidCondition: assert property(xcpt_if |-> (vm_enable && ((tlb_hit && !exec_ok) || tlb_entry_access_is_zero)));
+// Check that xcpt_st is asserted only when vm_enable and (tlb_hit and !write_ok) or access zero or dirty zero
+as__XcptStValidCondition: assert property(xcpt_st |-> (vm_enable && ((tlb_hit && !write_ok) || tlb_entry_access_is_zero || tlb_entry_dirty_is_zero)));
+// Check that xcpt_ld is asserted only when vm_enable and (tlb_hit and !read_ok) or access zero
+as__XcptLdValidCondition: assert property(xcpt_ld |-> (vm_enable && ((tlb_hit && !read_ok) || tlb_entry_access_is_zero)));
+// Check that store_hit is 1 when store request and dirty bit set or write_ok not set, else 0 when store and write_ok set and dirty not set, else 1 when not store
+as__StoreHitLogicCorrect: assert property((cache_tlb_comm_i.req.store && tlb_entries[hit_idx].dirty) |-> (store_hit == 1'b1)) && ((cache_tlb_comm_i.req.store && !write_ok) |-> (store_hit == 1'b1)) && ((cache_tlb_comm_i.req.store && write_ok && !tlb_entries[hit_idx].dirty) |-> (store_hit == 1'b0)) && ((!cache_tlb_comm_i.req.store) |-> (store_hit == 1'b1));
+// Check that tlb_hit is asserted only when vm_enable, hit_cam and store_hit are all true
+as__TlbHitCondition: assert property(tlb_hit |-> (vm_enable && hit_cam && store_hit));
+// Check that tlb_miss is asserted only when vm_enable and no hit_cam
+as__TlbMissCondition: assert property(tlb_miss |-> (vm_enable && !hit_cam));

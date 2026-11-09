@@ -1,0 +1,8 @@
+The current assertion `as__NoInvalidOpNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));` is failing because it is checking if the operation is not valid when the input operation is MUL and not 32 bits, but it is using the current value of `op_i` instead of the past value of `op_i` that was used to generate the output.
+
+The proposed fix is to use the past value of `op_i` and `op_32bits_i` in the postcondition of the next-cycle assertion. This ensures that we are checking the correct operation that was used to generate the output.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidOpNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && $past(op_i) == mul_unit.MUL && !$past(op_32bits_i)));
+```

@@ -1,0 +1,15 @@
+1. Explanation of failure:
+The original assertion as__Op32QSetOnValidI: assert property((valid_i) |=> (div_unit.op_32_q == op_32bits_i)); fails because it checks the registered signal div_unit.op_32_q immediately in the next cycle after valid_i is asserted. However, div_unit.op_32_q is updated on the clock edge after valid_i is asserted, so its value in the next cycle corresponds to the previous cycle's op_32bits_i, not the current valid_i cycle's op_32bits_i. Therefore, the assertion incorrectly compares div_unit.op_32_q to the current op_32bits_i instead of the previous cycle's op_32bits_i.
+
+2. Proposed fix:
+To fix this, the assertion should compare div_unit.op_32_q in the next cycle to the value of op_32bits_i in the current cycle (the cycle of the precondition valid_i). Since div_unit.op_32_q is a register updated on the clock edge, the correct way is to use a next-cycle assertion (|=>) and in the postcondition compare div_unit.op_32_q to $past(op_32bits_i). But the previous attempt already tried that and was rejected. The reason is that the assertion name and expression must consider pipeline behavior and 32-bit vs 64-bit operation cases.
+
+Also, the assertion should only check when valid_i is asserted, because op_32_q is updated only when valid_i is asserted (see always_ff block). So the assertion should be:
+
+(valid_i && !flush_i) |=> (div_unit.op_32_q == $past(op_32bits_i));
+
+Adding flush_i to precondition ensures that the assertion does not fail during flush cycles when registers are reset.
+
+3. Corrected assertion:
+
+as__Op32QSetOnValidI: assert property ((valid_i && !flush_i) |=> (div_unit.op_32_q == $past(op_32bits_i)));

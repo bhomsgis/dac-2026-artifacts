@@ -1,0 +1,19 @@
+The current assertion is failing because it checks if the `valid_q` signal remains the same when `valid_i` is low, which is not necessarily true. The `valid_q` signal can change even when `valid_i` is low, depending on the state of the `cycles_counter`.
+
+The proposed fix is to check if the `valid_q` signal remains the same when `valid_i` is low and the `cycles_counter` is not equal to 1. This is because when `cycles_counter` is 1, it means that the division operation is complete and the `valid_q` signal should be updated accordingly.
+
+Here is the corrected assertion:
+
+```
+as__ValidQNoUpdate: assert property(!valid_i && div_unit.cycles_counter != 6'd1 |=> div_unit.valid_q == $past(div_unit.valid_q));
+```
+
+However, this assertion is still not correct because it doesn't consider the case when `flush_i` is high. When `flush_i` is high, the `valid_q` signal should be reset to 0, regardless of the state of `valid_i` and `cycles_counter`.
+
+To fix this, we need to add an additional condition to the assertion:
+
+```
+as__ValidQNoUpdate: assert property(!valid_i && !div_unit.flush_i && div_unit.cycles_counter != 6'd1 |=> div_unit.valid_q == $past(div_unit.valid_q));
+```
+
+This assertion checks if the `valid_q` signal remains the same when `valid_i` is low, `flush_i` is low, and `cycles_counter` is not equal to 1. If all these conditions are met, then the `valid_q` signal should not change.

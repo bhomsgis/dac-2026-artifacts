@@ -1,0 +1,7 @@
+The current assertion is failing because it does not consider the case when there is a pending iTLB request waiting to be served. In this scenario, even if the dTLB request is valid, the next state will be SERVING_iTLB instead of SERVING_dTLB.
+
+To fix this, we need to add a condition to check if there is a pending iTLB request waiting to be served. If there is, then the next state will be SERVING_iTLB, otherwise, it will be SERVING_dTLB.
+
+Here is the corrected assertion:
+
+as__IdleToServingdTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.next_state == ptw_arb.SERVING_dTLB);

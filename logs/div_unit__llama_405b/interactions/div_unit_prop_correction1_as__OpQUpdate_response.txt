@@ -1,0 +1,10 @@
+The current assertion is failing because it's checking if the `op_q` register is updated with the value of `op_i` in the next cycle after `valid_i` is asserted. However, the `op_q` register is only updated when `valid_i` is asserted and the `flush_i` signal is not asserted. If `flush_i` is asserted, the `op_q` register is reset to 0.
+
+Proposed fix:
+The corrected assertion should check if the `op_q` register is updated with the value of `op_i` in the next cycle after `valid_i` is asserted and `flush_i` is not asserted.
+
+Corrected assertion:
+```
+as__OpQUpdate: assert property(valid_i && !flush_i |=> div_unit.op_q == op_i);
+```
+This assertion checks if the `op_q` register is updated correctly when `valid_i` is asserted and `flush_i` is not asserted. If `flush_i` is asserted, the `op_q` register is reset to 0, and the assertion will not fail.

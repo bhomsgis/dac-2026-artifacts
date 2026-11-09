@@ -1,0 +1,7 @@
+1. The current assertion is failing because it checks that div_zero_q equals div_zero_d in the next cycle after valid_i is asserted, but div_zero_d is a combinational signal that depends on valid_i and inputs in the current cycle. Since div_zero_q is updated on the clock edge, it should match the previous cycle's div_zero_d, not the current cycle's. The assertion incorrectly compares div_zero_q to the current div_zero_d instead of the previous cycle's div_zero_d.
+
+2. The proposed fix is to compare div_zero_q in the next cycle to the previous cycle's div_zero_d using $past(div_unit.div_zero_d). This correctly models the pipeline behavior where div_zero_q is the registered version of div_zero_d from the previous cycle. The precondition valid_i is in the current cycle, so the postcondition div_zero_q should equal $past(div_zero_d), which is div_zero_d at the time valid_i was asserted.
+
+3. Corrected assertion:
+
+as__DivZeroQSetOnValidI: assert property (valid_i |=> (div_unit.div_zero_q == $past(div_unit.div_zero_d)));

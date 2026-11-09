@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion as__ValidInputSetsBusy: assert property((valid_i) |-> busy_o); fails because busy_o is a registered output derived from the cycles_counter register, which is updated on the clock edge after valid_i is asserted. The busy_o signal does not become high in the same cycle as valid_i but in the next cycle. Therefore, a same-cycle implication (|->) is incorrect here since busy_o is not guaranteed to be high in the same cycle as valid_i.  
+
+2. Proposed fix:  
+Use a next-cycle implication (|=>) to check that when valid_i is asserted, busy_o becomes high in the next cycle. Also, since busy_o is a wire assigned combinationally from cycles_counter, and cycles_counter is updated on the clock edge, we must use $past() to refer to the previous cycle's internal signals. The assertion should check that if valid_i is high in the current cycle, then busy_o is high in the next cycle, which corresponds to cycles_counter being non-zero in the current cycle (before update). Using $past(div_unit.cycles_counter) != 0 in the postcondition ensures that busy_o is high in the next cycle.  
+
+3. Corrected assertion:  
+as__ValidInputSetsBusy: assert property (valid_i |=> (busy_o == ( $past(div_unit.cycles_counter) != 6'd0 )));

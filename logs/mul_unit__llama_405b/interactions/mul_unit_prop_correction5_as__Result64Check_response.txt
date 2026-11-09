@@ -1,0 +1,25 @@
+The current assertion is failing because it's not considering the pipeline behavior of the `mul_unit` module. The `result_o` signal is assigned a value based on the `op_32bits_q_final` and `result_2width_def` signals, which are updated in the second stage of the pipeline. However, the assertion is checking the value of `result_o` in the same cycle as the `valid_i` and `op_32bits_i` signals, which are inputs to the first stage of the pipeline.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `result_o` in the next cycle, after the pipeline has updated the `op_32bits_q_final` and `result_2width_def` signals.
+
+Here's the corrected assertion:
+
+```
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]));
+```
+
+However, this assertion still doesn't consider the case where `op_32bits_i` is 1. We need to add another clause to the assertion to check the value of `result_o` when `op_32bits_i` is 1.
+
+Here's the complete corrected assertion:
+
+```
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0])) || ((valid_i && op_32bits_i) |=> (result_o == mul_unit.result_32_q));
+```
+
+However, this is still not correct, as we are using `result_32_q` which is a registered signal and will be available only after one cycle.
+
+Here's the complete corrected assertion:
+
+```
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0])) || ((valid_i && op_32bits_i) |=> (result_o == $past(mul_unit.result_32)));
+```

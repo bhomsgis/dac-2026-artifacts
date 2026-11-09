@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking if `div_unit.op_32_q` is equal to `op_32bits_i` in the next cycle after `valid_i` is asserted. However, `div_unit.op_32_q` is updated in the same cycle as `valid_i` is asserted, not in the next cycle.
+
+The proposed fix is to change the assertion to a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`). This is because `div_unit.op_32_q` is updated in the same cycle as `valid_i` is asserted, so we can check the value of `div_unit.op_32_q` in the same cycle.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |-> div_unit.op_32_q == op_32bits_i);`

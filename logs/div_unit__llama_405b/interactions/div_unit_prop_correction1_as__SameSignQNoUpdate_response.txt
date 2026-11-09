@@ -1,0 +1,9 @@
+The current assertion is failing because it's checking if the `same_sign_q` register remains the same when `valid_i` is low, which is not necessarily true. The `same_sign_q` register can change even when `valid_i` is low, because it's updated based on the `same_sign_d` signal, which can change regardless of the value of `valid_i`.
+
+The proposed fix is to check if the `same_sign_q` register remains the same when `valid_i` is low and there is no new valid data (i.e., `valid_q` is also low). This is because when `valid_q` is low, it means that the previous operation has completed, and the `same_sign_q` register should not change until a new valid operation is started.
+
+Here is the corrected assertion:
+
+```
+as__SameSignQNoUpdate: assert property(!valid_i && !div_unit.valid_q |=> div_unit.same_sign_q == $past(div_unit.same_sign_q));
+```

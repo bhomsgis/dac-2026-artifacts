@@ -1,0 +1,19 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The assertion `as__ResultNextMULHU` checks if the result of the `MULHU` operation is correct. It asserts that when the input `valid_i` is high and the operation `op_i` is `MULHU`, the output `result_o` should be equal to the high part of the result of the multiplication of `data_rs1_i` and `data_rs2_i` in the next cycle.
+
+2. **Identifying the issue**: The assertion is failing because it does not correctly account for the pipeline behavior of the `mul_unit`. The `result_o` is not directly related to the `result_2width_def` signal, but rather to the `result` signal which is selected based on the operation and the `op_32bits_q_final` signal.
+
+3. **Analyzing the pipeline behavior**: The `mul_unit` has a pipeline with two stages. The first stage computes the result of the multiplication and the second stage selects the correct part of the result based on the operation. The `result_o` is the output of the second stage.
+
+# Fixed solution:
+```systemverilog
+as__ResultNextMULHU: assert property(valid_i && op_i == mul_unit.MULHU |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Using $past()**: We use `$past()` to refer to the value of `result_2width_def` in the previous cycle, which is the cycle when the operation was performed.
+* **Correct indexing**: We use the correct indexing for the high part of the result, which is `[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]`.
+* **Using the correct signal**: We use the `result_2width_def` signal, which is the signal that is used to compute the final result.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` with different inputs and checking if the assertion passes or fails. For example, we can test the `MULHU` operation with different inputs and check if the output `result_o` is correct.

@@ -1,0 +1,1 @@
+as__RemanentOutput_q: assert property((div_4bits.remanent_o == div_4bits.tmp_remanent_sub[0]) |=> (div_4bits.remanent_o_q == $past(div_4bits.remanent_o)));

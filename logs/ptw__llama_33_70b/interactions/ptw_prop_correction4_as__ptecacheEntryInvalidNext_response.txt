@@ -1,0 +1,3 @@
+```systemverilog
+as__ptecacheEntryInvalidNext: assert property(!ptw.ptecache_entry[ptw.hit_idx].valid |=> (!ptw.pte_cache_hit && ptw.ptecache_entry[ptw.hit_idx].valid == $past(ptw.ptecache_entry[ptw.hit_idx].valid) && $past(ptw.hit_idx) == ptw.hit_idx));
+```

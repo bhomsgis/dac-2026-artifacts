@@ -1,0 +1,20 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__reqValid: assert property(tlb_ptw_comm_i.req.valid |-> (ptw.next_state == ptw.S_REQ));` checks if whenever `tlb_ptw_comm_i.req.valid` is true, the next state of the page table walker (PTW) should be `S_REQ`.
+2. **Identifying potential issues**: The assertion might fail because it does not consider the current state of the PTW. The PTW might be in a state where it cannot immediately transition to `S_REQ` even if `tlb_ptw_comm_i.req.valid` is true.
+3. **Analyzing the PTW's state machine**: The PTW's state machine has several states, including `S_READY`, `S_REQ`, `S_WAIT`, `S_DONE`, and `S_ERROR`. The transition from `S_READY` to `S_REQ` occurs when `tlb_ptw_comm_i.req.valid` is true. However, if the PTW is not in `S_READY`, it might not transition to `S_REQ` immediately.
+
+# Fixed solution:
+```systemverilog
+as__reqValid: assert property(ptw.current_state == ptw.S_READY && tlb_ptw_comm_i.req.valid |-> (ptw.next_state == ptw.S_REQ));
+```
+
+# Explanation of changes:
+* **Added current state condition**: The assertion now checks if the PTW is in `S_READY` state before checking if `tlb_ptw_comm_i.req.valid` is true. This ensures that the PTW can transition to `S_REQ` only when it is in `S_READY` state.
+* **No changes to the postcondition**: The postcondition remains the same, checking if the next state of the PTW is `S_REQ` when the precondition is true.
+
+# Tests and example uses:
+This assertion can be tested by simulating the PTW with various input scenarios, including:
+* `tlb_ptw_comm_i.req.valid` is true when the PTW is in `S_READY` state.
+* `tlb_ptw_comm_i.req.valid` is true when the PTW is not in `S_READY` state.
+* `tlb_ptw_comm_i.req.valid` is false when the PTW is in `S_READY` state.
+By testing these scenarios, you can verify that the assertion is working correctly and that the PTW transitions to `S_REQ` only when it is in `S_READY` state and `tlb_ptw_comm_i.req.valid` is true.

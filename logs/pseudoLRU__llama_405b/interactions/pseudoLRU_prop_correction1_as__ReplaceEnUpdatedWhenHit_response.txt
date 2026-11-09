@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if `pseudoLRU.replace_en` is not equal to its past value when `access_hit_i` is 1. However, `pseudoLRU.replace_en` is a combinational signal that is updated in the same cycle as `access_hit_i`, so its value may not have changed yet when the assertion is evaluated.
+
+The proposed fix is to check if `pseudoLRU.replace_en` is not equal to its past value in the next cycle, after the update has taken place. This can be done by using a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`).
+
+Here is the corrected assertion:
+
+```
+as__ReplaceEnUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.replace_en != $past(pseudoLRU.replace_en));
+```
+
+This assertion checks if `pseudoLRU.replace_en` is not equal to its past value in the next cycle after `access_hit_i` is 1, which ensures that the update has taken place.

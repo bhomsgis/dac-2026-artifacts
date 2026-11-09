@@ -1,0 +1,7 @@
+The current assertion is failing because it is checking the result of the multiplication in the same cycle as the input is given, but the multiplication operation takes two cycles to complete. The assertion should check the result in the next cycle after the input is given.
+
+The proposed fix is to use a next-cycle assertion (|=>) to check the result in the next cycle. We also need to check the `valid_q[1]` signal to ensure that the result is valid.
+
+Here is the corrected assertion:
+
+as__ResultCheck6: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.valid_q[1] && (result_o == mul_unit.result_2width_def[127:64])));

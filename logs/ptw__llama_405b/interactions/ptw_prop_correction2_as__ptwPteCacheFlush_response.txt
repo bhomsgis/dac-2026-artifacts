@@ -1,0 +1,23 @@
+The current assertion is failing because it is checking if the `flush` signal is high, then in the next cycle, it checks if the `valid` bit of the `ptecache_entry` at the `hit_idx` index is low. However, the `flush` signal is used to invalidate all the entries in the PTE cache, not just the one at the `hit_idx` index.
+
+The proposed fix is to check if all the `valid` bits of the `ptecache_entry` are low after the `flush` signal is high.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> !(&ptw.ptecache_entry.valid));
+```
+
+However, this assertion was already tried and didn't work. The issue with this assertion is that it checks if all the `valid` bits are low at the same time, which might not be the case if the invalidation of the cache entries is done sequentially.
+
+A new proposed fix is to check if at least one of the `valid` bits is low after the `flush` signal is high, and then check if all the `valid` bits are low after a certain number of cycles.
+
+However, a simpler approach is to check if none of the `valid` bits are high after the `flush` signal is high.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> !(|ptw.ptecache_entry.valid));
+```
+
+This assertion checks if the `flush` signal is high, then in the next cycle, it checks if none of the `valid` bits of the `ptecache_entry` are high.

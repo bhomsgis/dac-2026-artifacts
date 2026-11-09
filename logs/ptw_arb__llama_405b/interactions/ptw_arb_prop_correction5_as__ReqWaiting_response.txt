@@ -1,0 +1,45 @@
+The current assertion is failing because it is checking the value of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q` is high. However, `itlb_req_waiting_q` is a registered signal that is updated in the next cycle.
+
+The issue is that the assertion is using a same-cycle assertion (`|->`) to check the value of `itlb_req_waiting_q`, which is a registered signal. This means that the value of `itlb_req_waiting_q` has not yet been updated when the assertion is checked.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `itlb_req_waiting_q` in the next cycle, after it has been updated.
+
+Here is the corrected assertion:
+
+```
+as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 |=> ptw_arb.itlb_req_waiting_q == $past(itlb_ptw_comm_i, 1));
+```
+
+However, this is the same as Attempt 4, which didn't work. Let's try a different approach.
+
+The issue is that we are trying to check the value of `itlb_req_waiting_q` in the next cycle, but we are not considering the case where `is_req_waiting_q` is high and `itlb_req_waiting_q` is not updated.
+
+A better approach is to check the value of `itlb_req_waiting_d` in the same cycle as `is_req_waiting_q` is high. This is because `itlb_req_waiting_d` is the signal that is used to update `itlb_req_waiting_q` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 |-> ptw_arb.itlb_req_waiting_d == itlb_ptw_comm_i);
+```
+
+However, this is the same as Attempt 1, which didn't work. Let's try a different approach.
+
+The issue is that we are trying to check the value of `itlb_req_waiting_d` in the same cycle as `is_req_waiting_q` is high, but we are not considering the case where `is_req_waiting_q` is high and `itlb_req_waiting_d` is not updated.
+
+A better approach is to check the value of `itlb_req_waiting_d` in the same cycle as `is_req_waiting_q` is high and `current_state` is IDLE.
+
+Here is the corrected assertion:
+
+```
+as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 && ptw_arb.current_state == IDLE |-> ptw_arb.itlb_req_waiting_d == itlb_ptw_comm_i);
+```
+
+However, this is the same as Attempt 2, which didn't work. Let's try a different approach.
+
+Let's try to check the value of `itlb_req_waiting_d` in the same cycle as `is_req_waiting_q` is high and `dtlb_ptw_comm_i.req.valid` is high.
+
+Here is the corrected assertion:
+
+```
+as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 && dtlb_ptw_comm_i.req.valid |-> ptw_arb.itlb_req_waiting_d == itlb_ptw_comm_i);
+```

@@ -1,0 +1,7 @@
+The current assertion is failing because it does not correctly account for the pipeline behavior and timing of the `mul_unit` module. Specifically, the assertion is trying to check the result of the multiplication operation in the same cycle as the input operands, but the result is not available until the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the result of the multiplication operation in the next cycle. Additionally, we need to use `$past()` to refer to the value of the input operands in the previous cycle, and we need to use the correct module prefix for internal signals.
+
+Here is the corrected assertion:
+
+as__ResultMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == ($past(mul_unit.neg_q) ? (~$past(mul_unit.result_low_d[WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_d[WIDTH-1:0])));

@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking if there's a collision between a 32-bit multiplication and a 64-bit multiplication in the same cycle, but it's not considering the pipeline behavior of the design. The `valid_q[1]` signal is only asserted when a 64-bit multiplication is in its second cycle, but the assertion is checking it in the same cycle as the 32-bit multiplication.
+
+The proposed fix is to check if there's a collision between a 32-bit multiplication and a 64-bit multiplication in the next cycle. This can be done by using a next-cycle assertion (`|=>`) and checking the `valid_q[1]` signal in the next cycle.
+
+Here's the corrected assertion:
+
+```
+as__NoCollisionCheck2: assert property((mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) |=> !(mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final));
+```
+
+This assertion checks if a 32-bit multiplication is valid in the current cycle, and if so, it checks if there's a 64-bit multiplication valid in the next cycle. If both conditions are true, it means there's a collision between the two multiplications, and the assertion will fail.

@@ -1,0 +1,1 @@
+as__NoInvalidResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && $past(result_o) == {WIDTH{1'bx}}));

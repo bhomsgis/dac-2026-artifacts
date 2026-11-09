@@ -1,0 +1,29 @@
+The current assertion is failing because it is trying to check the value of `quo_aux` in the same cycle as `signed_op_q`, but `quo_aux` is assigned a value based on `dividend_quotient_q` which is updated in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `quo_aux` in the next cycle, after `dividend_quotient_q` has been updated. Additionally, we need to use `$past()` to refer to the value of `same_sign_q` and `dividend_quotient_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__QuoAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.quo_aux == (($past(div_unit.same_sign_q)) ? $past(div_unit.dividend_quotient_q) : ~$past(div_unit.dividend_quotient_q) + div_unit.ONE));
+```
+
+However, this is the same as Attempt 3, which didn't work. Let's try a different approach.
+
+The issue might be that `quo_aux` is not directly assigned the value of `dividend_quotient_q`, but rather it's assigned the value of `quo`, which is calculated based on `dividend_quotient_q`. Therefore, we should check the value of `quo` instead of `quo_aux`.
+
+Here is the corrected assertion:
+
+```
+as__QuoAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.quo == (($past(div_unit.same_sign_q)) ? $past(div_unit.dividend_quotient_q) : ~$past(div_unit.dividend_quotient_q) + div_unit.ONE));
+```
+
+However, this is the same as Attempt 4, which didn't work. Let's try another approach.
+
+The issue might be that we're not considering the case where `div_zero_q` is true. In this case, `quo` is assigned a value of all ones, regardless of the value of `same_sign_q` and `dividend_quotient_q`.
+
+Here is the corrected assertion:
+
+```
+as__QuoAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.quo == ((div_unit.div_zero_q) ? {div_unit.WIDTH{1'b1}} : (($past(div_unit.same_sign_q)) ? $past(div_unit.dividend_quotient_q) : ~$past(div_unit.dividend_quotient_q) + div_unit.ONE)));
+```

@@ -1,0 +1,9 @@
+The current assertion is failing because it checks if `pseudoLRU.plru_tree_q` has changed in the same cycle when `pseudoLRU.replace_en` is high. However, `pseudoLRU.plru_tree_q` is a registered signal that only updates in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check if `pseudoLRU.plru_tree_q` has changed in the next cycle when `pseudoLRU.replace_en` is high in the current cycle.
+
+Here is the corrected assertion:
+
+```
+as__ReplaceEnImpliesTreeUpdated: assert property (pseudoLRU.replace_en |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+```

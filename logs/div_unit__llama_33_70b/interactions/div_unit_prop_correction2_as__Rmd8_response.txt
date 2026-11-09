@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when not dividing by zero and not signed operation, the remainder auxiliary is equal to the remainder
+as__Rmd8: assert property(!div_unit.div_zero_q && !div_unit.signed_op_q |-> div_unit.rmd_aux == (div_unit.op_32_q ? {32{div_unit.remanent_q[31]} , div_unit.remanent_q[31:0]} : (div_unit.op_32_q ? {32{div_unit.remanent_q[31]} , div_unit.remanent_q[31:0]} : div_unit.remanent_q)));
+```

@@ -1,0 +1,21 @@
+The current assertion is failing because it is trying to check the equality of `ptw.access_hit` and `ptw.pte_cache_hit` in the same cycle, which is not correct. `ptw.access_hit` is a signal that is generated in the next cycle after `ptw.pte_cache_hit` is asserted.
+
+The issue with the previous attempts is that they are trying to check the relationship between `ptw.pte_cache_hit` and `ptw.access_hit` in the same cycle or in the next cycle without considering the pipeline behavior of the PTW.
+
+The correct assertion should check that `ptw.access_hit` is asserted in the next cycle after `ptw.pte_cache_hit` is asserted, but only when the PTW is in the `S_REQ` state and the cache hit is valid.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit && ptw.current_state == S_REQ |=> ptw.access_hit);
+```
+
+However, this assertion is still not correct because it does not consider the case where the PTW is not in the `S_REQ` state or the cache hit is not valid.
+
+A more accurate assertion would be:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit && ptw.current_state == S_REQ && ptw.count_q < $unsigned(LEVELS-1) |=> ptw.access_hit);
+```
+
+This assertion checks that `ptw.access_hit` is asserted in the next cycle after `ptw.pte_cache_hit` is asserted, but only when the PTW is in the `S_REQ` state, the cache hit is valid, and the current level is not the last level.

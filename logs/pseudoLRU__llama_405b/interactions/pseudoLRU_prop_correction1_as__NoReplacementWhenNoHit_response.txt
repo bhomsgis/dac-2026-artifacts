@@ -1,0 +1,11 @@
+The current assertion is failing because it checks if `pseudoLRU.replace_en` is zero when `access_hit_i` is zero in the same cycle. However, `pseudoLRU.replace_en` is a combinational signal that depends on `plru_tree_q`, which is a registered signal that updates in the next cycle. Therefore, when `access_hit_i` is zero, `pseudoLRU.replace_en` might not be zero in the same cycle because it still depends on the previous value of `plru_tree_q`.
+
+To fix this, we need to check if `pseudoLRU.replace_en` is zero in the next cycle when `access_hit_i` is zero in the current cycle. We can do this by using a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`).
+
+Here is the corrected assertion:
+
+```
+as__NoReplacementWhenNoHit: assert property(access_hit_i == 1'b0 |=> pseudoLRU.replace_en == '0);
+```
+
+This assertion checks if `pseudoLRU.replace_en` is zero in the next cycle when `access_hit_i` is zero in the current cycle, which is the correct behavior according to the RTL.

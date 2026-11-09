@@ -1,0 +1,66 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a alu. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the alu interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of alu but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+We want to increase the assertion set for this RTL module called alu
+Here are the current correct assertions:
+as__ValidOutputMatchesValidInput: assert property(valid_i |-> valid_o);
+as__AddOperationResult: assert property((valid_i && op_i == alu.ADD && CONFIG32 == 1'b1) |-> result_o == data_rs1_i + data_rs2_i);
+as__SubOperationResult: assert property((valid_i && op_i == alu.SUB && CONFIG32 == 1'b1) |-> result_o == data_rs1_i - data_rs2_i);
+as__XorOperationResult: assert property((valid_i && op_i == alu.XOR) |-> result_o == data_rs1_i ^ data_rs2_i);
+as__OrOperationResult: assert property((valid_i && op_i == alu.OR) |-> result_o == data_rs1_i | data_rs2_i);
+as__AndOperationResult: assert property((valid_i && op_i == alu.AND) |-> result_o == data_rs1_i & data_rs2_i);
+as__SraOperationSignedShift: assert property((valid_i && op_i == alu.SRA && CONFIG32 == 1'b1) |-> result_o == {$signed(data_rs1_i) >>> data_rs2_i[5:0]});
+as__SrlOperationLogicalShiftRight: assert property((valid_i && op_i == alu.SRL && CONFIG32 == 1'b1) |-> result_o == data_rs1_i >> data_rs2_i[5:0]);
+as__SllOperationLogicalShiftLeft: assert property((valid_i && op_i == alu.SLL && CONFIG32 == 1'b1) |-> result_o == data_rs1_i << data_rs2_i[5:0]);
+as__SltOperationUnsigned: assert property((valid_i && op_i == alu.SLT && op_unsigned_i && CONFIG32 == 1'b1) |-> result_o == {{(WIDTH-1){1'b0}}, data_rs1_i < data_rs2_i});
+as__SltOperationSigned: assert property((valid_i && op_i == alu.SLT && !op_unsigned_i && CONFIG32 == 1'b1) |-> result_o == {{(WIDTH-1){1'b0}}, $signed(data_rs1_i) < $signed(data_rs2_i)});
+as__DefaultOperationResultZero: assert property((valid_i && (op_i >= alu.ALU_OPS)) |-> result_o == {WIDTH{1'b0}});
+as__AddOperationWordSizeSignExtend: assert property((valid_i && op_i == alu.ADD && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] + data_rs2_i[31:0]) && (&{result_o[63:32]} == result_o[31]));
+as__AddOperationNonWordSize: assert property((valid_i && op_i == alu.ADD && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i + data_rs2_i);
+as__SubOperationWordSizeSignExtend: assert property((valid_i && op_i == alu.SUB && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] - data_rs2_i[31:0]) && (&{result_o[63:32]} == result_o[31]));
+as__SubOperationNonWordSize: assert property((valid_i && op_i == alu.SUB && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i - data_rs2_i);
+as__SraOperationWordSizeSignExtend: assert property((valid_i && op_i == alu.SRA && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == $signed(data_rs1_i[31:0]) >>> data_rs2_i[4:0]) && (&{result_o[63:32]} == result_o[31]));
+as__SraOperationNonWordSize: assert property((valid_i && op_i == alu.SRA && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == {$signed(data_rs1_i) >>> data_rs2_i[5:0]});
+as__SrlOperationWordSizeSignExtend: assert property((valid_i && op_i == alu.SRL && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] >> data_rs2_i[4:0]) && (&{result_o[63:32]} == result_o[31]));
+as__SrlOperationNonWordSize: assert property((valid_i && op_i == alu.SRL && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i >> data_rs2_i[5:0]);
+as__SllOperationWordSizeSignExtend: assert property((valid_i && op_i == alu.SLL && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] << data_rs2_i[4:0]) && (&{result_o[63:32]} == result_o[31]));
+as__SllOperationNonWordSize: assert property((valid_i && op_i == alu.SLL && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i << data_rs2_i[5:0]);
+as__XorOperationNonConfig32: assert property((valid_i && op_i == alu.XOR && CONFIG32 == 1'b0) |-> result_o == data_rs1_i ^ data_rs2_i);
+as__OrOperationNonConfig32: assert property((valid_i && op_i == alu.OR && CONFIG32 == 1'b0) |-> result_o == data_rs1_i | data_rs2_i);
+as__AndOperationNonConfig32: assert property((valid_i && op_i == alu.AND && CONFIG32 == 1'b0) |-> result_o == data_rs1_i & data_rs2_i);
+as__SltOperationUnsignedNonConfig32: assert property((valid_i && op_i == alu.SLT && op_unsigned_i && CONFIG32 == 1'b0) |-> result_o == {{(WIDTH-1){1'b0}}, data_rs1_i < data_rs2_i});
+as__SltOperationSignedNonConfig32: assert property((valid_i && op_i == alu.SLT && !op_unsigned_i && CONFIG32 == 1'b0) |-> result_o == {{(WIDTH-1){1'b0}}, $signed(data_rs1_i) < $signed(data_rs2_i)});
+as__DefaultOperationResultZeroNonConfig32: assert property((valid_i && (op_i >= alu.ALU_OPS) && CONFIG32 == 1'b0) |-> result_o == {WIDTH{1'b0}});
+
+Here is the RTL:
+[Internal RTL for alu.sv omitted from this release.]
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'alu.'

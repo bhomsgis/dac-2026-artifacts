@@ -1,0 +1,6 @@
+// The original assertion fails because it uses a same-cycle implication (|->) while divisor_d is a register updated on the next clock cycle, so its value cannot be expected to match the combinational expression in the same cycle as valid_i. Attempts using next-cycle implication (|=>) failed because they did not consistently use $past() on all relevant signals in the postcondition, including CONFIG32 and op_32_d, which are registers and must be referenced with $past() to reflect their values at the precondition cycle.
+
+// The fix is to use a next-cycle implication (|=>) and use $past() on all signals that are registers (_q or _d) in the postcondition to refer to their values at the precondition cycle. This ensures the assertion checks the updated divisor_d register value against the expected value computed from the previous cycle's signals.
+
+// Corrected assertion:
+as__DivisorDAssignCorrect: assert property (valid_i |=> (div_unit.divisor_d == (($past(div_unit.CONFIG32) == 1'b1) ? $past(div_unit.divisor_aux_d) : ($past(div_unit.op_32_d) ? {32'b0, $past(div_unit.divisor_aux_d[31:0])} : $past(div_unit.divisor_aux_d)))));

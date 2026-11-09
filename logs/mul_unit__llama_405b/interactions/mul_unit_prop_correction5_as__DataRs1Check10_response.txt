@@ -1,0 +1,43 @@
+The current assertion is failing because it is trying to check the value of `mul_unit.data_rs1_d` in the same cycle as the inputs `valid_i` and `op_i`. However, `mul_unit.data_rs1_d` is a combinational signal that is assigned a value based on the inputs `data_rs1_i` and `op_32bits_i`, and its value is not guaranteed to be stable until the next cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `mul_unit.data_rs1_q` in the next cycle, after the inputs have been registered.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00)) |=> (mul_unit.data_rs1_q == (($past(data_rs1_i[(mul_unit.WIDTH-1)]) & !$past(op_32bits_i)) | ($past(data_rs1_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```
+
+However, this is still not correct, as we are using `$past(data_rs1_i[(mul_unit.WIDTH-1)])` and `$past(data_rs1_i[31])` in the postcondition, which is not necessary. We can simplify the assertion by removing the `$past` operator from these signals.
+
+But, we can further simplify the assertion by checking the value of `mul_unit.data_rs1_d` directly, without using `$past` operator.
+
+Here is the corrected and simplified assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00)) |-> (mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? ~data_rs1_i + mul_unit.ONE : data_rs1_i));
+```
+
+However, this assertion is still checking the value of `mul_unit.data_rs1_d` in the same cycle as the inputs, which is not correct. We should check the value of `mul_unit.data_rs1_q` in the next cycle.
+
+Here is the final corrected assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00)) |=> (mul_unit.data_rs1_q == ((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? ~data_rs1_i + mul_unit.ONE : data_rs1_i));
+```
+
+However, this assertion is still not correct, because we are not considering the registered value of `op_32bits_i` and `data_rs1_i`. 
+
+Here is the final corrected assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00)) |=> (mul_unit.data_rs1_q == ((mul_unit.data_rs1_i[(mul_unit.WIDTH-1)] & !mul_unit.op_32bits_q) | (mul_unit.data_rs1_i[31] & mul_unit.op_32bits_q)) ? ~mul_unit.data_rs1_i + mul_unit.ONE : mul_unit.data_rs1_i));
+```
+
+However, `mul_unit.data_rs1_i` is not the registered value of `data_rs1_i`, it is the input itself. And `mul_unit.op_32bits_q` is the registered value of `op_32bits_i`.
+
+Here is the final corrected assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00)) |=> (mul_unit.data_rs1_q == (($past(data_rs1_i[(mul_unit.WIDTH-1)]) & !mul_unit.op_32bits_q) | ($past(data_rs1_i[31]) & mul_unit.op_32bits_q)) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```

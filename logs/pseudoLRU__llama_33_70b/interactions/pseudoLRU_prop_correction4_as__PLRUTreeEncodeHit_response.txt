@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when there is a hit, the corresponding replace_en bit is set
+as__PLRUTreeEncodeHit: assert property(access_hit_i |=> pseudoLRU.replace_en[$past(access_idx_i)] == 1'b1);
+```

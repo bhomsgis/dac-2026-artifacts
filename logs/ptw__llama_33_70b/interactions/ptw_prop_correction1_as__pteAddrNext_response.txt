@@ -1,0 +1,1 @@
+as__pteAddrNext: assert property(ptw.pte_addr |=> ptw.aux_pte_addr[SIZE_VADDR:0] == $past(ptw.pte_addr));

@@ -1,0 +1,2 @@
+// Check that when operation is MULHSU, the result is correctly calculated in the next cycle
+as__ResultNextMULHSU: assert property(valid_i && op_i == mul_unit.MULHSU |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);

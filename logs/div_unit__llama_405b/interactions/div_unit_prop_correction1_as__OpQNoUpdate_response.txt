@@ -1,0 +1,17 @@
+The current assertion is failing because it is checking if the `op_q` register is not updated when `valid_i` is low. However, this is not entirely accurate. The `op_q` register is updated with the value of `op_d` every clock cycle, regardless of the value of `valid_i`. The correct behavior is that `op_q` should not be updated with a new value when `valid_i` is low, but it can still be updated with its previous value.
+
+The proposed fix is to check if `op_q` is equal to its previous value when `valid_i` is low.
+
+Here is the corrected assertion:
+
+```
+as__OpQNoUpdate: assert property(!valid_i |=> div_unit.op_q == $past(div_unit.op_q, 2));
+```
+
+However, a more accurate assertion would be to check if `op_q` is equal to `op_d` when `valid_i` is low, since `op_d` is assigned the value of `op_q` when `valid_i` is low.
+
+Here is the corrected assertion:
+
+```
+as__OpQNoUpdate: assert property(!valid_i |=> div_unit.op_q == $past(div_unit.op_d));
+```

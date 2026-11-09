@@ -1,0 +1,10 @@
+The current assertion is failing because it's not considering the correct sign bit for 32-bit operations. The assertion is using `data_rs1_i[(mul_unit.WIDTH-1)]` as the sign bit, but for 32-bit operations, the sign bit is actually `data_rs1_i[31]`.
+
+Proposed fix:
+The correct assertion should use the `op_32bits_i` signal to determine whether to use the 32-bit or 64-bit sign bit. We can use the same logic as in the RTL code to determine the correct sign bit.
+
+Corrected assertion:
+```
+as__DataRs1Check11: assert property((valid_i && (op_i == 2'b00)) |-> (mul_unit.data_rs1_d == (((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? ~data_rs1_i + mul_unit.ONE : data_rs1_i)));
+```
+This assertion uses the same logic as in the RTL code to determine the correct sign bit based on the `op_32bits_i` signal. If `op_32bits_i` is high, it uses the 32-bit sign bit `data_rs1_i[31]`, otherwise it uses the 64-bit sign bit `data_rs1_i[(mul_unit.WIDTH-1)]`.

@@ -1,0 +1,2 @@
+// access_hit is asserted only when in S_REQ state and pte_cache_hit is true, otherwise it must be 0 in the same cycle
+as__AccessHitClearOtherwise: assert property((ptw.current_state == ptw.S_REQ) |-> (ptw.access_hit == ptw.pte_cache_hit));

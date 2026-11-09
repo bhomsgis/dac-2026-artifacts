@@ -1,0 +1,9 @@
+The assertion `as__OpCheck: assert property((valid_i) |-> (mul_unit.op_q_final == op_i));` might be failing because it's comparing the `op_q_final` signal with the `op_i` signal in the same cycle. However, `op_q_final` is a registered signal that is updated in the next cycle, so it will not match `op_i` in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), like this:
+
+`as__OpCheck: assert property((valid_i) |=> (mul_unit.op_q_final == $past(op_i)));`
+
+This assertion checks that when `valid_i` is high, the value of `op_q_final` in the next cycle is equal to the value of `op_i` in the current cycle. The `$past` function is used to refer to the value of `op_i` in the previous cycle.
+
+This fix should work because `op_q_final` is updated in the next cycle, so we need to compare it with the value of `op_i` in the previous cycle.

@@ -1,0 +1,7 @@
+1. The current assertion as__ValidInputSetsBusy: assert property((valid_i) |-> busy_o); might be failing because busy_o is driven by the cycles_counter register, which is loaded with a non-zero value only on the cycle when valid_i is asserted and then decremented in subsequent cycles. However, busy_o is assigned combinationally as |cycles_counter, so busy_o becomes 1 only if cycles_counter is non-zero. On the cycle valid_i is asserted, cycles_counter is updated on the clock edge, so busy_o will not be 1 in the same cycle as valid_i but in the next cycle. Therefore, the assertion fails because it expects busy_o to be 1 in the same cycle as valid_i.
+
+2. The fix is to use a next-cycle assertion (|=>) so that the precondition valid_i is checked in the current cycle, and the postcondition busy_o is checked in the next cycle. Also, since busy_o is combinationally driven by cycles_counter, which is updated on the clock edge, we should refer to $past(div_unit.busy_o) in the postcondition to check the busy_o value in the cycle after valid_i was asserted. This matches the pipeline behavior and timing.
+
+3. Corrected assertion:
+
+as__ValidInputSetsBusy: assert property (valid_i |=> $past(div_unit.busy_o));

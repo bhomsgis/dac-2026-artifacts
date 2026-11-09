@@ -1,0 +1,6 @@
+The current assertion `as__DividendQuotient: assert property(!valid_i |=> div_unit.dividend_quotient_q == div_unit.dividend_quotient_out);` is failing because it does not account for the pipeline behavior of the `div_unit` module. The `dividend_quotient_q` register is updated in the next cycle after `valid_i` is asserted, and its value is determined by the `dividend_quotient_out` wire, which is computed by the `div_pipeline` module. However, the assertion is comparing the current value of `dividend_quotient_q` with the current value of `dividend_quotient_out`, which may not be the correct value to compare.
+
+To fix this issue, we need to use the `$past` function to refer to the value of `dividend_quotient_out` in the previous cycle, when `valid_i` was asserted. We also need to consider the case when `cycles_counter` is not zero, because in that case, the `dividend_quotient_q` register is updated with the value of `dividend_quotient_out` from the previous cycle.
+
+Here is the corrected assertion:
+`as__DividendQuotient: assert property(!valid_i |=> div_unit.dividend_quotient_q == $past(div_unit.dividend_quotient_out) && $past(div_unit.cycles_counter) != 6'd0);`

@@ -1,0 +1,9 @@
+The current assertion is failing because it's trying to access the internal signals of the `mul_unit` module directly, without considering the pipeline behavior and timing. The assertion is checking the result of the multiplication operation in the same cycle as the input, which is not correct.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the result of the multiplication operation in the next cycle, after the internal signals have been updated. We also need to use `$past()` to refer to the value of the internal signals in the previous cycle.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__ResultMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == ($past(mul_unit.neg_q) ? (~$past(mul_unit.result_32) + mul_unit.ONE) : $past(mul_unit.result_32)));
+```

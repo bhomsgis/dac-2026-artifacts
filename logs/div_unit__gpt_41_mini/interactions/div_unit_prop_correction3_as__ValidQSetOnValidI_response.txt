@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion as__ValidQSetOnValidI: assert property((valid_i) |=> div_unit.valid_q); fails because it assumes that div_unit.valid_q is set exactly one cycle after valid_i is asserted. However, in the RTL, valid_q is assigned valid_i in the same clock edge when valid_i is high (inside the always_ff block). This means valid_q updates on the clock edge where valid_i is high, so the updated valid_q value is visible only in the next cycle. The assertion uses a next-cycle implication (|=>) but does not account for the fact that valid_q is a register updated on the clock edge, so the postcondition should check the updated valid_q without $past() and the precondition cycle's valid_i with $past(). The original assertion checks div_unit.valid_q directly without $past(), which is incorrect for a next-cycle assertion.
+
+2. Proposed fix:  
+Use a next-cycle assertion (|=>) with the postcondition checking div_unit.valid_q (the updated register value) and the precondition valid_i. To refer to the precondition cycle's valid_i in the postcondition, use $past(valid_i). The postcondition should assert that div_unit.valid_q equals $past(valid_i), i.e., valid_q is set to the previous cycle's valid_i. This matches the RTL behavior where valid_q <= valid_i on the clock edge. This approach is different from previous attempts because it uses the postcondition div_unit.valid_q == $past(valid_i) without parentheses around the entire postcondition and ensures the assertion is written correctly with the module prefix.
+
+3. Corrected assertion:  
+as__ValidQSetOnValidI: assert property (valid_i |=> (div_unit.valid_q == $past(valid_i)));

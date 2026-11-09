@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Why the current assertion might be failing:**
+The current assertion is checking that when the `ptw_arb` is in the `IDLE` state and a request is received from the `dTLB` (i.e., `dtlb_ptw_comm_i.req.valid` is high) and no request is received from the `iTLB` (i.e., `itlb_ptw_comm_i.req.valid` is low), then the next state should be `SERVING_dTLB`. However, this assertion does not consider the case where a request is waiting in the `iTLB` queue (i.e., `is_req_waiting_q` is high). In this case, the `ptw_arb` should prioritize serving the waiting `iTLB` request over the new `dTLB` request.
+
+**Proposed fix and why it should work:**
+To fix this assertion, we need to add a condition to check if there is a waiting `iTLB` request. If there is, then the next state should not be `SERVING_dTLB`. We can do this by adding a check for `ptw_arb.is_req_waiting_q` being low.
+
+**Corrected assertion:**
+```
+as__IdleToServingdTLB6: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && itlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.next_state == ptw_arb.SERVING_dTLB);
+```
+This corrected assertion checks that when the `ptw_arb` is in the `IDLE` state, a request is received from the `dTLB`, no request is received from the `iTLB`, and there is no waiting `iTLB` request, then the next state should be `SERVING_dTLB`.

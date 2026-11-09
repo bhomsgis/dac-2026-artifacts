@@ -1,0 +1,13 @@
+The current assertion is failing because it's checking if the `ptecache_entry` at the `plru_eviction_idx` is valid when the cache is full and there's a hit. However, this assertion doesn't consider the case when the cache is not full and a new entry is added.
+
+The issue with the current assertion is that it's using `ptw.access_hit` as a condition, which is not the correct condition to check for the replacement of a cache entry. The `ptw.access_hit` signal is set when there's a hit in the cache, but it doesn't indicate that a new entry is being added to the cache.
+
+The correct condition to check for the replacement of a cache entry is when the cache is full and a new entry is being added, which is indicated by the `dmem_ptw_comm_i.resp.valid` and `is_pte_table` signals.
+
+Here's the corrected assertion:
+
+```systemverilog
+as__ptwPteCacheReplace: assert property(ptw.full_cache && dmem_ptw_comm_i.resp.valid && is_pte_table |=> ptw.ptecache_entry[ptw.plru_eviction_idx].valid);
+```
+
+This assertion checks that when the cache is full and a new entry is being added (indicated by `dmem_ptw_comm_i.resp.valid` and `is_pte_table`), the `ptecache_entry` at the `plru_eviction_idx` is valid in the next cycle.

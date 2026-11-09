@@ -1,0 +1,28 @@
+// Check that when all operands are zero, both lsport and msport are zero
+as__PopcountZeroOperandsLsportMsportZeroCheck2: assert property((!(|operands_regs_i)) |-> (popcount.lsport == 0 && popcount.msport == 0));
+// Check that when all operands are ones and ADDR_SUBS is true, lsport and msport counts sum to N_PORTS
+as__PopcountAllOnesLsportMsportSum: assert property((ADDR_SUBS && (&operands_regs_i)) |-> (popcount.lsport + popcount.msport == popcount.N_PORTS));
+// Check that when all operands are ones and ADDR_SUBS is false, lsport equals msport
+as__PopcountAllOnesSubEqualHalves: assert property((!ADDR_SUBS && (&operands_regs_i)) |-> (popcount.lsport == popcount.msport));
+// Check that result_value_o matches sum of lsport and msport when REG_PATTERN MSB is zero and ADDR_SUBS is true
+as__PopcountAddNoRegResultMatch: assert property((ADDR_SUBS && (popcount.REG_PATTERN[$clog2(popcount.N_PORTS)-1] == 0)) |-> result_value_o == popcount.lsport + popcount.msport);
+// Check that result_value_o matches difference of lsport and msport when REG_PATTERN MSB is zero and ADDR_SUBS is false
+as__PopcountSubNoRegResultMatch: assert property((!ADDR_SUBS && (popcount.REG_PATTERN[$clog2(popcount.N_PORTS)-1] == 0)) |-> result_value_o == popcount.lsport - popcount.msport);
+// Check that result_value_o is zero when operands_regs_i is zero and REG_PATTERN MSB is zero
+as__PopcountZeroOperandsNoReg: assert property((!(|operands_regs_i) && (popcount.REG_PATTERN[$clog2(popcount.N_PORTS)-1] == 0)) |-> result_value_o == 0);
+// Check that lsport and msport counts are consistent with operands_regs_i halves
+as__PopcountLsportMsportCountConsistency: assert property(popcount.lsport == $countones(operands_regs_i[0 +: popcount.N_PORTS/2]) && popcount.msport == $countones(operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]));
+// Check that result_value_o is within valid range for addition mode
+as__PopcountAddResultRange: assert property((ADDR_SUBS) |-> (result_value_o >= 0 && result_value_o <= popcount.N_PORTS));
+// Check that result_value_o is within valid range for subtraction mode
+as__PopcountSubResultRange: assert property((!ADDR_SUBS) |-> (result_value_o >= -popcount.N_PORTS && result_value_o <= popcount.N_PORTS));
+// Check that when REG_PATTERN MSB is 1, result_value_o matches registered result_value_q
+as__PopcountRegOutputConsistency: assert property((popcount.REG_PATTERN[$clog2(popcount.N_PORTS)-1]) |=> result_value_o == popcount.result_value_q);
+// Check that when REG_PATTERN MSB is 0, result_value_o matches combinational result_value_d
+as__PopcountNoRegOutputConsistency: assert property((!popcount.REG_PATTERN[$clog2(popcount.N_PORTS)-1]) |-> result_value_o == popcount.result_value_d);
+// Check that lsport and msport are zero when their respective halves of operands_regs_i are zero
+as__PopcountLsportMsportZeroHalves: assert property((!(|operands_regs_i[0 +: popcount.N_PORTS/2])) |-> popcount.lsport == 0) && assert property((!(|operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2])) |-> popcount.msport == 0);
+// Check that result_value_o is zero when both halves of operands_regs_i are equal and ADDR_SUBS is false
+as__PopcountEqualHalvesSubZeroResult: assert property((!ADDR_SUBS && (operands_regs_i[0 +: popcount.N_PORTS/2] == operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2])) |-> result_value_o == 0);
+// Check that sum of lsport and msport equals countones of operands_regs_i when ADDR_SUBS is true
+as__PopcountSumHalvesAddCount: assert property((ADDR_SUBS) |-> popcount.lsport + popcount.msport == $countones(operands_regs_i));

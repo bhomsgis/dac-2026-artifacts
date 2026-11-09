@@ -1,0 +1,56 @@
+// Check that valid_o is asserted only when valid_i is asserted
+as__ValidOutputOnlyWhenValidInput: assert property(!valid_i |-> !valid_o);
+// Check that result_o for ADD with CONFIG32=1 is sum of data_rs1_i and data_rs2_i
+as__AddOperationResultConfig32: assert property((valid_i && op_i == alu.ADD && CONFIG32 == 1'b1) |-> result_o == data_rs1_i + data_rs2_i);
+// Check that result_o for SUB with CONFIG32=1 is difference of data_rs1_i and data_rs2_i
+as__SubOperationResultConfig32: assert property((valid_i && op_i == alu.SUB && CONFIG32 == 1'b1) |-> result_o == data_rs1_i - data_rs2_i);
+// Check that result_o for XOR is bitwise XOR of data_rs1_i and data_rs2_i
+as__XorOperationResultGeneral: assert property((valid_i && op_i == alu.XOR) |-> result_o == data_rs1_i ^ data_rs2_i);
+// Check that result_o for OR is bitwise OR of data_rs1_i and data_rs2_i
+as__OrOperationResultGeneral: assert property((valid_i && op_i == alu.OR) |-> result_o == data_rs1_i | data_rs2_i);
+// Check that result_o for AND is bitwise AND of data_rs1_i and data_rs2_i
+as__AndOperationResultGeneral: assert property((valid_i && op_i == alu.AND) |-> result_o == data_rs1_i & data_rs2_i);
+// Check that result_o for SRA with CONFIG32=1 is arithmetic right shift of data_rs1_i by data_rs2_i[5:0]
+as__SraOperationResultConfig32: assert property((valid_i && op_i == alu.SRA && CONFIG32 == 1'b1) |-> result_o == {$signed(data_rs1_i) >>> data_rs2_i[5:0]});
+// Check that result_o for SRL with CONFIG32=1 is logical right shift of data_rs1_i by data_rs2_i[5:0]
+as__SrlOperationResultConfig32: assert property((valid_i && op_i == alu.SRL && CONFIG32 == 1'b1) |-> result_o == data_rs1_i >> data_rs2_i[5:0]);
+// Check that result_o for SLL with CONFIG32=1 is logical left shift of data_rs1_i by data_rs2_i[5:0]
+as__SllOperationResultConfig32: assert property((valid_i && op_i == alu.SLL && CONFIG32 == 1'b1) |-> result_o == data_rs1_i << data_rs2_i[5:0]);
+// Check that result_o for SLT unsigned with CONFIG32=1 is 1 if data_rs1_i < data_rs2_i else 0
+as__SltOperationUnsignedConfig32: assert property((valid_i && op_i == alu.SLT && op_unsigned_i && CONFIG32 == 1'b1) |-> result_o == {{(WIDTH-1){1'b0}}, data_rs1_i < data_rs2_i});
+// Check that result_o for SLT signed with CONFIG32=1 is 1 if signed data_rs1_i < signed data_rs2_i else 0
+as__SltOperationSignedConfig32: assert property((valid_i && op_i == alu.SLT && !op_unsigned_i && CONFIG32 == 1'b1) |-> result_o == {{(WIDTH-1){1'b0}}, $signed(data_rs1_i) < $signed(data_rs2_i)});
+// Check that result_o is zero for invalid op_i with CONFIG32=1
+as__DefaultOperationResultZeroConfig32: assert property((valid_i && (op_i >= alu.ALU_OPS) && CONFIG32 == 1'b1) |-> result_o == {WIDTH{1'b0}});
+// Check that ADD with CONFIG32=0 and op_size_i=WORD sign extends 32-bit addition result
+as__AddOperationWordSizeSignExtendNonConfig32: assert property((valid_i && op_i == alu.ADD && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] + data_rs2_i[31:0]) && (&{result_o[63:32]} == result_o[31]));
+// Check that ADD with CONFIG32=0 and op_size_i!=WORD is full width addition
+as__AddOperationNonWordSizeNonConfig32: assert property((valid_i && op_i == alu.ADD && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i + data_rs2_i);
+// Check that SUB with CONFIG32=0 and op_size_i=WORD sign extends 32-bit subtraction result
+as__SubOperationWordSizeSignExtendNonConfig32: assert property((valid_i && op_i == alu.SUB && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] - data_rs2_i[31:0]) && (&{result_o[63:32]} == result_o[31]));
+// Check that SUB with CONFIG32=0 and op_size_i!=WORD is full width subtraction
+as__SubOperationNonWordSizeNonConfig32: assert property((valid_i && op_i == alu.SUB && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i - data_rs2_i);
+// Check that SRA with CONFIG32=0 and op_size_i=WORD sign extends 32-bit arithmetic right shift result
+as__SraOperationWordSizeSignExtendNonConfig32: assert property((valid_i && op_i == alu.SRA && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == $signed(data_rs1_i[31:0]) >>> data_rs2_i[4:0]) && (&{result_o[63:32]} == result_o[31]));
+// Check that SRA with CONFIG32=0 and op_size_i!=WORD is full width arithmetic right shift
+as__SraOperationNonWordSizeNonConfig32: assert property((valid_i && op_i == alu.SRA && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == {$signed(data_rs1_i) >>> data_rs2_i[5:0]});
+// Check that SRL with CONFIG32=0 and op_size_i=WORD sign extends 32-bit logical right shift result
+as__SrlOperationWordSizeSignExtendNonConfig32: assert property((valid_i && op_i == alu.SRL && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] >> data_rs2_i[4:0]) && (&{result_o[63:32]} == result_o[31]));
+// Check that SRL with CONFIG32=0 and op_size_i!=WORD is full width logical right shift
+as__SrlOperationNonWordSizeNonConfig32: assert property((valid_i && op_i == alu.SRL && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i >> data_rs2_i[5:0]);
+// Check that SLL with CONFIG32=0 and op_size_i=WORD sign extends 32-bit logical left shift result
+as__SllOperationWordSizeSignExtendNonConfig32: assert property((valid_i && op_i == alu.SLL && CONFIG32 == 1'b0 && op_size_i == alu.WORD) |-> (result_o[31:0] == data_rs1_i[31:0] << data_rs2_i[4:0]) && (&{result_o[63:32]} == result_o[31]));
+// Check that SLL with CONFIG32=0 and op_size_i!=WORD is full width logical left shift
+as__SllOperationNonWordSizeNonConfig32: assert property((valid_i && op_i == alu.SLL && CONFIG32 == 1'b0 && op_size_i != alu.WORD) |-> result_o == data_rs1_i << data_rs2_i[5:0]);
+// Check that XOR with CONFIG32=0 is bitwise XOR of data_rs1_i and data_rs2_i
+as__XorOperationNonConfig32: assert property((valid_i && op_i == alu.XOR && CONFIG32 == 1'b0) |-> result_o == data_rs1_i ^ data_rs2_i);
+// Check that OR with CONFIG32=0 is bitwise OR of data_rs1_i and data_rs2_i
+as__OrOperationNonConfig32: assert property((valid_i && op_i == alu.OR && CONFIG32 == 1'b0) |-> result_o == data_rs1_i | data_rs2_i);
+// Check that AND with CONFIG32=0 is bitwise AND of data_rs1_i and data_rs2_i
+as__AndOperationNonConfig32: assert property((valid_i && op_i == alu.AND && CONFIG32 == 1'b0) |-> result_o == data_rs1_i & data_rs2_i);
+// Check that SLT unsigned with CONFIG32=0 is 1 if data_rs1_i < data_rs2_i else 0
+as__SltOperationUnsignedNonConfig32: assert property((valid_i && op_i == alu.SLT && op_unsigned_i && CONFIG32 == 1'b0) |-> result_o == {{(WIDTH-1){1'b0}}, data_rs1_i < data_rs2_i});
+// Check that SLT signed with CONFIG32=0 is 1 if signed data_rs1_i < signed data_rs2_i else 0
+as__SltOperationSignedNonConfig32: assert property((valid_i && op_i == alu.SLT && !op_unsigned_i && CONFIG32 == 1'b0) |-> result_o == {{(WIDTH-1){1'b0}}, $signed(data_rs1_i) < $signed(data_rs2_i)});
+// Check that result_o is zero for invalid op_i with CONFIG32=0
+as__DefaultOperationResultZeroNonConfig32: assert property((valid_i && (op_i >= alu.ALU_OPS) && CONFIG32 == 1'b0) |-> result_o == {WIDTH{1'b0}});

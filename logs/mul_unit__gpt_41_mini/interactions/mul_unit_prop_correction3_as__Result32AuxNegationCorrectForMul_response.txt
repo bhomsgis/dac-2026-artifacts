@@ -1,0 +1,6 @@
+// The original assertion fails because it checks the postcondition of result_32_aux against result_low_q and neg_q in the same cycle as op_q, but result_low_q and neg_q are registered signals updated in the next cycle. The assertion must consider pipeline latency and use $past() to refer to the values of neg_q and result_low_q at the time of the precondition. Also, it must include valid_q[1] and op_32bits_q_final to ensure the result is valid and corresponds to a 32-bit multiplication operation.
+
+// The fix is to add valid_q[1] and op_32bits_q_final to the precondition and use $past() on neg_q and result_low_q in the postcondition to correctly reference the registered values from the cycle of the precondition. This aligns the assertion with the pipeline timing and the registered signals' update cycle.
+
+// Corrected assertion:
+as__Result32AuxNegationCorrectForMul: assert property ((mul_unit.op_q == 0 && mul_unit.valid_q[1] && mul_unit.op_32bits_q_final) |=> (mul_unit.result_32_aux == ($past(mul_unit.neg_q,1) ? (~$past(mul_unit.result_low_q[mul_unit.WIDTH-1:0],1) + mul_unit.ONE) : $past(mul_unit.result_low_q[mul_unit.WIDTH-1:0],1))));

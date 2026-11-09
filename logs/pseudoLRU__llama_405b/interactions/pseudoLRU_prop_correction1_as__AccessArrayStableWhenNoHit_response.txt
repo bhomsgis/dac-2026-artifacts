@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if the `access_array` remains stable when there is no hit (`access_hit_i == 1'b0`). However, the `access_array` is a combinational signal that is updated in the same cycle based on the `access_idx_i` and `access_hit_i` signals. Therefore, even if there is no hit, the `access_array` can still change in the same cycle if `access_idx_i` changes.
+
+The proposed fix is to check if the `access_array` remains stable when there is no hit and `access_idx_i` also remains stable. This can be achieved by adding a condition to the precondition of the assertion to check if `access_idx_i` is stable.
+
+Here is the corrected assertion:
+
+```
+as__AccessArrayStableWhenNoHit: assert property(access_hit_i == 1'b0 && $stable(access_idx_i) |-> pseudoLRU.access_array == $past(pseudoLRU.access_array));
+```
+
+This assertion checks if the `access_array` remains stable when there is no hit (`access_hit_i == 1'b0`) and `access_idx_i` also remains stable (`$stable(access_idx_i)`). The `$stable` function checks if the signal remains the same as its previous value. If both conditions are true, then the `access_array` should remain stable, and the assertion should pass.

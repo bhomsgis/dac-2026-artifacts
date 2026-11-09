@@ -1,0 +1,1 @@
+as__DivisorAux: assert property((!op_32bits_i && data_rs2_i[63] && !op_unsigned_i) || (op_32bits_i && data_rs2_i[31] && !op_unsigned_i) |-> div_unit.divisor_aux_d == (!data_rs2_i + {WIDTH{1'b1}}));

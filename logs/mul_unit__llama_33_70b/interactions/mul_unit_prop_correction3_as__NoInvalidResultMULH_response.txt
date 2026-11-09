@@ -1,0 +1,17 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The assertion `as__NoInvalidResultMULH` checks that when the operation is `MULH` and the output is valid, the result is equal to the high part of the double-width result.
+2. **Identifying the issue**: The assertion is failing because it does not consider the case where the operation is `MULH` but the output is not the high part of the double-width result. This can happen when the `op_32bits_q_final` signal is high, indicating a 32-bit operation.
+3. **Analyzing the pipeline behavior**: The `result_o` signal is assigned in the `output_64bit_gen` block, which considers the `op_32bits_q_final` signal. However, the assertion does not account for this signal.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidResultMULH: assert property(valid_o && op_i == mul_unit.MULH |-> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Added consideration for `op_i`**: The assertion now checks that the operation is `MULH` using the `op_i` signal, which is the input operation signal.
+* **Used `result_2width_def`**: The assertion uses the `result_2width_def` signal, which is the corrected double-width result.
+* **Used `WIDTHDOUBLE-1:WIDTH` range**: The assertion uses the correct range for the high part of the double-width result.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different input operations and checking that the assertion passes or fails as expected. For example, testing with `op_i = MULH` and `valid_o = 1` should pass the assertion, while testing with `op_i = MUL` and `valid_o = 1` should fail the assertion.

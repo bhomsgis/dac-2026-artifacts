@@ -1,0 +1,2 @@
+// The dividend_quotient_q register is loaded with dividend_d in the same cycle that valid_i is asserted, so the updated dividend_quotient_q value is available in the next cycle. Therefore, the assertion must check dividend_quotient_q in the next cycle and compare it to dividend_d in the current cycle (using $past for dividend_d).
+as__DividendQuotientQSetOnValidI: assert property (valid_i |=> (div_unit.dividend_quotient_q == $past(div_unit.dividend_d,1)));

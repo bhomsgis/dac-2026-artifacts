@@ -1,0 +1,1 @@
+as__ReqWaiting4: assert property((ptw_arb.is_req_waiting_q) |-> (ptw_arb.current_state == ptw_arb.SERVING_iTLB || ptw_arb.current_state == ptw_arb.IDLE || ptw_arb.current_state == ptw_arb.SERVING_dTLB));

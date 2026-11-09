@@ -1,0 +1,7 @@
+The current assertion is failing because it is checking if the `first_dividend_q` register is not updated when `valid_i` is low. However, this is not entirely accurate. The `first_dividend_q` register is updated with the value of `first_dividend_d` every cycle, regardless of the value of `valid_i`. The correct behavior is that `first_dividend_q` should not be updated with a new value when `valid_i` is low.
+
+Here's the corrected assertion:
+
+as__FirstDividendQNoUpdate: assert property(!valid_i |=> div_unit.first_dividend_q == $past(div_unit.first_dividend_d)); 
+
+This assertion checks that when `valid_i` is low, the `first_dividend_q` register is updated with the same value it had in the previous cycle, which is stored in `first_dividend_d`.

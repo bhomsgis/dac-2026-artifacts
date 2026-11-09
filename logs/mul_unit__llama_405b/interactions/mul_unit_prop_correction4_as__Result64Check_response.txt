@@ -1,0 +1,22 @@
+The current assertion is failing because it's not considering the pipeline behavior of the `mul_unit` module. The `result_o` signal is assigned a value based on the `op_32bits_q_final` signal, which is a registered signal that is updated one cycle after the `valid_i` signal is asserted.
+
+The issue with the current assertion is that it's checking the value of `result_o` in the same cycle as `valid_i` is asserted, which is not correct. The correct behavior is to check the value of `result_o` one cycle after `valid_i` is asserted.
+
+Here's the corrected assertion:
+
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]));
+
+This assertion checks that when `valid_i` is asserted and `op_32bits_i` is not asserted, the value of `result_o` in the next cycle is equal to the value of `mul_unit.result_2width_def[mul_unit.WIDTH-1:0]`.
+
+However, this assertion still doesn't cover the case when `op_32bits_i` is asserted. To cover this case, we need to add another assertion that checks the value of `result_o` when `op_32bits_i` is asserted.
+
+Here's the complete corrected assertion:
+
+as__Result64Check: assert property(((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0])) && ((valid_i && op_32bits_i) |=> (result_o == mul_unit.result_32_q)));
+
+This assertion checks both cases: when `op_32bits_i` is not asserted and when it is asserted. When `op_32bits_i` is not asserted, it checks that the value of `result_o` in the next cycle is equal to the value of `mul_unit.result_2width_def[mul_unit.WIDTH-1:0]`. When `op_32bits_i` is asserted, it checks that the value of `result_o` in the next cycle is equal to the value of `mul_unit.result_32_q`. 
+
+However, the tool still has issues with this property. Therefore, we need to split it into two different properties:
+
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]));
+as__Result32Check: assert property((valid_i && op_32bits_i) |=> (result_o == mul_unit.result_32_q));

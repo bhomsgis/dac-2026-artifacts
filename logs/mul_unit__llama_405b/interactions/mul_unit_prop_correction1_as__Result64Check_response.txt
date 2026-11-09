@@ -1,0 +1,27 @@
+The assertion `as__Result64Check` is failing because it's checking the result of the multiplication in the same cycle as the input is provided, but the multiplication operation takes two cycles to complete. 
+
+The assertion is also not considering the case when `op_32bits_i` is high, in which case the result is stored in `result_32_q` instead of `result_2width_def`.
+
+To fix this, we need to check the result in the next cycle, and also consider the case when `op_32bits_i` is high. We can do this by using a next-cycle assertion (`|=>`) and checking the value of `result_o` instead of `result_2width_def`. We also need to use `$past()` to refer to the value of `op_32bits_i` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]));
+```
+
+However, this assertion is still not correct because it's not considering the case when `op_32bits_i` is high. To fix this, we need to add another condition to the assertion to check the value of `result_o` when `op_32bits_i` is high.
+
+Here is the corrected assertion:
+
+```
+as__Result64Check: assert property((valid_i && !op_32bits_i) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0])) && (valid_i && op_32bits_i) |=> (result_o == mul_unit.result_32_q));
+```
+
+However, this is not a valid SVA syntax. To fix this, we need to combine the two conditions into a single condition using a logical OR operator.
+
+Here is the corrected assertion:
+
+```
+as__Result64Check: assert property((valid_i) |=> ((!$past(op_32bits_i)) && (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0])) || ($past(op_32bits_i) && (result_o == mul_unit.result_32_q)));
+```

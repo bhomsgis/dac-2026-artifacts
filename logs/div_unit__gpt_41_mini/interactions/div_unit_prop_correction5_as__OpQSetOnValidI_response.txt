@@ -1,0 +1,4 @@
+// The assertion fails because op_q is a registered signal updated on the clock edge after valid_i is asserted, so op_q matches op_i only in the next cycle, not the same cycle as valid_i. The original assertion checks op_q == op_i in the next cycle but compares op_q to the current op_i, causing mismatch.
+// The fix is to check that when valid_i is asserted, in the next cycle op_q equals the previous cycle's op_i, i.e., use $past(op_i) in the postcondition of a next-cycle assertion. This matches the pipeline behavior where op_q is updated from op_i on the clock edge following valid_i.
+// Corrected assertion:
+as__OpQSetOnValidI: assert property (valid_i |=> (div_unit.op_q == $past(op_i)));

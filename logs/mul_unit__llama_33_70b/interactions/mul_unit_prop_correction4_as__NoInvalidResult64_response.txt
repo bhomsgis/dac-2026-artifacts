@@ -1,0 +1,11 @@
+The current assertion `as__NoInvalidResult64: assert property(!(valid_o && op_i != mul_unit.MUL && !op_32bits_i && result_o != mul_unit.result_2width_def[WIDTH-1:0]));` is failing because it does not consider the pipeline behavior and timing of the `mul_unit` module. 
+
+The assertion is checking if the result is invalid when the operation is not a multiplication (`op_i != mul_unit.MUL`) and the operation is 64-bit (`!op_32bits_i`). However, this assertion does not take into account the fact that the result is generated after a certain number of cycles, depending on the operation and the configuration of the module.
+
+To fix this assertion, we need to consider the pipeline behavior and timing of the module. We can use the `|=>` operator to specify the relationship between the current cycle and the next cycle. We also need to use the `$past` function to refer to the value of the signals in the previous cycle.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__NoInvalidResult64: assert property(!(valid_o && $past(op_i) != mul_unit.MUL && !$past(op_32bits_i) && result_o != $past(mul_unit.result_2width_def)[WIDTH-1:0]));
+```

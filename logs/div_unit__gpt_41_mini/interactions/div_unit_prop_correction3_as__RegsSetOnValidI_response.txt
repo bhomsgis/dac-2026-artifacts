@@ -1,0 +1,14 @@
+1. Explanation of failure:  
+The original assertion checks the registered signals (ending in _q) immediately in the next cycle after valid_i is asserted, but it compares them directly to the current cycle inputs and combinational signals (without $past). Since these _q signals update on the clock edge, their values correspond to the inputs from the previous cycle. The original assertion does not use $past() on the precondition cycle for the inputs and combinational signals, causing a mismatch in timing. Previous attempts used $past() on inputs in the postcondition, but also compared _q signals to $past() of inputs, which is incorrect because _q signals are updated at the clock edge and should be compared to the inputs at the precondition cycle (using $past() on inputs). Also, the assertion uses a next-cycle implication (|=>) but does not consistently apply $past() to all inputs and combinational signals on the postcondition side.  
+
+2. Proposed fix:  
+Use a next-cycle assertion (|=>) with precondition valid_i at cycle T, and in the postcondition at cycle T+1:  
+- Compare the registered signals (_q) to the inputs and combinational signals sampled at cycle T, i.e., use $past() on inputs and combinational signals in the postcondition.  
+- Do NOT use $past() on the _q signals in the postcondition because they are updated at cycle T+1 and reflect the inputs at cycle T.  
+- Use $past() on all inputs and combinational signals in the postcondition to reflect their values at cycle T.  
+- Use the correct module prefix div_unit.  
+- Keep remanent_q == 0 as is (no $past needed because it is a registered signal updated at T+1).  
+This approach aligns the timing correctly: inputs at T are $past() in postcondition at T+1, and _q signals at T+1 reflect those inputs.  
+
+3. Corrected assertion:  
+as__RegsSetOnValidI: assert property((valid_i) |=> (div_unit.valid_q && div_unit.op_q == $past(op_i) && div_unit.op_32_q == $past(op_32bits_i) && div_unit.signed_op_q == !$past(op_unsigned_i) && div_unit.div_zero_q == $past(div_unit.div_zero_d) && div_unit.same_sign_q == $past(div_unit.same_sign_d) && div_unit.dividend_quotient_q == $past(div_unit.dividend_d) && div_unit.divisor_q == $past(div_unit.divisor_d) && div_unit.remanent_q == {WIDTH{1'b0}} && div_unit.first_dividend_q == $past(data_rs1_i)));

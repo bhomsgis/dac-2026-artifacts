@@ -1,0 +1,19 @@
+The current assertion is failing because it is comparing two signals (`ptw.access_hit` and `ptw.pte_cache_hit`) that are not necessarily related in the same clock cycle. `ptw.access_hit` is a registered signal that is updated in the next clock cycle after `ptw.pte_cache_hit` is asserted.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check that `ptw.access_hit` is asserted in the next clock cycle after `ptw.pte_cache_hit` is asserted.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit |=> ptw.access_hit);
+```
+
+However, this assertion is still not correct because `ptw.access_hit` is only updated when `ptw.current_state` is `S_REQ`. Therefore, we need to add an additional condition to the assertion to ensure that `ptw.current_state` is `S_REQ` when `ptw.pte_cache_hit` is asserted.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit && ptw.current_state == S_REQ |=> ptw.access_hit);
+```
+
+This assertion checks that when `ptw.pte_cache_hit` is asserted and `ptw.current_state` is `S_REQ`, then `ptw.access_hit` is asserted in the next clock cycle.

@@ -1,0 +1,13 @@
+as__SignCheck2: assert property((valid_i && (op_i == mul_unit.MULH)) |-> (mul_unit.same_sign == ~(data_rs2_i[(mul_unit.WIDTH-1)] ^ data_rs1_i[(mul_unit.WIDTH-1)])));
+as__SignCheck3: assert property((valid_i && (op_i == mul_unit.MULHSU)) |-> (mul_unit.same_sign == ~(data_rs2_i[(mul_unit.WIDTH-1)] ^ data_rs1_i[(mul_unit.WIDTH-1)])));
+as__SignCheck4: assert property((valid_i && (op_i == mul_unit.MULHU)) |-> (mul_unit.same_sign == ~(data_rs2_i[(mul_unit.WIDTH-1)] ^ data_rs1_i[(mul_unit.WIDTH-1)])));
+as__ResultCheck3: assert property((valid_i && (op_i == mul_unit.MULH)) |-> (result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+as__ResultCheck4: assert property((valid_i && (op_i == mul_unit.MULHSU)) |-> (result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+as__ResultCheck5: assert property((valid_i && (op_i == mul_unit.MULHU)) |-> (result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+as__Result2WidthCheck2: assert property((valid_i && !op_32bits_i) |-> (mul_unit.result_2width == {{(mul_unit.WIDTH/2){1'b0}}, mul_unit.result_low_q} + {mul_unit.result_high_q, {(mul_unit.WIDTH/2){1'b0}}}));
+as__Result2WidthDefCheck2: assert property((valid_i && !op_32bits_i) |-> (mul_unit.result_2width_def == (mul_unit.neg_q_final ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE) : mul_unit.result_2width)));
+as__ResultCheck6: assert property((valid_i && op_32bits_i && REG_32 && !mul_unit.CONFIG32) |-> (result_o == mul_unit.result_32_q));
+as__ResultCheck7: assert property((valid_i && (op_i == mul_unit.MUL)) |-> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]));
+as__ValidCheck5: assert property((valid_i && !op_32bits_i) |-> (valid_o == mul_unit.valid_q[mul_unit.MAX_CYCLES-1]));
+as__ValidCheck6: assert property((valid_i && op_32bits_i && REG_32 && !mul_unit.CONFIG32) |-> (valid_o == mul_unit.valid_q[1]));
+as__ValidCheck7: assert property((valid_i && op_32bits_i && (!REG_32 || mul_unit.CONFIG32)) |-> (valid_o == mul_unit.valid_q[0]));

@@ -1,0 +1,7 @@
+The current assertion is failing because it is checking the value of `neg_d` in the same cycle as the inputs `valid_i` and `op_i`. However, `neg_d` is a combinational signal that is calculated based on the values of `data_rs1_d` and `data_rs2_d`, which are also calculated in the same cycle. This means that the value of `neg_d` may not be stable yet when the assertion is checked.
+
+To fix this, we need to check the value of `neg_q` in the next cycle, after it has been registered. We also need to use `$past()` to refer to the value of `same_sign` in the previous cycle, when the inputs `valid_i` and `op_i` were valid.
+
+Here is the corrected assertion:
+
+as__NegCheck9: assert property((valid_i && (op_i == 2'b11)) |=> (mul_unit.neg_q == !$past(mul_unit.same_sign)));

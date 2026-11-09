@@ -1,0 +1,7 @@
+1. The current assertion as__OpQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.op_q == op_i); is failing because it checks the value of the registered signal mul_unit.op_q in the same cycle as valid_i is asserted. However, mul_unit.op_q is a register updated on the clock edge, so its value reflects the previous cycle until the clock edge occurs. Therefore, the assertion is incorrectly expecting the updated op_q value in the same cycle as valid_i, which is not possible. This timing mismatch causes the assertion to fail.
+
+2. The fix is to use a next-cycle assertion (|=>) instead of a same-cycle assertion (|->) because op_q is a registered signal updated on the clock edge. The precondition valid_i && !flush_i[0] is evaluated in the current cycle, and the postcondition checks the updated value of mul_unit.op_q in the next cycle. According to the rules, on the postcondition of next-cycle assertions, we must NOT use $past() on the updated _q signals, so we directly check mul_unit.op_q. This approach aligns with the pipeline behavior and timing of the register update, ensuring the assertion checks the correct value of op_q after it has been updated.
+
+3. Corrected assertion:
+
+as__OpQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |=> mul_unit.op_q == op_i);

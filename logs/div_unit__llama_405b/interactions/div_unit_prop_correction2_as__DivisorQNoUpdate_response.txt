@@ -1,0 +1,19 @@
+The current assertion is failing because it checks if the `divisor_q` register remains the same when `cycles_counter` is 0. However, this is not necessarily true. When `cycles_counter` is 0, it means that the division operation has not started yet, and the `divisor_q` register may be updated with a new value.
+
+The proposed fix is to check if the `divisor_q` register remains the same when `cycles_counter` is not 0. This is because once the division operation starts, the `divisor_q` register should not be updated until the operation is complete.
+
+Here is the corrected assertion:
+
+```
+as__DivisorQNoUpdate: assert property(div_unit.cycles_counter != 6'd0 |=> div_unit.divisor_q == $past(div_unit.divisor_q));
+```
+
+However, this assertion is the same as Attempt 1, which did not work. A different approach is needed.
+
+Let's analyze the code again. The `divisor_q` register is updated only when `valid_i` is 1 or when `cycles_counter` is not 0. When `cycles_counter` is not 0, the `divisor_q` register is updated with the value of `divisor_out`. Therefore, the correct assertion should check if the `divisor_q` register is equal to `divisor_out` when `cycles_counter` is not 0.
+
+Here is the corrected assertion:
+
+```
+as__DivisorQNoUpdate: assert property(div_unit.cycles_counter != 6'd0 |=> div_unit.divisor_q == div_unit.divisor_out);
+```

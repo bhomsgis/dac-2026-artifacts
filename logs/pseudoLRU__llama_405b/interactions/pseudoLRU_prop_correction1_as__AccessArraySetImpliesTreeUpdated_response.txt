@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if the `plru_tree_q` register is updated in the same cycle when `access_array` is high. However, the update of `plru_tree_q` is done in the next cycle through the sequential process `always_ff @(posedge clk_i or negedge rstn_i)`. 
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`) to check if the `plru_tree_q` register is updated in the next cycle when `access_array` is high. Also, we need to use `$past()` to refer to the value of `access_array` in the previous cycle.
+
+Here is the corrected assertion:
+
+as__AccessArraySetImpliesTreeUpdated: assert property (|pseudoLRU.access_array |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));

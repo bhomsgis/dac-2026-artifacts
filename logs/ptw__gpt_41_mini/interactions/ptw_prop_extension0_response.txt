@@ -1,0 +1,50 @@
+// Check that when in S_REQ state with pte_cache_hit and count_q < LEVELS-1, count_d increments correctly and pmu_ptw_hit_o is asserted
+as__ReqStateCacheHitCountDIncrement: assert property((ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit && (ptw.count_q < $unsigned(LEVELS-1))) |-> (ptw.count_d == (ptw.count_q + 1'b1)) && (ptw.pmu_ptw_hit_o == 1'b1));
+// Check that when in S_WAIT state with dmem_ptw_comm_i.resp.valid and is_pte_table and count_q < LEVELS-1, count_d increments and pmu_ptw_miss_o is asserted next cycle
+as__WaitStateRespValidPteTableCountDIncrement: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && (ptw.count_q < $unsigned(LEVELS-1))) |=> (ptw.count_d == (ptw.count_q + 1'b1)) && (ptw.pmu_ptw_miss_o == 1'b1));
+// Check that ptw_dmem_comm_o.req.valid is asserted only in S_REQ state and when !pte_cache_hit or count_q == LEVELS-1
+as__DmemReqValidOnlyInReqStateNoCacheHitOrLastLevel: assert property((ptw.ptw_dmem_comm_o.req.valid) |-> (ptw.current_state == ptw.S_REQ && (!ptw.pte_cache_hit || (ptw.count_q == $unsigned(LEVELS-1)))));
+// Check that pmu_ptw_miss_o is asserted only in S_WAIT state with dmem_ptw_comm_i.resp.valid and is_pte_table and count_q < LEVELS-1
+as__PmuMissOnlyInWaitStateWithRespValidAndPteTable: assert property((ptw.pmu_ptw_miss_o == 1'b1) |-> (ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && (ptw.count_q < $unsigned(LEVELS-1))));
+// Check that r_req is updated only in S_READY state when tlb_ptw_comm.req.valid is asserted
+as__RReqUpdatedOnlyInReadyStateOnTlbReqValid: assert property((ptw.current_state == ptw.S_READY && tlb_ptw_comm.req.valid) |=> (ptw.r_req == $past(tlb_ptw_comm.req)));
+// Check that r_pte.ppn is updated to csr_ptw_comm_i.satp[PPN_SIZE-1:0] only in S_READY state when tlb_ptw_comm.req.valid is asserted
+as__RPtePpnUpdatedToSatpInReadyStateOnTlbReqValid: assert property((ptw.current_state == ptw.S_READY && tlb_ptw_comm.req.valid) |=> (ptw.r_pte.ppn == csr_ptw_comm_i.satp[PPN_SIZE-1:0]));
+// Check that r_pte.ppn is updated to pte_cache_data only in S_REQ state with pte_cache_hit and count_q < LEVELS-1
+as__RPtePpnUpdatedToCacheDataInReqStateWithCacheHit: assert property((ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit && (ptw.count_q < $unsigned(LEVELS-1))) |=> (ptw.r_pte.ppn == $past(ptw.pte_cache_data)));
+// Check that r_pte is updated to pte only in S_WAIT state with dmem_ptw_comm_i.resp.valid
+as__RPteUpdatedToPteInWaitStateOnRespValidNextCycle: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid) |=> (ptw.r_pte == $past(ptw.pte)));
+// Check that ptw_ready is asserted only in S_READY state
+as__PtwReadyOnlyInReadyState: assert property(ptw.ptw_tlb_comm.ptw_ready == (ptw.current_state == ptw.S_READY));
+// Check that ptw_tlb_comm.invalidate_tlb matches csr_ptw_comm_i.flush
+as__InvalidateTlbMatchesFlushSignal: assert property(ptw.ptw_tlb_comm.invalidate_tlb == csr_ptw_comm_i.flush);
+// Check that ptw_tlb_comm.ptw_status matches csr_ptw_comm_i.mstatus
+as__PtwStatusMatchesCsrMstatusSignal: assert property(ptw.ptw_tlb_comm.ptw_status == csr_ptw_comm_i.mstatus);
+// Check that ptw_dmem_comm_o.req.cmd is always M_XRD
+as__PtwDmemReqCmdAlwaysRead: assert property(ptw.ptw_dmem_comm_o.req.cmd == ptw.M_XRD);
+// Check that ptw_dmem_comm_o.req.typ is always MT_D
+as__PtwDmemReqTypAlwaysData: assert property(ptw.ptw_dmem_comm_o.req.typ == ptw.MT_D);
+// Check that ptw_dmem_comm_o.req.phys is always 1'b1
+as__PtwDmemReqPhysAlwaysOne: assert property(ptw.ptw_dmem_comm_o.req.phys == 1'b1);
+// Check that ptw_dmem_comm_o.req.kill is always 1'b0
+as__PtwDmemReqKillAlwaysZero: assert property(ptw.ptw_dmem_comm_o.req.kill == 1'b0);
+// Check that ptw_dmem_comm_o.req.data[6] is always 1'b1
+as__PtwDmemReqDataBit6AlwaysOne: assert property(ptw.ptw_dmem_comm_o.req.data[6] == 1'b1);
+// Check that when in S_WAIT state with dmem_ptw_comm_i.resp.valid and is_pte_table and count_q < LEVELS-1, next_state is S_REQ
+as__WaitStateRespValidPteTableNextReq: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && (ptw.count_q < $unsigned(LEVELS-1))) |=> (ptw.next_state == ptw.S_REQ));
+// Check that when in S_WAIT state with dmem_ptw_comm_i.resp.valid and is_pte_leaf, next_state is S_DONE
+as__WaitStateRespValidPteLeafNextDone: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && ptw.is_pte_leaf) |=> (ptw.next_state == ptw.S_DONE));
+// Check that when in S_WAIT state with dmem_ptw_comm_i.resp.valid and invalid_pte, next_state is S_ERROR
+as__WaitStateRespValidInvalidPteNextError: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && ptw.invalid_pte) |=> (ptw.next_state == ptw.S_ERROR));
+// Check that when in S_WAIT state with dmem_ptw_comm_i.resp.nack, next_state is S_REQ
+as__WaitStateRespNackNextReq: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_REQ));
+// Check that when in S_WAIT state with dmem_ptw_comm_i.resp.valid and !invalid_pte and !is_pte_table and !is_pte_leaf, next_state is S_ERROR
+as__WaitStateRespValidNoInvalidNoTableNoLeafNextError: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && !ptw.invalid_pte && !ptw.is_pte_table && !ptw.is_pte_leaf) |=> (ptw.next_state == ptw.S_ERROR));
+// Check that when in S_WAIT state with !dmem_ptw_comm_i.resp.valid, next_state remains S_WAIT
+as__WaitStateRespNotValidStayWait: assert property((ptw.current_state == ptw.S_WAIT && !dmem_ptw_comm_i.resp.valid) |=> (ptw.next_state == ptw.S_WAIT));
+// Check that when in S_DONE state, next_state is S_READY
+as__DoneStateNextReadyState: assert property((ptw.current_state == ptw.S_DONE) |=> (ptw.next_state == ptw.S_READY));
+// Check that when in S_ERROR state, next_state is S_READY
+as__ErrorStateNextReadyState: assert property((ptw.current_state == ptw.S_ERROR) |=> (ptw.next_state == ptw.S_READY));
+// Check that when in S_REQ state with !pte_cache_hit and dmem_ptw_comm_i.dmem_ready, next_state is S_WAIT
+as__ReqStateDmemReadyNextWaitState: assert property((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && dmem_ptw_comm_i.dmem_ready) |=> (ptw.next_state == ptw.S_WAIT));

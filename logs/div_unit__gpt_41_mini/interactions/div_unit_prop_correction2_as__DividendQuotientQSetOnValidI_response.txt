@@ -1,0 +1,5 @@
+// The assertion fails because dividend_quotient_q is a registered signal updated on the clock edge when valid_i is asserted, so its value matches dividend_d only in the next cycle after valid_i is high. The original assertion checks equality in the same cycle, which is incorrect.
+  
+// The fix is to use a next-cycle assertion (|=>) and compare dividend_quotient_q in the next cycle to dividend_d in the current cycle using $past(), reflecting the pipeline register update timing.
+
+as__DividendQuotientQSetOnValidI: assert property (valid_i |=> (div_unit.dividend_quotient_q == $past(div_unit.dividend_d)));

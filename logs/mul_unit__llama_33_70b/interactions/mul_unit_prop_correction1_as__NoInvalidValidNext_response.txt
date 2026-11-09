@@ -1,0 +1,1 @@
+as__NoInvalidValidNext: assert property(valid_i |=> !(valid_o && $past(valid_i) == 1'b0));

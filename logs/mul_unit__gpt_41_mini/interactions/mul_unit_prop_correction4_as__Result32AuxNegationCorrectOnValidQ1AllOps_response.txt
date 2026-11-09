@@ -1,0 +1,2 @@
+// Check that result_32_aux correctly reflects the negation of result_low_q on valid_q[1] for all ops 0 to 3, considering pipeline timing and using $past on result_low_q and neg_q_final
+as__Result32AuxNegationCorrectOnValidQ1AllOps: assert property(((mul_unit.op_q_final == 0) || (mul_unit.op_q_final == 1) || (mul_unit.op_q_final == 2) || (mul_unit.op_q_final == 3)) && mul_unit.valid_q[1] |=> mul_unit.result_32_aux == (mul_unit.neg_q_final ? (~$past(mul_unit.result_low_q[mul_unit.WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_q[mul_unit.WIDTH-1:0])));

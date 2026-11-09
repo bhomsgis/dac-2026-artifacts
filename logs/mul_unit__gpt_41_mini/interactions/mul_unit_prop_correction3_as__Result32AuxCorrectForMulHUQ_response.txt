@@ -1,0 +1,2 @@
+// Check that for MULHU operation (op_q == 3), result_32_aux matches the lower WIDTH bits of result_low_d, considering pipeline timing and negation
+as__Result32AuxCorrectForMulHUQ: assert property (mul_unit.op_q == 3 |=> mul_unit.result_32_aux == $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]);) ;

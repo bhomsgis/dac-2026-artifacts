@@ -1,0 +1,1 @@
+as__StateTransition5: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!dtlb_ptw_comm_i.req.valid) && (!itlb_ptw_comm_i.req.valid) && (!ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.IDLE) && (ptw_arb.is_req_waiting_q == $past(ptw_arb.is_req_waiting_q)) && (ptw_arb.itlb_req_waiting_q == $past(ptw_arb.itlb_req_waiting_q)));

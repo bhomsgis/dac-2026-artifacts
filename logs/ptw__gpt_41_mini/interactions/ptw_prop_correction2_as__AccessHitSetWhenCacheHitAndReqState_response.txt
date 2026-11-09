@@ -1,0 +1,2 @@
+// Check that access_hit is set in the cycle AFTER pte_cache_hit is detected in S_REQ state, due to pipeline register update
+as__AccessHitSetWhenCacheHitAndReqState: assert property((ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit) |=> (ptw.access_hit == 1'b1));

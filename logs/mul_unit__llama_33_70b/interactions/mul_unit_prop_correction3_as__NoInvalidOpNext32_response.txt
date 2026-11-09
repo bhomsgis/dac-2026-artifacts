@@ -1,0 +1,1 @@
+as__NoInvalidOpNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && $past(op_i) == mul_unit.MUL && $past(op_32bits_i) == 1'b0));

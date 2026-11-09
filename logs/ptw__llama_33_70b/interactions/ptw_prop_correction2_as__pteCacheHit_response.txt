@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when there is a cache hit, the dmem request is not sent
+as__pteCacheHit: assert property(ptw.pte_cache_hit |-> !ptw.ptw_dmem_comm_o.req.valid);
+```

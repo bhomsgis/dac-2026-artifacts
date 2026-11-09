@@ -1,0 +1,1 @@
+as__NoInvalidDataNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && ($past(data_rs1_i) == {WIDTH{1'bx}} || $past(data_rs2_i) == {WIDTH{1'bx}} || $past(data_rs1_i) == {WIDTH{1'b0}} || $past(data_rs2_i) == {WIDTH{1'b0}})));

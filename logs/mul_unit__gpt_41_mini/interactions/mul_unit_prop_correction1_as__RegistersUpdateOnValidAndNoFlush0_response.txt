@@ -1,0 +1,18 @@
+// The assertion fails because op_32bits_q is assigned only for MUL operations, but op_q is assigned for all operations. The original assertion incorrectly assumes op_32bits_q matches op_32bits_i && (op_i == 0) for all operations, which is not true for MULH, MULHSU, MULHU. Also, neg_q is assigned from neg_d, which depends on op_i and operands, so neg_q should be compared to neg_d only when valid_i && !flush_i[0]. The assertion should separately check op_q == op_i, op_32bits_q == (op_32bits_i && (op_i == MUL)), neg_q == neg_d, and data_rs1_q == data_rs1_d, data_rs2_q == data_rs2_d under the same precondition.  
+as__RegistersUpdateOnValidAndNoFlush0: assert property((valid_i && !mul_unit.flush_i[0]) |-> (mul_unit.op_q == op_i && mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)) && mul_unit.neg_q == mul_unit.neg_d && mul_unit.data_rs1_q == mul_unit.data_rs1_d && mul_unit.data_rs2_q == mul_unit.data_rs2_d));  
+
+Corrected analysis:  
+1. op_32bits_q is assigned as "op_32bits_q <= op_32bits_i && (op_i == MUL);" in the always_ff block, so it is only true for MUL operations. For other operations, op_32bits_q is zero. The assertion must reflect that.  
+2. The original assertion uses (op_32bits_i && (op_i == 0)) which is correct since MUL is 0, but the assertion should explicitly use the enum or the constant MUL for clarity.  
+3. The neg_q is assigned from neg_d, which depends on op_i and operands, so neg_q should be equal to neg_d when valid_i && !flush_i[0].  
+4. data_rs1_q and data_rs2_q are assigned from data_rs1_d and data_rs2_d respectively, so they should match under the same precondition.  
+5. The assertion is a next-cycle assertion (|=>) because the _q signals are registered and updated on the next clock cycle after valid_i and flush_i[0]. The original assertion uses |-> which is same-cycle, which is incorrect for _q signals.  
+
+Proposed fix:  
+- Change |-> to |=> for next-cycle assertion.  
+- Use explicit MUL constant (0) for clarity.  
+- Keep the same precondition (valid_i && !flush_i[0]).  
+- Check that op_q == op_i, op_32bits_q == (op_32bits_i && (op_i == MUL)), neg_q == neg_d, data_rs1_q == data_rs1_d, data_rs2_q == data_rs2_d.  
+
+Corrected assertion:  
+as__RegistersUpdateOnValidAndNoFlush0: assert property((valid_i && !mul_unit.flush_i[0]) |=> (mul_unit.op_q == op_i && mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)) && mul_unit.neg_q == mul_unit.neg_d && mul_unit.data_rs1_q == mul_unit.data_rs1_d && mul_unit.data_rs2_q == mul_unit.data_rs2_d));

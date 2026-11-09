@@ -1,0 +1,17 @@
+```systemverilog
+as__ReqWaiting3: assert property((ptw_arb.is_req_waiting_q) |-> (ptw_arb.current_state != ptw_arb.IDLE));
+as__StateTransition5: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!dtlb_ptw_comm_i.req.valid) && (!itlb_ptw_comm_i.req.valid) |=> (ptw_arb.next_state == ptw_arb.IDLE));
+as__StateTransition6: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (!itlb_ptw_comm_i.req.valid) |=> (ptw_arb.next_state == ptw_arb.SERVING_dTLB));
+as__StateTransition7: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB));
+as__StateTransition8: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) && (ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB));
+as__TLBComm2: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |-> (ptw_arb.tlb_ptw_comm_o == (ptw_arb.is_req_waiting_q) ? ptw_arb.itlb_req_waiting_q : ptw_arb.itlb_ptw_comm_i));
+as__TLBComm3: assert property((ptw_arb.current_state == ptw_arb.SERVING_dTLB) |-> (ptw_arb.tlb_ptw_comm_o == ptw_arb.dtlb_ptw_comm_i));
+as__iTLBReqValid: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.valid == (ptw_arb.is_req_waiting_q) ? ptw_arb.itlb_req_waiting_q.req.valid : ptw_arb.itlb_ptw_comm_i.req.valid));
+as__dTLBReqValid: assert property((ptw_arb.current_state == ptw_arb.SERVING_dTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.valid == ptw_arb.dtlb_ptw_comm_i.req.valid));
+as__iTLBReqAddr: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.addr == (ptw_arb.is_req_waiting_q) ? ptw_arb.itlb_req_waiting_q.req.addr : ptw_arb.itlb_ptw_comm_i.req.addr));
+as__dTLBReqAddr: assert property((ptw_arb.current_state == ptw_arb.SERVING_dTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.addr == ptw_arb.dtlb_ptw_comm_i.req.addr));
+as__iTLBReqASID: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.asid == (ptw_arb.is_req_waiting_q) ? ptw_arb.itlb_req_waiting_q.req.asid : ptw_arb.itlb_ptw_comm_i.req.asid));
+as__dTLBReqASID: assert property((ptw_arb.current_state == ptw_arb.SERVING_dTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.asid == ptw_arb.dtlb_ptw_comm_i.req.asid));
+as__iTLBReqLevel: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.level == (ptw_arb.is_req_waiting_q) ? ptw_arb.itlb_req_waiting_q.req.level : ptw_arb.itlb_ptw_comm_i.req.level));
+as__dTLBReqLevel: assert property((ptw_arb.current_state == ptw_arb.SERVING_dTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.level == ptw_arb.dtlb_ptw_comm_i.req.level));
+```

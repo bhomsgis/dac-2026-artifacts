@@ -1,0 +1,27 @@
+The current assertion is failing because it is trying to check the value of `data_rs1_d` in the same cycle as `valid_i`, but `data_rs1_d` is a combinational signal that depends on `op_i` and `op_32bits_i`, which are not guaranteed to be stable in the same cycle as `valid_i`.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `data_rs1_q` in the next cycle, after `valid_i` has been asserted. This ensures that `data_rs1_q` has been updated with the correct value based on `op_i` and `op_32bits_i`.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check: assert property((valid_i) |=> (mul_unit.data_rs1_q == ((mul_unit.data_rs1_i[(mul_unit.WIDTH-1)] & !$past(op_32bits_i)) | ($past(data_rs1_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```
+
+However, this assertion is still not correct because it uses `$past(data_rs1_i)` and `$past(op_32bits_i)` in the postcondition, which is not allowed in next-cycle assertions.
+
+A better approach is to use a same-cycle assertion (`|->`) to check the value of `data_rs1_d` in the same cycle as `valid_i`, but use the `mul_unit.data_rs1_i` and `op_32bits_i` signals directly, without relying on `$past()`:
+
+```
+as__DataRs1Check: assert property((valid_i) |-> (mul_unit.data_rs1_d == ((mul_unit.data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? ~data_rs1_i + mul_unit.ONE : data_rs1_i));
+```
+
+However, this assertion is the same as the original one, which is failing.
+
+A different approach is to check the value of `data_rs1_q` in the next cycle, after `valid_i` has been asserted, using a next-cycle assertion (`|=>`):
+
+```
+as__DataRs1Check: assert property((valid_i) |=> (mul_unit.data_rs1_q == ((mul_unit.data_rs1_q[(mul_unit.WIDTH-1)] & !mul_unit.op_32bits_q) | (mul_unit.data_rs1_q[31] & mul_unit.op_32bits_q)) ? ~mul_unit.data_rs1_q + mul_unit.ONE : mul_unit.data_rs1_q));
+```
+
+This assertion checks the value of `data_rs1_q` in the next cycle, after `valid_i` has been asserted, and uses the `mul_unit.data_rs1_q` and `mul_unit.op_32bits_q` signals directly, without relying on `$past()`.

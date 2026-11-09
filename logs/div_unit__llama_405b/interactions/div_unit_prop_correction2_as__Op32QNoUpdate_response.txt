@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if `div_unit.op_32_q` remains the same when `valid_i` is low, which is not necessarily true. The `div_unit.op_32_q` signal is updated based on the `op_32bits_i` input signal when `valid_i` is high, and it retains its value when `valid_i` is low. However, this does not mean that `div_unit.op_32_q` will not change when `valid_i` is low, because it can still be updated by the `op_32_d` signal, which is assigned to `op_32_q` in the else branch of the always_ff block.
+
+The proposed fix is to check if `div_unit.op_32_q` remains the same when `valid_i` is low and `cycles_counter` is not equal to 0. This is because when `cycles_counter` is 0, it means that the division operation is not in progress, and `div_unit.op_32_q` should not be updated.
+
+Here is the corrected assertion:
+
+as__Op32QNoUpdate: assert property(!valid_i && div_unit.cycles_counter != 6'd0 |=> div_unit.op_32_q == $past(div_unit.op_32_q));

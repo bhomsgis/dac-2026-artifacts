@@ -1,0 +1,6 @@
+The current assertion `as__StateTransition14: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) && (ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB));` might be failing because it does not consider the case where both `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are high. In this case, the state machine will transition to `SERVING_dTLB` instead of `SERVING_iTLB`. 
+
+The proposed fix is to modify the assertion to only consider the case where `dtlb_ptw_comm_i.req.valid` is low, and `itlb_ptw_comm_i.req.valid` is high, and `ptw_arb.is_req_waiting_q` is high. This will ensure that the state machine will transition to `SERVING_iTLB` in the next cycle.
+
+Here is the corrected assertion:
+as__StateTransition14: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) && (ptw_arb.is_req_waiting_q) && (!(dtlb_ptw_comm_i.req.valid && itlb_ptw_comm_i.req.valid)) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB));

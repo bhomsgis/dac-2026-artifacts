@@ -1,0 +1,3 @@
+// The original assertion fails because is_req_waiting_q is a register updated at clock edge, but next_state is a combinational signal updated in the same cycle. The assertion checks next_state immediately after is_req_waiting_q is true, but next_state might not yet reflect the transition caused by is_req_waiting_q. The state transition to SERVING_iTLB happens on the next cycle after is_req_waiting_q is set, so a next-cycle assertion with $past() on is_req_waiting_q is needed to correctly capture this timing.
+
+as__ReqWaitingLeadsToServingITLB: assert property (($past(ptw_arb.is_req_waiting_q)) |=> (ptw_arb.current_state == ptw_arb.SERVING_iTLB));

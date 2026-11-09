@@ -1,0 +1,7 @@
+The current assertion `as__StateTransition15: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (!itlb_ptw_comm_i.req.valid) && (ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.SERVING_dTLB));` might be failing because it does not consider the case when `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are both high. In this case, the state machine will transition to `SERVING_dTLB` and set `is_req_waiting_d` to 1, but the assertion does not account for this scenario.
+
+The proposed fix is to modify the assertion to consider the case when both `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are high. However, the original assertion is trying to check the transition from `IDLE` to `SERVING_dTLB` when `dtlb_ptw_comm_i.req.valid` is high, `itlb_ptw_comm_i.req.valid` is low, and `ptw_arb.is_req_waiting_q` is high. 
+
+In this case, the state machine will actually transition to `SERVING_iTLB` because `ptw_arb.is_req_waiting_q` is high, not to `SERVING_dTLB`. Therefore, the assertion should be modified to check the transition to `SERVING_iTLB` instead.
+
+as__StateTransition15: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (!itlb_ptw_comm_i.req.valid) && (ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB));

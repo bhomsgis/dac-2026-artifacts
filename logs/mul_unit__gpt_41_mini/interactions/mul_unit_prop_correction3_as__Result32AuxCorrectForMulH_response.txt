@@ -1,0 +1,6 @@
+// The original assertion fails because it checks mul_unit.result_32_aux in the same cycle as op_i == 1, but result_32_aux is combinationally derived from registered signals (neg_q and result_low_d) that are updated in the next cycle. Also, it does not consider the pipeline latency and the valid signal. The assertion must check the registered signals (neg_q_final, result_low_q) at the correct pipeline stage with valid_q[1] and op_q_final == 1, using a next-cycle assertion (|=>) and $past() for wires.
+
+// The fix is to check the registered outputs at the pipeline stage where they are stable (valid_q[1], op_q_final, neg_q_final, result_low_q) and use a next-cycle assertion with the precondition on valid_q[1] and op_q_final == 1. The postcondition compares result_32_q with the expected value computed from neg_q_final and result_low_q. This respects pipeline timing and signal registration.
+
+// Corrected assertion:
+as__Result32AuxCorrectForMulH: assert property ((mul_unit.valid_q[1] && mul_unit.op_q_final == 1) |=> (mul_unit.result_32_q == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));

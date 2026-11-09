@@ -1,0 +1,9 @@
+The current assertion `as__pteCacheMissNext: assert property(!ptw.pte_cache_hit |=> (ptw_dmem_comm_o.req.valid == 1'b1));` might be failing because it does not consider the current state of the Page-Table Walker FSM. The `ptw_dmem_comm_o.req.valid` signal is only set to 1'b1 when the FSM is in the `S_REQ` state and `pte_cache_hit` is not true.
+
+Here's a proposed fix: 
+The assertion should check if the FSM is in the `S_REQ` state and `pte_cache_hit` is not true, then in the next cycle, `ptw_dmem_comm_o.req.valid` should be 1'b1.
+
+Here is the corrected assertion:
+```systemverilog
+as__pteCacheMissNext: assert property((!ptw.pte_cache_hit && ptw.current_state == ptw.S_REQ) |=> (ptw_dmem_comm_o.req.valid == 1'b1));
+```

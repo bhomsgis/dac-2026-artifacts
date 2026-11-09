@@ -1,0 +1,6 @@
+// The assertion fails because valid_q[1] is registered from valid_q[0] on the next clock cycle, but flush_i[1] can asynchronously clear valid_q[1]. The original assertion does not consider that valid_q[1] can be zeroed by flush_i[1] even if valid_q[0] was set. Also, for 32-bit operations with REG_32=0 and CONFIG32=0, valid_q[1] can be set differently due to pipeline timing. The assertion should check that if valid_q[1] is set, then valid_q[0] was set in the previous cycle and flush_i[1] was not asserted in the previous cycle, using a next-cycle assertion and $past() on flush_i[1] and valid_q[0].
+
+// Proposed fix: Use a next-cycle assertion (|=>) on valid_q[1], and in the postcondition check that $past(valid_q[0]) was set and $past(flush_i[1]) was not asserted. This accounts for pipeline register behavior and flush timing. This should work because valid_q[1] is updated from valid_q[0] at the clock edge, and flush_i[1] clears valid_q[1] synchronously, so if valid_q[1] is set, then in the previous cycle valid_q[0] was set and flush_i[1] was not asserted.
+
+// Corrected assertion:
+as__ValidQ1SetOnlyIfValidQ0AndNoFlush: assert property (mul_unit.valid_q[1] |=> ($past(mul_unit.valid_q[0]) && !$past(mul_unit.flush_i[1])));

@@ -1,0 +1,10 @@
+The current assertion `as__NoInvalidOpNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));` might be failing because it does not correctly account for the pipeline behavior of the `mul_unit` module. 
+
+The assertion checks if the operation is not a multiplication (`op_i != mul_unit.MUL`) and if it's a 64-bit operation (`!op_32bits_i`), then in the next cycle, the output should not be valid (`!valid_o`) or the operation should not be a multiplication (`op_i != {MUL_OPS_BITS{1'bx}}`). However, this assertion does not consider the fact that the operation is being processed in a pipeline and the output is being generated after one or two cycles.
+
+A corrected version of the assertion should consider the pipeline behavior and the fact that the output is being generated after one or two cycles. 
+
+Here is a corrected version of the assertion:
+```systemverilog
+as__NoInvalidOpNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && $past(op_i) == {mul_unit.MUL_OPS_BITS{1'bx}}));
+```

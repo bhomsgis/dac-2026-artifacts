@@ -1,0 +1,13 @@
+The current assertion is failing because it is checking if `rmd_aux` is equal to `remanent_q` when `signed_op_q` is 0, which means the operation is unsigned. However, in the RTL, `rmd_aux` is assigned the value of `rmd`, which is calculated based on the sign of the operation and the dividend.
+
+The issue is that the assertion is not considering the case where the operation is unsigned and the dividend is negative. In this case, `rmd_aux` will be assigned the value of `remanent_q` if the dividend is positive, but it will be assigned the value of `~remanent_q + ONE` if the dividend is negative.
+
+To fix this, we need to add a condition to the assertion to check the sign of the dividend.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |-> div_unit.rmd_aux == ((div_unit.first_dividend_q[(WIDTH - 1)] & (!div_unit.op_32_q)) | (div_unit.first_dividend_q[31] & div_unit.op_32_q)) ? (~div_unit.remanent_q + ONE) : div_unit.remanent_q);
+```
+
+This assertion checks if `rmd_aux` is equal to `remanent_q` when `signed_op_q` is 0 and the dividend is positive, and if `rmd_aux` is equal to `~remanent_q + ONE` when `signed_op_q` is 0 and the dividend is negative.

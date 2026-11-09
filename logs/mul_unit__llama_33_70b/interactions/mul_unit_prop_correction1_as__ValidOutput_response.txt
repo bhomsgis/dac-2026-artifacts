@@ -1,0 +1,3 @@
+```systemverilog
+as__ValidOutput: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> valid_o == 1'b1);
+```

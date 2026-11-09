@@ -1,0 +1,3 @@
+```systemverilog
+as__ptecacheEntryValidNext: assert property(ptw.ptecache_entry[ptw.hit_idx].valid |=> (ptw.pte_cache_hit && ptw.count_q < $unsigned(LEVELS-1) && ptw.current_state == ptw.S_REQ));
+```

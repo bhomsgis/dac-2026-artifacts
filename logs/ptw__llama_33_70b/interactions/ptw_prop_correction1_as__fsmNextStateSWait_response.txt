@@ -1,0 +1,3 @@
+```systemverilog
+as__fsmNextStateSWait: assert property((ptw.current_state == ptw.S_WAIT) |=> ((dmem_ptw_comm_i.resp.valid && !invalid_pte && is_pte_table && (ptw.count_q < $unsigned(LEVELS-1))) |=> (ptw.next_state == ptw.S_REQ)) && ((dmem_ptw_comm_i.resp.valid && !invalid_pte && is_pte_leaf) |=> (ptw.next_state == ptw.S_DONE)) && ((dmem_ptw_comm_i.resp.valid && invalid_pte) |=> (ptw.next_state == ptw.S_ERROR)) && ((dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_REQ)));
+```

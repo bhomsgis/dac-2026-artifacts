@@ -1,0 +1,3 @@
+// The original assertion fails because same_sign_q is a registered signal updated on the clock edge after valid_i is asserted, so same_sign_q does not immediately equal same_sign_d in the same cycle valid_i is high. The assertion uses a next-cycle implication (|=>) but compares same_sign_q directly to same_sign_d without considering that same_sign_d is combinational and valid_i is the precondition. The correct approach is to check that on the next cycle after valid_i, same_sign_q equals the previous cycle's same_sign_d (using $past(same_sign_d)).
+
+as__SameSignQSetOnValidI: assert property (valid_i |=> (div_unit.same_sign_q == $past(div_unit.same_sign_d)));

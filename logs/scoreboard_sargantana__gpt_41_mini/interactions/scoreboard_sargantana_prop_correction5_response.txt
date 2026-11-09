@@ -1,0 +1,2 @@
+// Check that when no div is set and div unit 0 is busy, ocup_div_unit_q[1] shifts right by 1 and the MSB is cleared (no new set)
+as__OcupDivUnitQ1ShiftRightNoSet: assert property((!set_div_32_i && !set_div_64_i && !scoreboard_sargantana.free_div_unit[0]) |=> (scoreboard_sargantana.ocup_div_unit_q[1] == ($past(scoreboard_sargantana.ocup_div_unit_q[1]) >> 1) & 33'h0FFFFFFFF));

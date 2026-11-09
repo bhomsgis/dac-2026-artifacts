@@ -1,0 +1,2 @@
+// Check that when replace_en is asserted, replacement_idx_o is within valid range
+as__ReplacementIdxInRangeeotid: assert property (|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});

@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to check the value of `neg_d` in the same cycle as the inputs `valid_i` and `op_i` are being checked. However, `neg_d` is a combinational signal that depends on the values of `data_rs1_i` and `data_rs2_i`, which are registered in the next cycle.
+
+The assertion is trying to check if the `neg_d` signal is correctly calculated based on the sign of the operands. However, since `neg_d` is a combinational signal, its value is not yet available in the same cycle as the inputs.
+
+To fix this, we need to check the value of `neg_q` in the next cycle, after the values of `data_rs1_i` and `data_rs2_i` have been registered.
+
+Here is the corrected assertion:
+
+as__NegCheck7: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.neg_q == $past(data_rs1_i[(mul_unit.WIDTH-1)])));
+
+This assertion checks the value of `neg_q` in the next cycle, after the values of `data_rs1_i` and `data_rs2_i` have been registered. The `$past` function is used to refer to the value of `data_rs1_i` in the previous cycle, which is the cycle when the inputs were checked.

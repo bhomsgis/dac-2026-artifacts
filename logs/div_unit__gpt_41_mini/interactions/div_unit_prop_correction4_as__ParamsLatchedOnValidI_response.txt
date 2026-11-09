@@ -1,0 +1,7 @@
+1. The current assertion is failing because it checks the latched parameters (op_q, op_32_q, signed_op_q) in the same cycle as valid_i is asserted. However, these signals are registered and updated on the clock edge after valid_i is asserted, so their updated values appear in the next cycle. Also, the assertion compares the registered signals directly to the current inputs, which is incorrect timing-wise.
+
+2. The fix is to use a next-cycle assertion (|=>) so that the precondition is valid_i in the current cycle, and the postcondition checks the registered signals in the next cycle. Since the registered signals are updated on the clock edge, we should compare them to the inputs from the previous cycle using $past(). This ensures the registered signals correctly latched the inputs when valid_i was asserted.
+
+3. Corrected assertion:
+
+as__ParamsLatchedOnValidI: assert property (valid_i |=> (div_unit.op_q == $past(op_i) && div_unit.op_32_q == $past(op_32bits_i) && div_unit.signed_op_q == !$past(op_unsigned_i)));

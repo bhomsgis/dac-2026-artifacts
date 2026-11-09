@@ -1,0 +1,5 @@
+// The assertion fails because first_dividend_q is a registered signal updated on the clock edge when valid_i is high, so its updated value appears in the next cycle, not the same cycle as valid_i. The original assertion checks equality in the same cycle (|=>) without accounting for this pipeline delay.
+// The fix is to check in the next cycle that first_dividend_q equals data_rs1_i from the previous cycle (using $past(data_rs1_i)) because first_dividend_q captures data_rs1_i on the clock edge when valid_i is asserted.
+// This next-cycle assertion with $past(data_rs1_i) in the postcondition correctly models the pipeline behavior and timing.
+
+as__FirstDividendQSetOnValidI: assert property (valid_i |=> (div_unit.first_dividend_q == $past(data_rs1_i)));

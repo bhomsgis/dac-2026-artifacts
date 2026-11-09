@@ -1,0 +1,1 @@
+as__pteCacheMissNext: assert property(!ptw.pte_cache_hit |=> (ptw.current_state == ptw.S_REQ && ptw_dmem_comm_o.req.valid == 1'b1 && ptw.count_q < $unsigned(LEVELS-1)));

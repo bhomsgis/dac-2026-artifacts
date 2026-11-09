@@ -1,0 +1,5 @@
+```systemverilog
+// Check that when operation is not MUL and 32-bit operation is not enabled, 
+// the result is not invalid (i.e., all bits are not 'x') in the next cycle.
+as__NoInvalidResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && $past(result_o) == {WIDTH{1'bx}}));
+```

@@ -1,0 +1,30 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The original assertion `as__NoInvalidData: assert property(!(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));` checks if the output `valid_o` is high when either of the input operands `data_rs1_i` or `data_rs2_i` contains unknown values (`1'bx`).
+2. **Identifying the issue**: The assertion might be failing because it does not account for the pipeline behavior of the `mul_unit`. The `valid_o` signal is generated after a certain number of clock cycles, depending on the operation being performed. The assertion should consider the values of `data_rs1_i` and `data_rs2_i` at the time when the operation was started, not when the result is being output.
+3. **Proposed fix**: To fix the assertion, we need to use the `$past` function to refer to the values of `data_rs1_i` and `data_rs2_i` at the time when the operation was started. We also need to consider the `valid_i` signal, which indicates when an operation is started.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidData: assert property(!(valid_o && (($past(data_rs1_i, 1) == {WIDTH{1'bx}}) || ($past(data_rs2_i, 1) == {WIDTH{1'bx}}))));
+```
+However, considering the pipeline behavior and the fact that `valid_o` is asserted after a certain number of clock cycles, we should use a next-cycle assertion (`|=>`) to check the condition in the next cycle after `valid_i` is asserted. Also, we should consider the latency of the `mul_unit`, which is 1 or 2 cycles depending on the operation.
+
+```systemverilog
+as__NoInvalidData: assert property(valid_i |=> !(valid_o && (($past(data_rs1_i) == {WIDTH{1'bx}}) || ($past(data_rs2_i) == {WIDTH{1'bx}}))));
+```
+But this still doesn't account for the latency of the `mul_unit`. To correctly check the condition, we should use a next-cycle assertion with a latency of 1 or 2 cycles.
+
+```systemverilog
+as__NoInvalidData: assert property(valid_i |=> ##[1:2] !(valid_o && (($past(data_rs1_i)) == {WIDTH{1'bx}}) || ($past(data_rs2_i) == {WIDTH{1'bx}})));
+```
+However, the above assertion still doesn't correctly model the behavior of the `mul_unit`. We need to consider the internal signals of the `mul_unit` to correctly model its behavior.
+
+```systemverilog
+as__NoInvalidData: assert property(mul_unit.valid_q[0] |=> !(valid_o && (($past(mul_unit.data_rs1_i)) == {WIDTH{1'bx}}) || ($past(mul_unit.data_rs2_i) == {WIDTH{1'bx}})));
+```
+This assertion checks if the output `valid_o` is high when either of the input operands `data_rs1_i` or `data_rs2_i` contains unknown values (`1'bx`) at the time when the operation was started.
+
+The final answer is: 
+```systemverilog
+as__NoInvalidData: assert property(mul_unit.valid_q[0] |=> !(valid_o && (($past(mul_unit.data_rs1_i)) == {WIDTH{1'bx}}) || ($past(mul_unit.data_rs2_i) == {WIDTH{1'bx}})));
+```

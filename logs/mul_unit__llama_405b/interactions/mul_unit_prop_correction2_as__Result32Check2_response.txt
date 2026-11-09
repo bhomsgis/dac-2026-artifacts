@@ -1,0 +1,21 @@
+The current assertion is failing because it's trying to check the result of a 32-bit multiplication in the same cycle as the input is provided, but the result is actually available in the next cycle.
+
+The assertion is using a same-cycle assertion (`|->`), which means that the precondition and postcondition are evaluated in the same cycle. However, the result of the 32-bit multiplication is not available until the next cycle, after the input has been processed.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the result in the next cycle. We also need to use `$past()` to refer to the value of the input signals in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__Result32Check2: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_q == {{(mul_unit.WIDTH-32){$past(mul_unit.result_32_aux[31])}},$past(mul_unit.result_32_aux[31:0])}));
+```
+
+However, this assertion is still not correct because it's trying to access `result_32_aux` which is not a registered signal. We should instead use the registered signal `result_32_q` and compare it with the expected result.
+
+Here is the corrected assertion:
+
+```
+as__Result32Check2: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_q == {{(mul_unit.WIDTH-32){mul_unit.result_32_q[31]}},mul_unit.result_32_q[31:0]}));
+```
+
+This assertion checks that the result of a 32-bit multiplication is correctly sign-extended to the full width of the result.

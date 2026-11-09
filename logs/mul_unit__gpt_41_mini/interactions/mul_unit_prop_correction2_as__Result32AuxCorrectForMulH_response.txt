@@ -1,0 +1,6 @@
+// The original assertion fails because it checks mul_unit.result_32_aux which is not a registered signal and does not consider pipeline timing and the valid signal. The result_32_aux is combinational and the assertion uses op_i (input) instead of the registered op_q_final and valid_q signals. Also, it does not consider the negation and sign extension properly for 32-bit operations in the pipeline. The assertion must check the registered signals at the correct pipeline stage using a next-cycle assertion (|=>) and use $past() to refer to the input signals at the precondition cycle.
+
+// The fix is to use a next-cycle assertion with precondition on valid_q[1] and op_q_final == MULH (op_i == 1), and check that mul_unit.result_32_q matches the sign-extended and negated value of mul_unit.result_low_q[31:0] according to mul_unit.neg_q_final. This matches the pipeline timing and registered signals. The assertion uses $past() on the precondition signals and compares the registered outputs accordingly.
+
+// Corrected assertion:
+as__Result32AuxCorrectForMulH: assert property ((mul_unit.valid_q[1] && mul_unit.op_q_final == 1) |=> (mul_unit.result_32_q == {{(mul_unit.WIDTH-32){mul_unit.neg_q_final ? ~mul_unit.result_low_q[31] : mul_unit.result_low_q[31]}}, (mul_unit.neg_q_final ? (~mul_unit.result_low_q[31:0] + mul_unit.ONE) : mul_unit.result_low_q[31:0])}));

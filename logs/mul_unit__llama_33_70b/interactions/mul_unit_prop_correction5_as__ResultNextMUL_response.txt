@@ -1,0 +1,7 @@
+The current assertion is failing because it does not correctly handle the pipeline behavior and timing of the `mul_unit` module. Specifically, it does not account for the fact that the `result_o` signal is assigned in different ways depending on the values of `op_32bits_q_final` and `op_q_final`.
+
+To fix this, we need to modify the assertion to correctly handle the different cases and pipeline stages. We can do this by using the `$past` function to refer to the values of signals in the previous cycle, and by using the `mul_unit.` prefix to refer to internal signals.
+
+Here is the corrected assertion:
+
+as__ResultNextMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == ($past(mul_unit.neg_q_final) ? (~$past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) + $past(mul_unit.ONEDOUBLE[mul_unit.WIDTH-1:0])) : $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));

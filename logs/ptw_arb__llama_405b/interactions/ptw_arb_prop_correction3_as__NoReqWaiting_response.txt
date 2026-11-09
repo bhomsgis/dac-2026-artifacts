@@ -1,0 +1,17 @@
+The current assertion is failing because it is checking the value of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q` is checked. However, `itlb_req_waiting_q` is a registered signal that is updated in the next cycle, so its value may not be valid in the same cycle as `is_req_waiting_q`.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `itlb_req_waiting_q` in the next cycle, after `is_req_waiting_q` has been updated. However, we cannot directly use `itlb_req_waiting_q` in the next cycle because it will be updated with the new value. Instead, we should check the value of `itlb_req_waiting_d` in the same cycle, which will be the value of `itlb_req_waiting_q` in the next cycle.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |-> ptw_arb.itlb_req_waiting_d == '0);`
+
+However, this assertion is the same as Attempt 2, which did not work. Let's re-analyze the situation.
+
+The issue is that `itlb_req_waiting_d` is not always updated to '0 when `is_req_waiting_q` is 0. In the `IDLE` state, `itlb_req_waiting_d` is updated to `itlb_ptw_comm_i` when `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are both 1. In this case, `is_req_waiting_q` is set to 1, but `itlb_req_waiting_d` is not set to '0.
+
+To fix this, we need to add an additional condition to the assertion to check that `itlb_req_waiting_d` is '0 only when `is_req_waiting_q` is 0 and `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are not both 1.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 && !(dtlb_ptw_comm_i.req.valid && itlb_ptw_comm_i.req.valid) |-> ptw_arb.itlb_req_waiting_d == '0);`

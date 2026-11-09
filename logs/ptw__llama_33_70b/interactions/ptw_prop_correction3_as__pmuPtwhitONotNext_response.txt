@@ -1,0 +1,3 @@
+```systemverilog
+as__pmuPtwhitONotNext: assert property(!pmu_ptw_hit_o |=> (ptw.current_state != ptw.S_REQ || !$past(ptw.pte_cache_hit) || $past(ptw.count_q) >= $unsigned(LEVELS-1)));
+```

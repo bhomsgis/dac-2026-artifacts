@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when there is no hit, the access array is not fully set
+as__PLRUTreeDecodeNoHit: assert property(!access_hit_i |-> !(&pseudoLRU.access_array[access_idx_i]));
+```

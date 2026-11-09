@@ -1,0 +1,26 @@
+The current assertion is failing because it is trying to check the value of `data_rs1_d` in the same cycle as the inputs `valid_i` and `op_i` are checked. However, `data_rs1_d` is a combinational signal that is assigned a value based on the inputs `data_rs1_i` and `op_32bits_i`, and its value may not be stable until the next cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `data_rs1_q` in the next cycle, after the inputs have been registered.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00)) |=> (mul_unit.data_rs1_q == (($past(data_rs1_i[(mul_unit.WIDTH-1)]) & !$past(op_32bits_i)) | ($past(data_rs1_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```
+
+However, this is the same as Attempt 2, which didn't work. Let's try a different approach.
+
+The issue might be that the assertion is not correctly checking the condition for 32-bit operations. Let's try to simplify the assertion by breaking it down into two separate assertions, one for 32-bit operations and one for 64-bit operations.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00) && op_32bits_i) |=> (mul_unit.data_rs1_q == (data_rs1_i[31] ? ~data_rs1_i + mul_unit.ONE : data_rs1_i)));
+as__DataRs1Check11: assert property((valid_i && (op_i == 2'b00) && !op_32bits_i) |=> (mul_unit.data_rs1_q == (data_rs1_i[(mul_unit.WIDTH-1)] ? ~data_rs1_i + mul_unit.ONE : data_rs1_i)));
+```
+
+However, I will provide only one assertion as requested. Here is the corrected assertion:
+
+```
+as__DataRs1Check10: assert property((valid_i && (op_i == 2'b00)) |=> (mul_unit.data_rs1_q == ((op_32bits_i && $past(data_rs1_i[31])) || (!$past(op_32bits_i) && $past(data_rs1_i[(mul_unit.WIDTH-1)])) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```

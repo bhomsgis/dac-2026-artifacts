@@ -1,0 +1,16 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` checks if the result of the multiplication operation is correct when the operation is not MUL and the operands are 64-bit.
+2. **Identifying the issue**: The assertion might be failing because it does not consider the case when the operation is MULH, MULHSU, or MULHU, and the result is not in the lower 64 bits of `result_2width_def`.
+3. **Analyzing the pipeline behavior**: The `result_o` is assigned in the next cycle after the operation is performed. The `result_2width_def` is calculated based on the `result_low_q` and `result_high_q`, which are updated in the next cycle after the operation is performed.
+
+# Fixed solution:
+```systemverilog
+as__ResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Using $past()**: The `$past()` function is used to refer to the value of `result_2width_def` in the previous cycle, which is the cycle when the operation was performed.
+* **Correct indexing**: The indexing of `result_2width_def` is corrected to `WIDTHDOUBLE-1:WIDTH` to get the correct 64-bit result.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different inputs and checking if the assertion passes or fails. For example, the testbench can provide inputs for MULH, MULHSU, and MULHU operations with 64-bit operands and check if the result is correct.

@@ -1,0 +1,21 @@
+The current assertion is failing because it is checking if the `flush` signal is high, then the `valid` bit of the `ptecache_entry` at the `hit_idx` index should be low in the next cycle. However, the `flush` signal is used to invalidate all the entries in the PTE cache, not just the one at the `hit_idx` index.
+
+The proposed fix is to check if the `flush` signal is high, then all the `valid` bits of the `ptecache_entry` should be low in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> !(|ptw.ptecache_entry.valid));
+```
+
+However, this assertion is still not correct because it will fail when the `flush` signal is high and the PTE cache is not full (i.e., not all entries are valid).
+
+A better approach is to check if the `flush` signal is high, then all the `valid` bits of the `ptecache_entry` should be low in the next cycle, regardless of the current state of the PTE cache.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlush: assert property(ptw.csr_ptw_comm_i.flush |=> &(!ptw.ptecache_entry.valid));
+```
+
+This assertion uses the bitwise AND operator `&` to check if all the bits of the `valid` vector are low. The `!` operator is used to negate the `valid` vector, so that the assertion checks if all the bits are low.

@@ -1,0 +1,9 @@
+1. Explanation of failure:
+The original assertion fails because it compares the combinational signal mul_unit.result_32 directly on the cycle after mul_unit.op_q == 0, but mul_unit.result_32 is a wire updated combinationally from signals that are registered and updated over multiple cycles. The assertion does not consider the pipeline latency and the valid signal that indicates when the result is stable. Also, it compares mul_unit.result_32 (a wire) directly without considering the registered version mul_unit.result_32_q, which holds the stable output after pipeline stages. The assertion should use the registered signals and valid signals to ensure the result is checked when stable.
+
+2. Proposed fix:
+Use a next-cycle assertion (|=>) with a precondition that includes mul_unit.op_q_final == 0 and mul_unit.valid_q[1] to ensure the pipeline stage is correct and the result is valid. Then check mul_unit.result_32_q against the sign-extended version of the registered result_low_q[31:0], using $past() on the combinational signals from the cycle of the precondition to correctly reflect the pipeline timing. This accounts for the pipeline latency and ensures the assertion checks the stable registered output.
+
+3. Corrected assertion:
+
+as__Result32SignExtendedCorrectForMul: assert property ((mul_unit.op_q_final == 0 && mul_unit.valid_q[1]) |=> mul_unit.result_32_q == {{(mul_unit.WIDTH-32){$past(mul_unit.result_low_q[31])}}, $past(mul_unit.result_low_q[31:0])});

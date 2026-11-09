@@ -1,0 +1,13 @@
+The current assertion is failing because it is not considering the pipeline behavior and timing of the `div_unit` module. The assertion is checking if `rmd_aux` is equal to `remanent_q` when `signed_op_q` is low, but it is not taking into account the fact that `rmd_aux` is assigned a value based on `remanent_q` and other signals in the same cycle.
+
+The issue is that `rmd_aux` is assigned a value based on the current values of `remanent_q`, `first_dividend_q`, `op_32_q`, and `signed_op_q`, but the assertion is checking the value of `rmd_aux` in the same cycle, before the values of these signals have been updated.
+
+To fix this issue, we need to use a next-cycle assertion (`|=>`) to check the value of `rmd_aux` in the next cycle, after the values of the signals have been updated.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.rmd_aux == ((div_unit.div_zero_q) ? div_unit.first_dividend_q : div_unit.remanent_q));
+```
+
+This assertion checks if `rmd_aux` is equal to `first_dividend_q` when `div_zero_q` is high, and equal to `remanent_q` when `div_zero_q` is low, in the next cycle after `signed_op_q` is low. This takes into account the pipeline behavior and timing of the `div_unit` module.

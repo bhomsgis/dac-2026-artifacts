@@ -1,0 +1,1 @@
+as__ValidOutputNext: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> $past(valid_i) && $past(op_i) == mul_unit.MUL && $past(op_32bits_i) && mul_unit.valid_q[mul_unit.MAX_CYCLES-1] == 1'b1 |-> valid_o == 1'b1);

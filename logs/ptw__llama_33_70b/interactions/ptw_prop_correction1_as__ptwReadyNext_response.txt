@@ -1,0 +1,1 @@
+as__ptwReadyNext: assert property(ptw.ptw_ready |=> (ptw.next_state == ptw.S_REQ || ptw.next_state == ptw.S_READY || ptw.next_state == ptw.S_WAIT));

@@ -1,0 +1,21 @@
+The current assertion is failing because it's checking the result of a 32-bit multiplication against the registered value of `result_32_q` in the same cycle. However, the registered value of `result_32_q` is only updated in the next cycle.
+
+The issue arises from the fact that the assertion is using a same-cycle implication (`|->`) to check the result, but it's referencing a registered signal (`result_32_q`) that is only updated in the next cycle.
+
+To fix this, we need to use a next-cycle implication (`|=>`) to check the result against the value of `result_32` in the next cycle.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck: assert property((valid_i && op_32bits_i && REG_32 && !mul_unit.CONFIG32) |=> (result_o == $past(mul_unit.result_32)));
+```
+
+However, this is still not correct, as we are comparing `result_o` with the past value of `mul_unit.result_32`, not the registered value of `mul_unit.result_32_q`.
+
+The correct assertion should be:
+
+```
+as__ResultCheck: assert property((valid_i && op_32bits_i && REG_32 && !mul_unit.CONFIG32) |=> (result_o == mul_unit.result_32_q));
+```
+
+This assertion checks that when a valid 32-bit multiplication is performed and the `REG_32` parameter is set, the result output (`result_o`) matches the registered value of `result_32_q` in the next cycle.

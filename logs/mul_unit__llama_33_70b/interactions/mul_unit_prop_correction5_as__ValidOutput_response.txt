@@ -1,0 +1,10 @@
+The current assertion `as__ValidOutput: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |-> valid_o == 1'b1);` is failing because it does not consider the pipeline behavior and timing of the `mul_unit` module. 
+
+The `mul_unit` module has a latency of 1 cycle for 32-bit operations and 2 cycles for 64-bit operations. The assertion should take into account this latency when checking the `valid_o` signal.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the `valid_o` signal in the next cycle, considering the latency of the module. We also need to use `$past()` to refer to the value of `valid_i`, `op_i`, and `op_32bits_i` in the previous cycle.
+
+Here is the corrected assertion:
+```systemverilog
+as__ValidOutput: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> $past(valid_i) && $past(op_i) == mul_unit.MUL && $past(op_32bits_i) |-> valid_o == 1'b1);
+```

@@ -1,0 +1,1 @@
+as__StateTransition8: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) && (ptw_arb.is_req_waiting_q == 1'b0) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB || ptw_arb.next_state == ptw_arb.SERVING_dTLB));

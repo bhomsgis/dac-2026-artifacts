@@ -1,0 +1,16 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__permNotOkNext` checks if the `perm_ok` signal is not asserted when certain conditions are met. Specifically, it checks if `ptw.perm_ok` is not true when `ptw.prv_req[0]` is not set and `ptw.is_pte_ux` is not set, or when `ptw.prv_req[0]` is set and `ptw.is_pte_sx` or `ptw.is_pte_ux` is not set.
+2. **Identifying the issue**: The assertion is using a next-cycle assertion (`|=>`) to check the value of `ptw.perm_ok` in the next cycle. However, the condition `!ptw.perm_ok` is being evaluated in the current cycle, which might not be the intended behavior.
+3. **Analyzing the pipeline behavior**: The `perm_ok` signal is calculated based on the `prv_req` and `is_pte_*` signals, which are updated in the same cycle. Therefore, the condition `!ptw.perm_ok` should be evaluated in the same cycle as the `prv_req` and `is_pte_*` signals.
+
+# Fixed solution:
+```systemverilog
+as__permNotOkNext: assert property(!ptw.perm_ok |=> ((!$past(ptw.prv_req[0]) && !$past(ptw.is_pte_ux)) || ($past(ptw.prv_req[0]) && !($past(ptw.is_pte_sx) || $past(ptw.is_pte_ux)))));
+```
+
+# Explanation of changes:
+* **Using `$past()`**: The `$past()` function is used to refer to the value of a signal in the previous cycle. In this case, it is used to evaluate the condition `!ptw.perm_ok` in the previous cycle, which is the intended behavior.
+* **Evaluating conditions in the previous cycle**: By using `$past()` to evaluate the conditions `ptw.prv_req[0]`, `ptw.is_pte_ux`, `ptw.is_pte_sx`, and `ptw.is_pte_ux` in the previous cycle, we ensure that the assertion is checking the correct values.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `ptw` module and verifying that the `perm_ok` signal is not asserted when the specified conditions are met. For example, the testbench can be written to stimulate the `ptw` module with different inputs and verify that the assertion is not triggered when the conditions are met.

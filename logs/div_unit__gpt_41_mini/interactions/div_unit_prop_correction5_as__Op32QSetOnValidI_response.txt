@@ -1,0 +1,3 @@
+// The assertion fails because op_32_q is a registered signal updated on the next clock cycle after valid_i is asserted. The original assertion checks op_32_q in the same cycle as valid_i, which is not yet updated. The fix is to check op_32_q in the next cycle (using |=>) and compare it to the value of op_32bits_i in the cycle of valid_i (using $past()).
+
+as__Op32QSetOnValidI: assert property (valid_i |=> div_unit.op_32_q == $past(op_32bits_i));

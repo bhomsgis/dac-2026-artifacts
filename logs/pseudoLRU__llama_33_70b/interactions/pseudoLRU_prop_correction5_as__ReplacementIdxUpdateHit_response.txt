@@ -1,0 +1,2 @@
+// Check that when there is a hit, the replacement index is updated in the next cycle
+as__ReplacementIdxUpdateHit: assert property(access_hit_i |=> pseudoLRU.replacement_idx_o != $past(pseudoLRU.replacement_idx_o) || !access_hit_i);

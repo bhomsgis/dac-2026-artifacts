@@ -1,0 +1,6 @@
+// The original assertion fails because it uses a same-cycle implication (|->) to check popcount.msport, which is a wire updated combinationally from a submodule that registers its inputs internally. The operands_regs_i are registers (_i), so their updated values appear in the next cycle in msport. Therefore, the assertion should use a next-cycle implication (|=>) and compare popcount.msport to the count of ones in the previous cycle's operands_regs_i slice, using $past() on operands_regs_i. Also, the original assertion compares msport to popcount.N_PORTS/2, which assumes all bits are ones, but msport is the sum of the popcount of the operands_regs_i slice, so it should be compared to $countones($past(...)).
+
+// Corrected assertion uses next-cycle implication (|=>), uses $past() on operands_regs_i slice in the postcondition, and compares popcount.msport to the count of ones in that slice at the previous cycle.
+
+// Corrected assertion:
+as__PopcountMsportAllOnesCheck: assert property ((&operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]) |=> (popcount.msport == $countones($past(operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]))));

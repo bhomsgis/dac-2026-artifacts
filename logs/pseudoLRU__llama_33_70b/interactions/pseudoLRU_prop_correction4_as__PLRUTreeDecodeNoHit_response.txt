@@ -1,0 +1,12 @@
+// Check that when there is no hit, the access array does not have all bits set to 1
+as__PLRUTreeDecodeNoHit: assert property(!access_hit_i |-> !(&pseudoLRU.access_array[access_idx_i])); 
+
+is failing because it is trying to check the access array in the same cycle as the access hit signal, but the access array is generated based on the access index, which might not be stable yet.
+
+A better approach would be to check the access array in the next cycle, after it has been updated based on the access index. However, since the access array is a wire, its value can be referenced in the current cycle.
+
+The issue with the original assertion is that it is trying to check the access array at the index access_idx_i, but this index might not be stable yet. 
+
+A possible fix is to check if any bit in the access array is set when there is no hit, instead of checking a specific index.
+
+as__PLRUTreeDecodeNoHit: assert property(!access_hit_i |-> !(|pseudoLRU.access_array));

@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when a node in the PLRU tree is set, the corresponding replace enable signal is set
+as__PLRUTreeDecode: assert property(pseudoLRU.plru_tree_q[0] == 1'b1 |-> pseudoLRU.replace_en[0] == 1'b1);
+```

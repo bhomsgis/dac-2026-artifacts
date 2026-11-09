@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion fails because it uses a same-cycle implication (|=>) with valid_i as precondition and checks the registered signals remanent_q, dividend_quotient_q, and divisor_q in the same cycle. However, these registers are updated on the rising edge of clk_i when valid_i is asserted. Therefore, their updated values appear in the next cycle, not the current cycle. Also, the assertion does not use $past() on the postcondition to refer to the values of inputs at the cycle of the precondition, which is required for next-cycle assertions. The previous attempts either omitted the clock event or misused $past() on _q signals or did not properly synchronize the clock event and timing.
+
+2. Proposed fix:  
+Use a next-cycle assertion with @(posedge div_unit.clk_i) to synchronize with the clock edge. The precondition is valid_i asserted in the current cycle. The postcondition checks the registered signals remanent_q, dividend_quotient_q, and divisor_q in the next cycle (updated values). Since dividend_quotient_q and divisor_q are registers updated from combinational signals dividend_d and divisor_d, use $past() on dividend_d and divisor_d to refer to their values at the precondition cycle. For remanent_q, which is reset to zero on valid_i, check it directly without $past() because it is a register updated in the next cycle. This approach respects the timing and pipeline behavior.
+
+3. Corrected assertion:  
+as__RegsResetOnValidI: assert property (@(posedge div_unit.clk_i) valid_i |=> (div_unit.remanent_q == {div_unit.WIDTH{1'b0}} && div_unit.dividend_quotient_q == $past(div_unit.dividend_d) && div_unit.divisor_q == $past(div_unit.divisor_d)));

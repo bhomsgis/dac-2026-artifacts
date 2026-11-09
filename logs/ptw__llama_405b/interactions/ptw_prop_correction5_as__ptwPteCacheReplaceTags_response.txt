@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking if the `ptecache_entry` at the `plru_eviction_idx` index has the `tags` field equal to `pte_addr` in the next cycle after `ptw.full_cache` and `ptw.access_hit` are true. However, the `ptecache_entry` is updated only when `dmem_ptw_comm_i.resp.valid` and `is_pte_table` are true, and `pte_cache_hit` is false.
+
+The proposed fix is to add the necessary conditions to the precondition of the assertion, ensuring that the `ptecache_entry` update logic is triggered. We also need to use `$past` to refer to the values of `pte_addr` and `plru_eviction_idx` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheReplaceTags: assert property(ptw.full_cache && dmem_ptw_comm_i.resp.valid && is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[$past(ptw.plru_eviction_idx)].tags == $past(ptw.pte_addr));
+```
+
+This assertion checks that when the cache is full, a valid response is received from `dmem`, the response is a table entry, and there's no cache hit, then in the next cycle, the `tags` field of the `ptecache_entry` at the `plru_eviction_idx` index (both `plru_eviction_idx` and `pte_addr` are referred to their values in the previous cycle using `$past`) is equal to the `pte_addr` (also referred to its value in the previous cycle).

@@ -1,0 +1,7 @@
+// The original assertion fails because it uses the current cycle index skipper_counter.last_state to index current_active_vector in the postcondition of a next-cycle assertion (|=>), which is incorrect timing. The index should refer to the previous cycle's last_state (using $past) because current_active_vector is combinational and reflects the current cycle's value. Also, the active_vector_i used in the postcondition should be the previous cycle's value ($past) to match pipeline timing. The original assertion uses current cycle signals inconsistently with the timing semantics of |=>.
+
+// The fix is to use $past(skipper_counter.last_state) to index current_active_vector and $past(skipper_counter.active_vector_i) when comparing current_active_vector to active_vector_i in the postcondition. This aligns the timing of the signals correctly: the precondition is evaluated at the current cycle, and the postcondition evaluates the combinational signals in the next cycle but referring to the previous cycle's registered values where appropriate.
+
+// Corrected assertion:
+
+as__CurrentActiveVectorAssignsCorrectlyImmediateChange: assert property ((skipper_counter.IMMEDIATE_CHANGE && (!skipper_counter.same_count || !skipper_counter.same_vector)) |=> ((!skipper_counter.same_vector || skipper_counter.one_hot_q) ? (skipper_counter.current_active_vector == $past(skipper_counter.active_vector_i)) : (skipper_counter.current_active_vector[$past(skipper_counter.last_state)] == 1'b0)));

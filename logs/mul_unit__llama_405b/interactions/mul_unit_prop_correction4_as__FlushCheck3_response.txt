@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking if `flush_i[0]` is high, then `mul_unit.valid_q[1]` should be low in the next cycle. However, this assertion doesn't consider the case where `flush_i[1]` is also high in the next cycle, which would also set `mul_unit.valid_q[1]` to low.
+
+The proposed fix is to check if `flush_i[0]` is high and `flush_i[1]` is low in the next cycle, then `mul_unit.valid_q[1]` should be low.
+
+Here is the corrected assertion:
+
+as__FlushCheck3: assert property((flush_i[0]) |=> (!$past(flush_i[1]) && mul_unit.valid_q[1] == 1'b0));

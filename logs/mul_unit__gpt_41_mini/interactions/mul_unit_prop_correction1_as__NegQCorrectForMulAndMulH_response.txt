@@ -1,0 +1,6 @@
+// The original assertion fails because it compares neg_q (a registered signal updated in the pipeline) directly with neg_d (a combinational signal) in the same cycle, ignoring the pipeline latency and the fact that neg_q is updated on the next clock edge after neg_d is computed. The assertion does not consider the pipeline stage delay and the valid signal, which can cause mismatches during pipeline stalls or flushes.
+
+
+// The fix is to use a next-cycle assertion (|=>) that checks when op_q is MUL or MULH (0 or 1), then on the next cycle neg_q should equal the previous cycle's neg_d. This respects the pipeline timing and uses $past() to refer to neg_d at the time of the precondition. Also, include valid_q[0] to ensure the pipeline stage is valid when checking neg_q.
+
+as__NegQCorrectForMulAndMulH: assert property(( (mul_unit.op_q == 0) || (mul_unit.op_q == 1) ) && mul_unit.valid_q[0] |=> mul_unit.neg_q == $past(mul_unit.neg_d));

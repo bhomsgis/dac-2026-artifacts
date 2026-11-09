@@ -1,0 +1,3 @@
+as__SimdDivSEW16_2: assert property(sew_i == 2'b01 |->
+div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], 
+div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});

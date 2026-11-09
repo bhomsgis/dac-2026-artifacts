@@ -1,0 +1,6 @@
+// The original assertion likely fails because it checks div_unit.dividend_d immediately on valid_i, but dividend_d is combinational and depends on op_32bits_i and CONFIG32, which may not be stable or correctly reflected at valid_i cycle. Also, the original assertion does not consider the case when CONFIG32==0 and op_32bits_i==0 properly for dividend_d assignment timing and sign extension. The assertion should check dividend_aux_d and dividend_d relationship considering the pipeline registers and timing, using a next-cycle assertion to check dividend_d after valid_i is sampled.
+
+// Proposed fix: Use a next-cycle assertion (|=>) to check dividend_d in the cycle after valid_i, referring to $past signals for inputs. This accounts for pipeline timing and register updates. The assertion checks that div_unit.dividend_d matches the expected value based on CONFIG32 and op_32bits_i sampled at valid_i cycle. This approach aligns with the RTL where dividend_d is assigned combinationally from dividend_aux_d and op_32bits_i, which are stable in the cycle after valid_i.
+
+// Corrected assertion:
+as__DividendDAssignCorrect: assert property (valid_i |=> (div_unit.dividend_d == ((div_unit.CONFIG32 == 1'b1) ? div_unit.dividend_aux_d : ($past(div_unit.op_32bits_i) ? {div_unit.dividend_aux_d[31:0], 32'b0} : div_unit.dividend_aux_d))));

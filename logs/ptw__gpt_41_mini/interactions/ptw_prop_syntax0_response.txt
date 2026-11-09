@@ -1,0 +1,88 @@
+// Request valid implies current state is S_REQ
+as__ReqValidThenReqState: assert property((tlb_ptw_comm.req.valid) |=> (ptw.current_state == ptw.S_REQ));
+// In S_REQ state, if no cache hit and dmem ready, next state is S_WAIT
+as__ReqStateDmemReadyNextWait: assert property((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && dmem_ptw_comm_i.dmem_ready) |=> (ptw.next_state == ptw.S_WAIT));
+// In S_WAIT state, if resp nack, next state is S_REQ
+as__WaitStateNackNextReq: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_REQ));
+// In S_WAIT state, if resp valid and invalid pte, next state is S_ERROR
+as__WaitStateInvalidPteNextError: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && ptw.invalid_pte) |=> (ptw.next_state == ptw.S_ERROR));
+// In S_WAIT state, if resp valid and pte leaf, next state is S_DONE
+as__WaitStatePteLeafNextDone: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && ptw.is_pte_leaf) |=> (ptw.next_state == ptw.S_DONE));
+// In S_WAIT state, if resp valid and not invalid pte and not pte table and not pte leaf, next state is S_ERROR
+as__WaitStateRespValidElseError: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid && !ptw.invalid_pte && !ptw.is_pte_table && !ptw.is_pte_leaf) |=> (ptw.next_state == ptw.S_ERROR));
+// In S_WAIT state, if resp not valid, stay in S_WAIT
+as__WaitStateRespNotValidStayWait: assert property((ptw.current_state == ptw.S_WAIT && !dmem_ptw_comm_i.resp.valid) |=> (ptw.next_state == ptw.S_WAIT));
+// In S_DONE state, next state is S_READY
+as__DoneStateNextReady: assert property((ptw.current_state == ptw.S_DONE) |=> (ptw.next_state == ptw.S_READY));
+// In S_ERROR state, next state is S_READY
+as__ErrorStateNextReady: assert property((ptw.current_state == ptw.S_ERROR) |=> (ptw.next_state == ptw.S_READY));
+// In S_READY state, count_d is zero
+as__ReadyStateCountZero: assert property((ptw.current_state == ptw.S_READY) |-> (ptw.count_d == 0));
+// In S_READY state, if req valid, next state is S_REQ
+as__ReadyStateNextReqIfValid: assert property((ptw.current_state == ptw.S_READY && tlb_ptw_comm.req.valid) |-> (ptw.next_state == ptw.S_REQ));
+// In S_READY state, if no req valid, next state is S_READY
+as__ReadyStateNextReadyIfNoReq: assert property((ptw.current_state == ptw.S_READY && !tlb_ptw_comm.req.valid) |-> (ptw.next_state == ptw.S_READY));
+// Resp valid only when in S_DONE or S_ERROR
+as__RespValidWhenDoneOrError: assert property((ptw_tlb_comm.resp.valid) == ((ptw.current_state == ptw.S_DONE) || (ptw.current_state == ptw.S_ERROR)));
+// Resp error only when in S_ERROR
+as__RespErrorWhenErrorState: assert property((ptw_tlb_comm.resp.error) == (ptw.current_state == ptw.S_ERROR));
+// Resp level matches count_q
+as__RespLevelMatchesCountQ: assert property(ptw_tlb_comm.resp.level == ptw.count_q);
+// Resp pte ppn matches resp_ppn
+as__RespPtePpnMatchesRespPpn: assert property(ptw_tlb_comm.resp.pte.ppn == ptw.resp_ppn);
+// Resp pte fields match r_pte
+as__RespPteFieldsMatchRPte: assert property(ptw_tlb_comm.resp.pte.rfs == ptw.r_pte.rfs && ptw_tlb_comm.resp.pte.d == ptw.r_pte.d && ptw_tlb_comm.resp.pte.a == ptw.r_pte.a && ptw_tlb_comm.resp.pte.g == ptw.r_pte.g && ptw_tlb_comm.resp.pte.u == ptw.r_pte.u && ptw_tlb_comm.resp.pte.x == ptw.r_pte.x && ptw_tlb_comm.resp.pte.w == ptw.r_pte.w && ptw_tlb_comm.resp.pte.r == ptw.r_pte.r && ptw_tlb_comm.resp.pte.v == ptw.r_pte.v);
+// ptw_ready matches current_state == S_READY
+as__PtwReadyWhenStateReady: assert property(ptw_tlb_comm.ptw.ptw_ready == (ptw.current_state == ptw.S_READY));
+// ptw_status matches csr mstatus
+as__PtwStatusMatchesCsrMstatus: assert property(ptw_tlb_comm.ptw_status == csr_ptw_comm_i.mstatus);
+// invalidate_tlb matches flush
+as__InvalidateTlbMatchesFlush: assert property(ptw_tlb_comm.invalidate_tlb == csr_ptw_comm_i.flush);
+// r_pte updated on wait state and resp valid next cycle
+as__RpteUpdatedOnWaitRespValid: assert property((ptw.current_state == ptw.S_WAIT && dmem_ptw_comm_i.resp.valid) |=> (ptw.r_pte == ptw.pte));
+// r_req updated on ready state and req valid next cycle
+as__RreqUpdatedOnReadyAndReqValid: assert property((ptw.current_state == ptw.S_READY && tlb_ptw_comm.req.valid) |=> (ptw.r_req == tlb_ptw_comm.req));
+// count_q updated next cycle to count_d stable
+as__CountQUpdatedNextCycle: assert property($stable(ptw.count_q) |=> (ptw.count_q == ptw.count_d));
+// count_d increments correctly in S_REQ state when no cache hit
+as__CountDIncrementsCorrectly: assert property((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit) |-> (ptw.count_d == ptw.count_q));
+// pte_cache_hit implies hit_vector has some bit set
+as__PteCacheHitImpliesHitVector: assert property(ptw.pte_cache_hit == (|ptw.hit_vector));
+// full_cache implies all valid_vector bits set
+as__FullCacheImpliesAllValidVector: assert property(ptw.full_cache == (&ptw.valid_vector));
+// access_hit set when in S_REQ and pte_cache_hit
+as__AccessHitSetWhenCacheHitAndReqState: assert property((ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit) |-> ptw.access_hit == 1'b1);
+// access_hit cleared otherwise
+as__AccessHitClearOtherwise: assert property((!(ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit)) |-> ptw.access_hit == 1'b0);
+// ptw_dmem_comm_o.req.addr matches pte_addr
+as__PtwDmemReqAddrMatchesPteAddr: assert property(ptw_dmem_comm_o.req.addr == ptw.pte_addr);
+// ptw_dmem_comm_o.req.cmd is M_XRD
+as__PtwDmemReqCmdIsRead: assert property(ptw_dmem_comm_o.req.cmd == ptw.M_XRD);
+// ptw_dmem_comm_o.req.typ is MT_D
+as__PtwDmemReqTypIsData: assert property(ptw_dmem_comm_o.req.typ == ptw.MT_D);
+// ptw_dmem_comm_o.req.phys is 1
+as__PtwDmemReqPhysIsOne: assert property(ptw_dmem_comm_o.req.phys == 1'b1);
+// ptw_dmem_comm_o.req.kill is 0
+as__PtwDmemReqKillIsZero: assert property(ptw_dmem_comm_o.req.kill == 1'b0);
+// ptw_dmem_comm_o.req.data[6] is 1
+as__PtwDmemReqDataHasASet: assert property(ptw_dmem_comm_o.req.data[6] == 1'b1);
+// perm_ok matches permission logic
+as__PermOkMatchesPermissionLogic: assert property(ptw.perm_ok == ((ptw.prv_req[0]) ? ((csr_ptw_comm_i.mstatus.sum) ? ((ptw.r_req.fetch) ? (ptw.is_pte_sx || ptw.is_pte_ux) : ((ptw.r_req.store) ? (ptw.is_pte_sw || ptw.is_pte_uw) : ((csr_ptw_comm_i.mstatus.mxr) ? (ptw.is_pte_sr || ptw.is_pte_ur || ptw.is_pte_ux || ptw.is_pte_sx) : (ptw.is_pte_sr || ptw.is_pte_ur)))) : ((ptw.r_req.fetch) ? ptw.is_pte_sx : ((ptw.r_req.store) ? ptw.is_pte_sw : ((csr_ptw_comm_i.mstatus.mxr) ? (ptw.is_pte_sr || ptw.is_pte_sx) : ptw.is_pte_sr)))) : ((ptw.r_req.fetch) ? ptw.is_pte_ux : ((ptw.r_req.store) ? ptw.is_pte_uw : ((csr_ptw_comm_i.mstatus.mxr) ? (ptw.is_pte_ur || ptw.is_pte_ux) : ptw.is_pte_ur)))));
+// vpn_idx matches vpn_req[count_q]
+as__VpnIdxMatchesVpnReqCountQ: assert property(ptw.vpn_idx == ptw.vpn_req[ptw.count_q]);
+// pte.v matches valid_pte_lvl[count_q]
+as__PteVMatchesValidPteLvlCountQ: assert property(ptw.pte.v == ptw.valid_pte_lvl[ptw.count_q]);
+// invalid_pte set correctly
+as__InvalidPteSetCorrectly: assert property(ptw.invalid_pte == (((dmem_ptw_comm_i.resp.data >> (PPN_SIZE+10)) != '0) || (ptw.is_pte_table && ptw.pte.v && (ptw.pte.d || ptw.pte.a || ptw.pte.u))));
+// is_pte_table matches definition
+as__IsPteTableMatchesDefinition: assert property(ptw.is_pte_table == (ptw.pte.v && !ptw.pte.x && !ptw.pte.w && !ptw.pte.r));
+// is_pte_leaf matches definition
+as__IsPteLeafMatchesDefinition: assert property(ptw.is_pte_leaf == (ptw.pte.v && (ptw.pte.x || ptw.pte.w || ptw.pte.r)));
+// pmu_ptw_hit_o only in S_REQ with cache hit
+as__PmuHitOnlyInReqStateWithCacheHit: assert property((pmu_ptw_hit_o == 1'b1) |-> (ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit));
+// r_resp_ppn matches pte_addr shifted right 12
+as__RrespPpnMatchesShiftedPteAddr: assert property(ptw.r_resp_ppn == (ptw.pte_addr >> 12));
+// resp_ppn_lvl last matches r_resp_ppn
+as__RespPpnLvlLastMatchesRrespPpn: assert property(ptw.resp_ppn_lvl[LEVELS-1] == ptw.r_resp_ppn[PPN_SIZE-1:0]);
+// resp_ppn matches resp_ppn_lvl[count_q]
+as__RespPpnMatchesRespPpnLvlCountQ: assert property(ptw.resp_ppn == ptw.resp_ppn_lvl[ptw.count_q]);

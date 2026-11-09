@@ -1,0 +1,27 @@
+The current assertion is failing because it is trying to check the value of `replacement_idx_o` in the same cycle as `pseudoLRU.replace_en` is asserted. However, `replacement_idx_o` is assigned in a combinational block that depends on `pseudoLRU.replace_en`, which means that the value of `replacement_idx_o` will not be updated until the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will allow the assertion to check the value of `replacement_idx_o` in the next cycle, after it has been updated based on the value of `pseudoLRU.replace_en`.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementIdx: assert property (pseudoLRU.replace_en != 0 |=> replacement_idx_o == cast_integer($onehot($past(pseudoLRU.replace_en))));
+```
+
+However, this is the same as Attempt 1, which didn't work. Let's try a different approach.
+
+The issue is that `pseudoLRU.replace_en` is not a one-hot signal, but rather a signal that indicates which entry should be replaced. The `replacement_idx_o` signal is assigned based on the index of the first bit set in `pseudoLRU.replace_en`.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementIdx: assert property (pseudoLRU.replace_en != 0 |=> replacement_idx_o == $onehot2integer($past(pseudoLRU.replace_en)));
+```
+
+However, SystemVerilog does not have a built-in `$onehot2integer` function. We can use a different approach:
+
+```
+as__ReplacementIdx: assert property (pseudoLRU.replace_en != 0 |=> $onehot($past(pseudoLRU.replace_en)) == (1 << replacement_idx_o));
+```
+
+This assertion checks that the `replacement_idx_o` signal is equal to the index of the first bit set in `pseudoLRU.replace_en`. The `$onehot` function is used to create a one-hot vector from `pseudoLRU.replace_en`, and the `(1 << replacement_idx_o)` expression is used to create a one-hot vector from `replacement_idx_o`. The two vectors are then compared for equality.

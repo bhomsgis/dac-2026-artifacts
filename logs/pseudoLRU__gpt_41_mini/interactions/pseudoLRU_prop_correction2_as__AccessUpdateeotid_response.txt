@@ -1,0 +1,5 @@
+// The original assertion fails because it compares plru_tree_d and plru_tree_q in the same cycle using a same-cycle implication (|->), but plru_tree_d is combinational and plru_tree_q is registered. The update to plru_tree_q reflecting plru_tree_d happens in the next cycle. Therefore, the assertion should check that plru_tree_q changes in the next cycle after access_hit_i and access_array are valid.  
+// The fix is to use a next-cycle assertion (|=>) that checks that plru_tree_q in the next cycle differs from its previous value ($past), indicating the PLRU tree was updated correctly after a hit. Also, the precondition should use the wire access_array, not pseudoLRU.access_array, since access_array is a local wire in the module.  
+// This assertion ensures that when there is a hit at access_idx_i, the PLRU tree register updates in the next cycle.
+
+as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));

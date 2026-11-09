@@ -1,0 +1,8 @@
+The current assertion `as__ResultMULHSU: assert property(valid_i && op_i == mul_unit.MULHSU |-> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` is failing because it's trying to check the result of the MULHSU operation in the same cycle as the input is valid and the operation is MULHSU. However, the result of the MULHSU operation is not available in the same cycle due to the pipeline behavior of the mul_unit.
+
+The result of the MULHSU operation is available in the next cycle, after the operation has been processed by the mul_unit. Therefore, we need to use a next-cycle assertion (`|=>`) to check the result of the MULHSU operation.
+
+Here is the corrected assertion:
+```systemverilog
+as__ResultMULHSU: assert property(valid_i && op_i == mul_unit.MULHSU |=> result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+```

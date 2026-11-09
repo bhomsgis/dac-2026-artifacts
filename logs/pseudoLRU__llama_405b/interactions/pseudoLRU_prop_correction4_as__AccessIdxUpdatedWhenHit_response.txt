@@ -1,0 +1,21 @@
+The current assertion is failing because it is checking if the `access_idx_i` signal changes when `access_hit_i` is high, which is not the correct behavior. The `access_idx_i` signal is an input to the pseudoLRU module and does not necessarily change when `access_hit_i` is high. Instead, the `plru_tree_q` signal is updated when `access_hit_i` is high.
+
+The corrected assertion should check if the `plru_tree_q` signal changes when `access_hit_i` is high. However, simply checking if `plru_tree_q` is not equal to its past value is not sufficient, as this would also trigger when the `plru_tree_q` signal is updated due to other reasons.
+
+A more accurate assertion would be to check if the `plru_tree_q` signal is updated correctly based on the `access_idx_i` signal when `access_hit_i` is high. This can be done by checking if the `plru_tree_q` signal is updated to the expected value based on the `access_idx_i` signal.
+
+Here is the corrected assertion:
+
+```
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q) && pseudoLRU.plru_tree_q == pseudoLRU.plru_tree_d);
+```
+
+However, this assertion is still not accurate, as it does not take into account the pipeline behavior of the pseudoLRU module. The `plru_tree_q` signal is updated in the next cycle after `access_hit_i` is high, so the assertion should check the value of `plru_tree_q` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> $past(pseudoLRU.plru_tree_d) == pseudoLRU.plru_tree_q);
+```
+
+This assertion checks if the `plru_tree_q` signal is updated correctly based on the `access_idx_i` signal when `access_hit_i` is high, taking into account the pipeline behavior of the pseudoLRU module.

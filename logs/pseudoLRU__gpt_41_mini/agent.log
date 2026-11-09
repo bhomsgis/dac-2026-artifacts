@@ -1,0 +1,1624 @@
+[2025-08-23 06:26:30] Log file created
+Loading RTL from: sources/sargantana/rtl/mmu/rtl/common/pseudoLRU.sv
+Initial Assertions:
+
+as__AccessUpdateeotid: assert property(access_hit_i && access_array == (1 << access_idx_i) |-> plru_tree_d != plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> plru_tree_d == plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|replace_en |-> replacement_idx_o inside {[0:ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> plru_tree_d == plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> replace_en[replacement_idx_o]);
+
+
+CodingAgent initialized with execution mode: golden
+RTL source: sources/sargantana/rtl/mmu/rtl/common/pseudoLRU.sv
+Assertions file: pseudoLRU_prop.sv
+Assertions directory: ft_pseudoLRU/sva/
+LLM: gpt-4.1-mini
+Module type: sequential
+Verbosity: 2
+Execution mode: golden
+
+Preprocessing: Fixing missing module prefixes on internal signals before syntax correction...
+
+Preprocessing: Checking for duplicate assertion names and fixing collisions...
+
+Assertions after automatic corrections:
+
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+
+
+Stored property file version for initial stage at ft_pseudoLRU/sva/versions/pseudoLRU_prop_initial.sv
+Correcting assertion syntax...
+
+Iteration 1
+Running JasperGold...
+Assertions compiled succesfuly
+==================================================
+Stored property file version for after_syntax stage at ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_syntax.sv
+
+
+
+SYNTACTICALLY CORRECT ASSERTIONS:
+
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+
+
+
+Processing initial batch to establish base set...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+
+Property 1: as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+
+Property 2: as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+Property 3: as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+
+Property 4: as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+
+Property 5: as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+
+Property 6: as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+
+Parser state statistics (processed 7 assertions in this batch):
+  Before this batch - Total stored properties: 0
+  After this batch  - Total stored properties: 5
+  New properties added in this batch: 6
+  Duplicates found in this batch: 1
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 5
+  Delay dictionary: 5
+  Postcondition dictionary: 5
+  Clauses dictionary: 5
+  Results dictionary: 0
+  Unprocessable properties: 1
+
+✅ Duplicate validation passed!
+Found 6 unique assertions in initial set
+Found 1 duplicate assertions in initial set
+Duplicate 1: as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+[1]   pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[10]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[12]  pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid
+[17]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+
+
+Name - SVA String Pairs
+Name: as__AccessUpdateeotid || Clauses: as__AccessUpdateeotid:assertproperty(access_hit_i&&pseudoLRU.access_array==(1<<access_idx_i)|->pseudoLRU.plru_tree_d!=pseudoLRU.plru_tree_q);
+Name: as__NoAccessNoUpdateeotid || Clauses: as__NoAccessNoUpdateeotid:assertproperty(!access_hit_i|->pseudoLRU.plru_tree_d==pseudoLRU.plru_tree_q);
+Name: as__ReplacementIndexMatchesReplaceEneotid || Clauses: as__ReplacementIndexMatchesReplaceEneotid:assertproperty(pseudoLRU.replace_en[replacement_idx_o]);
+Name: as__OnlyOneReplaceEneotid || Clauses: as__OnlyOneReplaceEneotid:assertproperty($countones(pseudoLRU.replace_en)==1);
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Clauses: as__ReplacementIdxReflectsReplaceEnNextCycleeotid:assertproperty(1|=>pseudoLRU.replace_en[replacement_idx_o]);
+
+
+Name - Delay Pairs
+Name: as__AccessUpdateeotid || Delay: 0
+Name: as__NoAccessNoUpdateeotid || Delay: 0
+Name: as__ReplacementIndexMatchesReplaceEneotid || Delay: 0
+Name: as__OnlyOneReplaceEneotid || Delay: 0
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Delay: 1
+
+
+Name - Postcondition Pairs
+Name: as__AccessUpdateeotid || Clauses: ['pseudoLRU.plru_tree_d', '!', '=pseudoLRU.plru_tree_q']
+Name: as__NoAccessNoUpdateeotid || Clauses: ['pseudoLRU.plru_tree_d==pseudoLRU.plru_tree_q']
+Name: as__ReplacementIndexMatchesReplaceEneotid || Clauses: []
+Name: as__OnlyOneReplaceEneotid || Clauses: []
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Clauses: ['pseudoLRU.replace_en[replacement_idx_o]']
+
+
+Name - Clause Pairs
+Name: as__AccessUpdateeotid || Clauses: [['access_hit_i'], ['pseudoLRU.access_array==(1<<access_idx_i']]
+Name: as__NoAccessNoUpdateeotid || Clauses: [['access_hit_i', 'pseudoLRU.plru_tree_d==pseudoLRU.plru_tree_q']]
+Name: as__ReplacementIndexMatchesReplaceEneotid || Clauses: [['pseudoLRU.replace_en[replacement_idx_o]']]
+Name: as__OnlyOneReplaceEneotid || Clauses: [['$countones']]
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Clauses: [['!1', 'pseudoLRU.replace_en[replacement_idx_o]']]
+
+
+Name - Proof Result Pairs
+Name: as__AccessUpdateeotid || Proof Result: cex
+Name: as__NoAccessNoUpdateeotid || Proof Result: proven
+Name: as__ReplacementIndexValideotid || Proof Result: proven
+Name: as__ReplacementIndexMatchesReplaceEneotid || Proof Result: proven
+Name: as__OnlyOneReplaceEneotid || Proof Result: proven
+Name: as__PlruTreeNoChangeWithoutAccesseotid || Proof Result: proven
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Proof Result: proven
+pseudoLRU_prop.sv
+Files in SVA directory:
+Syntax iterations before extension: 0
+
+
+Initial correct assertions for extension iteration 0:
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+
+
+
+
+Requesting LLM for new assertions...
+Estimated input tokens: 2268
+Stored LLM interaction for extension stage iteration 0
+
+Found 8 assertions in response:
+Assertion 1: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 2: as__ReplaceEnOneHoteotid: assert property($countones(pseudoLRU.replace_en) == 1);
+Assertion 3: as__PlruTreeChangeOnAccessHiteotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Assertion 4: as__PlruTreeNoChangeNoAccessHiteotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Assertion 5: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 6: as__ReplacementIdxBitSetInReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 7: as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 8: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+
+=== PRE-SYNTAX DUPLICATE CHECK ===
+Checking assertion 1: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+  -> UNIQUE (new assertion)
+Checking assertion 2: as__ReplaceEnOneHoteotid: assert property($countones(pseudoLRU.replace_en) == 1);
+  -> DUPLICATE (already exists)
+Checking assertion 3: as__PlruTreeChangeOnAccessHiteotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 4: as__PlruTreeNoChangeNoAccessHiteotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 5: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 6: as__ReplacementIdxBitSetInReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 7: as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 8: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+  -> UNIQUE (new assertion)
+
+Pre-syntax check results:
+  Unique assertions: 3
+  Duplicate assertions: 5
+==================================================
+
+=== FILTERED DUPLICATE ASSERTIONS (Pre-Syntax Check) ===
+Duplicate 1: as__ReplaceEnOneHoteotid: assert property($countones(pseudoLRU.replace_en) == 1);
+Duplicate 2: as__PlruTreeChangeOnAccessHiteotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Duplicate 3: as__PlruTreeNoChangeNoAccessHiteotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Duplicate 4: as__ReplacementIdxBitSetInReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 5: as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+======================================================================
+
+=== UNIQUE ASSERTIONS FOR SYNTAX CORRECTION ===
+Unique Assertion 1: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+Unique Assertion 2: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Unique Assertion 3: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+Fixed 1 missing module prefixes on 1 unique internal signals
+
+=== FIXED INTERNAL SIGNALS ===
+Signal 1: ENTRIES -> pseudoLRU.ENTRIES
+======================================================================
+
+Writing unique assertions to property file before syntax correction...
+Writing 3 unique assertions to property file
+Correcting assertion syntax...
+
+Iteration 1
+Running JasperGold...
+Assertions compiled succesfuly
+==================================================
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+
+Property 1: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Property 2: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+
+Parser state statistics (processed 3 assertions in this batch):
+  Before this batch - Total stored properties: 5
+  After this batch  - Total stored properties: 7
+  New properties added in this batch: 3
+  Duplicates found in this batch: 0
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 7
+  Delay dictionary: 7
+  Postcondition dictionary: 7
+  Clauses dictionary: 7
+  Results dictionary: 7
+  Unprocessable properties: 2
+
+✅ Duplicate validation passed!
+
+=== NEW ASSERTIONS ADDED (After Syntax Correction) ===
+Added Assertion 1: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+Added Assertion 2: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+Added Assertion 3: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+======================================================================
+Found 3 syntactically correct new properties
+
+Duplicate filtering summary:
+  Pre-syntax duplicates filtered: 5
+  Post-syntax duplicates filtered: 0
+  Properties successfully added: 3
+3 NEW PROPERTIES added to the set
+--------------------------------------- FINISHED EXTENSION LOOP ITERATION ---------------------------------------
+
+
+Initial correct assertions for extension iteration 1:
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+
+
+
+
+Requesting LLM for new assertions...
+Estimated input tokens: 2358
+Stored LLM interaction for extension stage iteration 0
+
+Found 9 assertions in response:
+Assertion 1: as__ReplacementIdxMatchesReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 2: as__ReplaceEnOneHoteotid: assert property($countones(pseudoLRU.replace_en) == 1);
+Assertion 3: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 4: as__PlruTreeDUpdateOnAccessHiteotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Assertion 5: as__PlruTreeDNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Assertion 6: as__PlruTreeQUpdateNextCycleeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Assertion 7: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+Assertion 8: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 9: as__ReplaceEnMutuallyExclusiveeotid: assert property($countones(pseudoLRU.replace_en) == 1);
+
+=== PRE-SYNTAX DUPLICATE CHECK ===
+Checking assertion 1: as__ReplacementIdxMatchesReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 2: as__ReplaceEnOneHoteotid: assert property($countones(pseudoLRU.replace_en) == 1);
+  -> DUPLICATE (already exists)
+Checking assertion 3: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 4: as__PlruTreeDUpdateOnAccessHiteotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 5: as__PlruTreeDNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 6: as__PlruTreeQUpdateNextCycleeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+  -> DUPLICATE (already exists)
+Checking assertion 7: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+  -> UNIQUE (new assertion)
+Checking assertion 8: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 9: as__ReplaceEnMutuallyExclusiveeotid: assert property($countones(pseudoLRU.replace_en) == 1);
+  -> DUPLICATE (already exists)
+
+Pre-syntax check results:
+  Unique assertions: 3
+  Duplicate assertions: 6
+==================================================
+
+=== FILTERED DUPLICATE ASSERTIONS (Pre-Syntax Check) ===
+Duplicate 1: as__ReplacementIdxMatchesReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 2: as__ReplaceEnOneHoteotid: assert property($countones(pseudoLRU.replace_en) == 1);
+Duplicate 3: as__PlruTreeDUpdateOnAccessHiteotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Duplicate 4: as__PlruTreeDNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Duplicate 5: as__PlruTreeQUpdateNextCycleeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Duplicate 6: as__ReplaceEnMutuallyExclusiveeotid: assert property($countones(pseudoLRU.replace_en) == 1);
+======================================================================
+
+=== UNIQUE ASSERTIONS FOR SYNTAX CORRECTION ===
+Unique Assertion 1: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Unique Assertion 2: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+Unique Assertion 3: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+Fixed 2 missing module prefixes on 1 unique internal signals
+
+=== FIXED INTERNAL SIGNALS ===
+Signal 1: ENTRIES -> pseudoLRU.ENTRIES
+======================================================================
+
+Writing unique assertions to property file before syntax correction...
+Writing 3 unique assertions to property file
+Correcting assertion syntax...
+
+Iteration 1
+Running JasperGold...
+Assertions compiled succesfuly
+==================================================
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Property 1: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+
+Property 2: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Parser state statistics (processed 3 assertions in this batch):
+  Before this batch - Total stored properties: 7
+  After this batch  - Total stored properties: 8
+  New properties added in this batch: 3
+  Duplicates found in this batch: 0
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 8
+  Delay dictionary: 8
+  Postcondition dictionary: 8
+  Clauses dictionary: 8
+  Results dictionary: 7
+  Unprocessable properties: 4
+
+✅ Duplicate validation passed!
+
+=== NEW ASSERTIONS ADDED (After Syntax Correction) ===
+Added Assertion 1: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+Added Assertion 2: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+Added Assertion 3: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+======================================================================
+Found 3 syntactically correct new properties
+
+Duplicate filtering summary:
+  Pre-syntax duplicates filtered: 6
+  Post-syntax duplicates filtered: 0
+  Properties successfully added: 3
+3 NEW PROPERTIES added to the set
+--------------------------------------- FINISHED EXTENSION LOOP ITERATION ---------------------------------------
+
+
+Initial correct assertions for extension iteration 2:
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+
+
+
+Requesting LLM for new assertions...
+Estimated input tokens: 2467
+Stored LLM interaction for extension stage iteration 0
+
+Found 9 assertions in response:
+Assertion 1: as__PlruTreeUpdateOnAccessHit: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Assertion 2: as__ReplaceEnOneHotMatchesReplacementIdx: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 3: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 4: as__ReplaceEnOneHot: assert property($countones(pseudoLRU.replace_en) == 1);
+Assertion 5: as__ReplacementIdxMatchesReplaceEnNextCycle: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 6: as__PlruTreeQUpdatesNextCycle: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Assertion 7: as__NoAccessNoPlruTreeChange: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Assertion 8: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 9: as__ReplacementIdxOneHotValidNextCycle: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+
+=== PRE-SYNTAX DUPLICATE CHECK ===
+Checking assertion 1: as__PlruTreeUpdateOnAccessHit: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 2: as__ReplaceEnOneHotMatchesReplacementIdx: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 3: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 4: as__ReplaceEnOneHot: assert property($countones(pseudoLRU.replace_en) == 1);
+  -> DUPLICATE (already exists)
+Checking assertion 5: as__ReplacementIdxMatchesReplaceEnNextCycle: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 6: as__PlruTreeQUpdatesNextCycle: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+  -> DUPLICATE (already exists)
+Checking assertion 7: as__NoAccessNoPlruTreeChange: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 8: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 9: as__ReplacementIdxOneHotValidNextCycle: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+  -> DUPLICATE (already exists)
+
+Pre-syntax check results:
+  Unique assertions: 2
+  Duplicate assertions: 7
+==================================================
+
+=== FILTERED DUPLICATE ASSERTIONS (Pre-Syntax Check) ===
+Duplicate 1: as__PlruTreeUpdateOnAccessHit: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Duplicate 2: as__ReplaceEnOneHotMatchesReplacementIdx: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 3: as__ReplaceEnOneHot: assert property($countones(pseudoLRU.replace_en) == 1);
+Duplicate 4: as__ReplacementIdxMatchesReplaceEnNextCycle: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 5: as__PlruTreeQUpdatesNextCycle: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Duplicate 6: as__NoAccessNoPlruTreeChange: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Duplicate 7: as__ReplacementIdxOneHotValidNextCycle: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+======================================================================
+
+=== UNIQUE ASSERTIONS FOR SYNTAX CORRECTION ===
+Unique Assertion 1: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Unique Assertion 2: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+Fixed 2 missing module prefixes on 1 unique internal signals
+
+=== FIXED INTERNAL SIGNALS ===
+Signal 1: ENTRIES -> pseudoLRU.ENTRIES
+======================================================================
+
+Writing unique assertions to property file before syntax correction...
+Writing 2 unique assertions to property file
+Correcting assertion syntax...
+
+Iteration 1
+Running JasperGold...
+Assertions compiled succesfuly
+==================================================
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Property 1: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Parser state statistics (processed 2 assertions in this batch):
+  Before this batch - Total stored properties: 8
+  After this batch  - Total stored properties: 8
+  New properties added in this batch: 2
+  Duplicates found in this batch: 0
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 8
+  Delay dictionary: 8
+  Postcondition dictionary: 8
+  Clauses dictionary: 8
+  Results dictionary: 7
+  Unprocessable properties: 6
+
+✅ Duplicate validation passed!
+
+=== NEW ASSERTIONS ADDED (After Syntax Correction) ===
+Added Assertion 1: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+Added Assertion 2: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+======================================================================
+Found 2 syntactically correct new properties
+
+Duplicate filtering summary:
+  Pre-syntax duplicates filtered: 7
+  Post-syntax duplicates filtered: 0
+  Properties successfully added: 2
+2 NEW PROPERTIES added to the set
+--------------------------------------- FINISHED EXTENSION LOOP ITERATION ---------------------------------------
+
+
+Initial correct assertions for extension iteration 3:
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+
+
+
+Requesting LLM for new assertions...
+Estimated input tokens: 2538
+Stored LLM interaction for extension stage iteration 0
+
+Found 10 assertions in response:
+Assertion 1: as__ReplaceEnOneHot: assert property($countones(pseudoLRU.replace_en) == 1);
+Assertion 2: as__PlruTreeUpdateOnAccessHit: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Assertion 3: as__PlruTreeNoUpdateWithoutAccessHit: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Assertion 4: as__ReplacementIdxMatchesReplaceEn: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 5: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 6: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 7: as__PlruTreeQUpdateNextCycle: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Assertion 8: as__ReplacementEnNextCycle: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 9: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 10: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+
+=== PRE-SYNTAX DUPLICATE CHECK ===
+Checking assertion 1: as__ReplaceEnOneHot: assert property($countones(pseudoLRU.replace_en) == 1);
+  -> DUPLICATE (already exists)
+Checking assertion 2: as__PlruTreeUpdateOnAccessHit: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 3: as__PlruTreeNoUpdateWithoutAccessHit: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 4: as__ReplacementIdxMatchesReplaceEn: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 5: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 6: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 7: as__PlruTreeQUpdateNextCycle: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+  -> DUPLICATE (already exists)
+Checking assertion 8: as__ReplacementEnNextCycle: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 9: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> UNIQUE (new assertion)
+Checking assertion 10: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+  -> UNIQUE (new assertion)
+
+Pre-syntax check results:
+  Unique assertions: 3
+  Duplicate assertions: 7
+==================================================
+
+=== FILTERED DUPLICATE ASSERTIONS (Pre-Syntax Check) ===
+Duplicate 1: as__ReplaceEnOneHot: assert property($countones(pseudoLRU.replace_en) == 1);
+Duplicate 2: as__PlruTreeUpdateOnAccessHit: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Duplicate 3: as__PlruTreeNoUpdateWithoutAccessHit: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Duplicate 4: as__ReplacementIdxMatchesReplaceEn: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 5: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 6: as__PlruTreeQUpdateNextCycle: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Duplicate 7: as__ReplacementEnNextCycle: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+======================================================================
+
+=== UNIQUE ASSERTIONS FOR SYNTAX CORRECTION ===
+Unique Assertion 1: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Unique Assertion 2: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Unique Assertion 3: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+Fixed 2 missing module prefixes on 1 unique internal signals
+
+=== FIXED INTERNAL SIGNALS ===
+Signal 1: ENTRIES -> pseudoLRU.ENTRIES
+======================================================================
+
+Writing unique assertions to property file before syntax correction...
+Writing 3 unique assertions to property file
+Correcting assertion syntax...
+
+Iteration 1
+Running JasperGold...
+Assertions compiled succesfuly
+==================================================
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Property 1: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Property 2: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+
+Parser state statistics (processed 3 assertions in this batch):
+  Before this batch - Total stored properties: 8
+  After this batch  - Total stored properties: 9
+  New properties added in this batch: 3
+  Duplicates found in this batch: 0
+
+Cumulative parser dictionaries:
+  SVA String dictionary: 9
+  Delay dictionary: 9
+  Postcondition dictionary: 9
+  Clauses dictionary: 9
+  Results dictionary: 7
+  Unprocessable properties: 8
+
+✅ Duplicate validation passed!
+
+=== NEW ASSERTIONS ADDED (After Syntax Correction) ===
+Added Assertion 1: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+Added Assertion 2: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+Added Assertion 3: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+======================================================================
+Found 3 syntactically correct new properties
+
+Duplicate filtering summary:
+  Pre-syntax duplicates filtered: 7
+  Post-syntax duplicates filtered: 0
+  Properties successfully added: 3
+3 NEW PROPERTIES added to the set
+--------------------------------------- FINISHED EXTENSION LOOP ITERATION ---------------------------------------
+
+
+Initial correct assertions for extension iteration 4:
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+
+
+
+
+Requesting LLM for new assertions...
+Estimated input tokens: 2632
+Stored LLM interaction for extension stage iteration 0
+
+Found 18 assertions in response:
+Assertion 1: as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Assertion 2: as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Assertion 3: as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 4: as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 5: as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+Assertion 6: as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Assertion 7: as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 8: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+Assertion 9: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 10: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Assertion 11: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 12: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+Assertion 13: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 14: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 15: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 16: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 17: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Assertion 18: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+
+=== PRE-SYNTAX DUPLICATE CHECK ===
+Checking assertion 1: as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 2: as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 3: as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 4: as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 5: as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+  -> DUPLICATE (already exists)
+Checking assertion 6: as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+  -> DUPLICATE (already exists)
+Checking assertion 7: as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 8: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+  -> DUPLICATE (already exists)
+Checking assertion 9: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 10: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+  -> DUPLICATE (already exists)
+Checking assertion 11: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 12: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+  -> DUPLICATE (already exists)
+Checking assertion 13: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 14: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 15: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 16: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 17: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+  -> DUPLICATE (already exists)
+Checking assertion 18: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+  -> DUPLICATE (already exists)
+
+Pre-syntax check results:
+  Unique assertions: 0
+  Duplicate assertions: 18
+==================================================
+
+=== FILTERED DUPLICATE ASSERTIONS (Pre-Syntax Check) ===
+Duplicate 1: as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+Duplicate 2: as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Duplicate 3: as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 4: as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 5: as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+Duplicate 6: as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+Duplicate 7: as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 8: as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+Duplicate 9: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 10: as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+Duplicate 11: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 12: as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+Duplicate 13: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 14: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 15: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 16: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 17: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Duplicate 18: as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+======================================================================
+
+No unique assertions found after pre-syntax duplicate check. Skipping syntax correction.
+0 NEW PROPERTIES added to the set
+
+Updating property file with complete set of assertions...
+Before update: self.assertions has 18 assertions
+Before update: self.initial_assertions has 18 assertions
+Property file now contains 18 total assertions
+After update: self.assertions has 18 assertions
+
+Running JasperGold after set extension to get fresh verification results for complete assertion set...
+[1]   pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[10]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[12]  pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid
+[17]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+[20]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid                                        proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid
+[22]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                                            cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+[25]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid                                                  proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid
+[28]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                                   cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+[31]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid
+[34]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+[37]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                                      cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+[40]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                                         cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+[43]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                                    cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+[46]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                                          cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+[49]  pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle                                              proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle
+
+
+Name - SVA String Pairs
+Name: as__AccessUpdateeotid || Clauses: as__AccessUpdateeotid:assertproperty(access_hit_i&&pseudoLRU.access_array==(1<<access_idx_i)|->pseudoLRU.plru_tree_d!=pseudoLRU.plru_tree_q);
+Name: as__NoAccessNoUpdateeotid || Clauses: as__NoAccessNoUpdateeotid:assertproperty(!access_hit_i|->pseudoLRU.plru_tree_d==pseudoLRU.plru_tree_q);
+Name: as__ReplacementIndexMatchesReplaceEneotid || Clauses: as__ReplacementIndexMatchesReplaceEneotid:assertproperty(pseudoLRU.replace_en[replacement_idx_o]);
+Name: as__OnlyOneReplaceEneotid || Clauses: as__OnlyOneReplaceEneotid:assertproperty($countones(pseudoLRU.replace_en)==1);
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Clauses: as__ReplacementIdxReflectsReplaceEnNextCycleeotid:assertproperty(1|=>pseudoLRU.replace_en[replacement_idx_o]);
+Name: as__ReplacementIdxOneHotMatcheotid || Clauses: as__ReplacementIdxOneHotMatcheotid:assertproperty(|pseudoLRU.replace_en&&pseudoLRU.replace_en[replacement_idx_o]);
+Name: as__PlruTreeQUpdateeotid || Clauses: as__PlruTreeQUpdateeotid:assertproperty(1|=>pseudoLRU.plru_tree_q==$past(pseudoLRU.plru_tree_d));
+Name: as__ReplacementIdxOneHotNextCycleeotid || Clauses: as__ReplacementIdxOneHotNextCycleeotid:assertproperty(1|=>(pseudoLRU.replace_en[replacement_idx_o]&&$countones(pseudoLRU.replace_en)==1));
+Name: as__ReplaceEnOneHotNextCycle || Clauses: as__ReplaceEnOneHotNextCycle:assertproperty(1|=>$countones(pseudoLRU.replace_en)==1);
+
+
+Name - Delay Pairs
+Name: as__AccessUpdateeotid || Delay: 0
+Name: as__NoAccessNoUpdateeotid || Delay: 0
+Name: as__ReplacementIndexMatchesReplaceEneotid || Delay: 0
+Name: as__OnlyOneReplaceEneotid || Delay: 0
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Delay: 1
+Name: as__ReplacementIdxOneHotMatcheotid || Delay: 0
+Name: as__PlruTreeQUpdateeotid || Delay: 1
+Name: as__ReplacementIdxOneHotNextCycleeotid || Delay: 1
+Name: as__ReplaceEnOneHotNextCycle || Delay: 1
+
+
+Name - Postcondition Pairs
+Name: as__AccessUpdateeotid || Clauses: ['pseudoLRU.plru_tree_d', '!', '=pseudoLRU.plru_tree_q']
+Name: as__NoAccessNoUpdateeotid || Clauses: ['pseudoLRU.plru_tree_d==pseudoLRU.plru_tree_q']
+Name: as__ReplacementIndexMatchesReplaceEneotid || Clauses: []
+Name: as__OnlyOneReplaceEneotid || Clauses: []
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Clauses: ['pseudoLRU.replace_en[replacement_idx_o]']
+Name: as__ReplacementIdxOneHotMatcheotid || Clauses: []
+Name: as__PlruTreeQUpdateeotid || Clauses: ['pseudoLRU.plru_tree_q==$past(pseudoLRU.plru_tree_d)']
+Name: as__ReplacementIdxOneHotNextCycleeotid || Clauses: ['(', 'pseudoLRU.replace_en[replacement_idx_o]', '&&', '$countones', '(', 'pseudoLRU.replace_en', ')', '==1', ')']
+Name: as__ReplaceEnOneHotNextCycle || Clauses: ['$countones', '(', 'pseudoLRU.replace_en', ')', '==1']
+
+
+Name - Clause Pairs
+Name: as__AccessUpdateeotid || Clauses: [['access_hit_i'], ['pseudoLRU.access_array==(1<<access_idx_i']]
+Name: as__NoAccessNoUpdateeotid || Clauses: [['access_hit_i', 'pseudoLRU.plru_tree_d==pseudoLRU.plru_tree_q']]
+Name: as__ReplacementIndexMatchesReplaceEneotid || Clauses: [['pseudoLRU.replace_en[replacement_idx_o]']]
+Name: as__OnlyOneReplaceEneotid || Clauses: [['$countones']]
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Clauses: [['!1', 'pseudoLRU.replace_en[replacement_idx_o]']]
+Name: as__ReplacementIdxOneHotMatcheotid || Clauses: [[['REDUCTION', '|', 'pseudoLRU.replace_en']], ['pseudoLRU.replace_en[replacement_idx_o]']]
+Name: as__PlruTreeQUpdateeotid || Clauses: [['!1', 'pseudoLRU.plru_tree_q==$past(pseudoLRU.plru_tree_d']]
+Name: as__ReplacementIdxOneHotNextCycleeotid || Clauses: [['1']]
+Name: as__ReplaceEnOneHotNextCycle || Clauses: [['1']]
+
+
+Name - Proof Result Pairs
+Name: as__AccessUpdateeotid || Proof Result: cex
+Name: as__NoAccessNoUpdateeotid || Proof Result: proven
+Name: as__ReplacementIndexValideotid || Proof Result: proven
+Name: as__ReplacementIndexMatchesReplaceEneotid || Proof Result: proven
+Name: as__OnlyOneReplaceEneotid || Proof Result: proven
+Name: as__PlruTreeNoChangeWithoutAccesseotid || Proof Result: proven
+Name: as__ReplacementIdxReflectsReplaceEnNextCycleeotid || Proof Result: proven
+Name: as__ReplacementIdxOneHotMatcheotid || Proof Result: proven
+Name: as__ReplacementIdxInRangeeotid || Proof Result: cex
+Name: as__PlruTreeQUpdateeotid || Proof Result: proven
+Name: as__ReplacementIdxInRangeNextCycleeotid || Proof Result: cex
+Name: as__ReplacementIdxOneHotNextCycleeotid || Proof Result: proven
+Name: as__ReplacementIdxValidNextCycleeotid || Proof Result: cex
+Name: as__ReplacementIdxValidWhenReplaceEn || Proof Result: cex
+Name: as__ReplacementIdxStableNextCycle || Proof Result: cex
+Name: as__ReplacementIdxInRangeWhenReplaceEn || Proof Result: cex
+Name: as__ReplacementIdxValidNextCycle || Proof Result: cex
+Name: as__ReplaceEnOneHotNextCycle || Proof Result: proven
+Stored property file version for after_extension stage at ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_extension.sv
+[1]   pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[10]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[12]  pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid
+[17]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+[20]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid                                        proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid
+[22]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                                            cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+[25]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid                                                  proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid
+[28]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                                   cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+[31]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid
+[34]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+[37]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                                      cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+[40]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                                         cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+[43]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                                    cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+[46]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                                          cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+[49]  pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle                                              proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle
+
+Starting to fix unproven assertions...
+Stored property file version for after_extension stage at ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_extension.sv
+Running JasperGold to get fresh property results...
+[1]   pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[10]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[12]  pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeNoChangeWithoutAccesseotid
+[17]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+[20]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid                                        proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid
+[22]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                                            cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+[25]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid                                                  proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid
+[28]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                                   cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+[31]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid
+[34]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+[37]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                                      cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+[40]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                                         cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+[43]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                                    cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+[46]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                                          cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+[49]  pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle                                              proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle
+
+Found 8 unproven assertions to fix
+Found 9 proven assertions
+
+Processing unproven assertion: as__AccessUpdateeotid
+Original assertion: as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+
+Attempt 1 of 5
+Estimated input tokens: 2273
+
+
+Full LLM Response:
+// The original assertion fails because it compares the combinational next-state plru_tree_d to the current-state plru_tree_q in the same cycle using a same-cycle implication (|->). However, plru_tree_d is combinationally assigned and updated to plru_tree_q only on the next clock edge. Therefore, the change in plru_tree_q reflecting the update should be checked in the next cycle. Also, the precondition should ensure that exactly one bit of access_array is set corresponding to access_idx_i, and access_hit_i is true.
+// The fix is to use a next-cycle assertion (|=>) to check that when there is a hit and the access_array matches the access_idx_i, the updated plru_tree_q in the next cycle differs from the previous plru_tree_q, indicating the PLRU tree was updated. The postcondition uses $past() to refer to the previous plru_tree_q value before the update.
+// This approach respects pipeline timing and the semantics of _q and _d signals, and works for any ENTRIES size.
+
+as__AccessUpdateeotid: assert property (access_hit_i && (access_array == (1 << access_idx_i)) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__AccessUpdateeotid: assert property (access_hit_i && (access_array == (1 << access_idx_i)) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Selected last assertion from response: as__AccessUpdateeotid: assert property (access_hit_i && (access_array == (1 << access_idx_i)) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Attempt 2 of 5
+Estimated input tokens: 2324
+
+
+Full LLM Response:
+// The original assertion fails because it compares plru_tree_d and plru_tree_q in the same cycle using a same-cycle implication (|->), but plru_tree_d is combinational and plru_tree_q is registered. The update to plru_tree_q reflecting plru_tree_d happens in the next cycle. Therefore, the assertion should check that plru_tree_q changes in the next cycle after access_hit_i and access_array are valid.  
+// The fix is to use a next-cycle assertion (|=>) that checks that plru_tree_q in the next cycle differs from its previous value ($past), indicating the PLRU tree was updated correctly after a hit. Also, the precondition should use the wire access_array, not pseudoLRU.access_array, since access_array is a local wire in the module.  
+// This assertion ensures that when there is a hit at access_idx_i, the PLRU tree register updates in the next cycle.
+
+as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Stored LLM interaction for correction stage iteration 2
+
+Found 1 assertions in response:
+Assertion 1: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Selected last assertion from response: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Attempt 3 of 5
+Estimated input tokens: 2366
+
+
+Full LLM Response:
+// Check that when there is a hit and access_array matches the accessed index, the plru_tree_q updates in the next cycle
+as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Stored LLM interaction for correction stage iteration 3
+
+Found 1 assertions in response:
+Assertion 1: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Selected last assertion from response: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Attempt 4 of 5
+Estimated input tokens: 2409
+
+
+Full LLM Response:
+// Check that when there is a hit and access_array matches the accessed index, the plru_tree updates in the next cycle
+as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Stored LLM interaction for correction stage iteration 4
+
+Found 1 assertions in response:
+Assertion 1: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Selected last assertion from response: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Attempt 5 of 5
+Estimated input tokens: 2451
+
+
+Full LLM Response:
+// Check that when there is a hit and access_array matches the accessed index, the plru_tree updates in the next cycle
+as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Stored LLM interaction for correction stage iteration 5
+
+Found 1 assertions in response:
+Assertion 1: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+
+Selected last assertion from response: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Failed to fix assertion as__AccessUpdateeotid after 5 attempts
+
+Processing unproven assertion: as__ReplacementIdxInRangeeotid
+Original assertion: as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2269
+
+
+Full LLM Response:
+// Check that when replace_en is asserted, replacement_idx_o is within valid range
+as__ReplacementIdxInRangeeotid: assert property (|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__ReplacementIdxInRangeeotid: assert property (|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+Selected last assertion from response: as__ReplacementIdxInRangeeotid: assert property (|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+Successfully fixed assertion as__ReplacementIdxInRangeeotid after 1 attempts
+
+Processing unproven assertion: as__ReplacementIdxInRangeNextCycleeotid
+Original assertion: as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2271
+
+
+Full LLM Response:
+1. The current assertion is failing because it uses a next-cycle implication (|=>) with the postcondition referencing the wire replacement_idx_o in the same cycle as replace_en is asserted. However, replace_en is an internal signal derived combinationally from plru_tree_q, and replacement_idx_o is also combinationally assigned from replace_en in the same cycle. The assertion checks replacement_idx_o in the next cycle after replace_en is asserted, which is incorrect timing. The replacement_idx_o output is combinational and valid in the same cycle as replace_en. Also, the assertion does not consider that replace_en might be zero (no replacement enabled), so the precondition should check that replace_en has at least one bit set.
+
+2. The fix is to use a same-cycle implication (|->) so that when replace_en has any bit set (|pseudoLRU.replace_en), then replacement_idx_o must be within the valid range in the same cycle. This matches the combinational logic behavior of replacement_idx_o. Also, the precondition should check that replace_en is not zero (|pseudoLRU.replace_en) rather than replace_en being enabled as a single bit. This ensures the assertion only triggers when a replacement candidate is valid.
+
+3. Corrected assertion:
+
+as__ReplacementIdxInRangeNextCycleeotid: assert property (|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__ReplacementIdxInRangeNextCycleeotid: assert property (|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+Selected last assertion from response: as__ReplacementIdxInRangeNextCycleeotid: assert property (|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+Successfully fixed assertion as__ReplacementIdxInRangeNextCycleeotid after 1 attempts
+
+Processing unproven assertion: as__ReplacementIdxValidNextCycleeotid
+Original assertion: as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2271
+
+
+Full LLM Response:
+// Check that when replace_en is asserted, replacement_idx_o is within valid range in the next cycle
+as__ReplacementIdxValidNextCycleeotid: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && (|pseudoLRU.replace_en));
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__ReplacementIdxValidNextCycleeotid: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && (|pseudoLRU.replace_en));
+
+Selected last assertion from response: as__ReplacementIdxValidNextCycleeotid: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && (|pseudoLRU.replace_en));
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+Successfully fixed assertion as__ReplacementIdxValidNextCycleeotid after 1 attempts
+
+Processing unproven assertion: as__ReplacementIdxValidWhenReplaceEn
+Original assertion: as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2270
+
+
+Full LLM Response:
+// The original assertion fails because replacement_idx_o is assigned combinationally from replace_en, which is derived from plru_tree_q (a register updated on clk_i). The replace_en signals and replacement_idx_o reflect the current plru_tree_q state, but replace_en is not guaranteed to have exactly one bit set every cycle. Also, the assertion checks replacement_idx_o inside a range, but replacement_idx_o could be '0' when no replace_en bits are set, or multiple bits in replace_en could be zero, causing replacement_idx_o to be invalid. The assertion should check that when replace_en has any bit set (|replace_en), replacement_idx_o is within range and that replace_en[replacement_idx_o] is asserted. Since replace_en is combinational from plru_tree_q, and plru_tree_q is registered, the assertion should be next-cycle (|=>) to check replacement_idx_o and replace_en against the previous cycle's plru_tree_q.  
+// The fix is to assert that when replace_en has any bit set (|pseudoLRU.replace_en), then replacement_idx_o is within range and replace_en[replacement_idx_o] is 1, using a next-cycle assertion referencing $past(pseudoLRU.plru_tree_q) to derive $past(pseudoLRU.replace_en). This ensures the assertion checks the stable registered state and the combinational output derived from it.  
+as__ReplacementIdxValidWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]} && $past(pseudoLRU.replace_en[replacement_idx_o])));
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__ReplacementIdxValidWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]} && $past(pseudoLRU.replace_en[replacement_idx_o])));
+
+Selected last assertion from response: as__ReplacementIdxValidWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]} && $past(pseudoLRU.replace_en[replacement_idx_o])));
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+Successfully fixed assertion as__ReplacementIdxValidWhenReplaceEn after 1 attempts
+
+Processing unproven assertion: as__ReplacementIdxStableNextCycle
+Original assertion: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2270
+
+
+Full LLM Response:
+1. The current assertion as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]}); is failing because it checks that replacement_idx_o is within range in the next cycle when replace_en is asserted in the current cycle. However, replacement_idx_o is a wire assigned combinationally from replace_en and other signals in the same cycle. The assertion uses a next-cycle implication (|=>) but references replacement_idx_o in the next cycle, which is not a registered signal. This means the assertion is checking the value of replacement_idx_o one cycle after replace_en is asserted, but replacement_idx_o is combinational and changes in the same cycle as replace_en. Also, the assertion does not consider that replace_en is a vector and may have multiple bits set, but replacement_idx_o is assigned only once to the first set bit in replace_en. The assertion should check replacement_idx_o in the same cycle as replace_en is asserted.
+
+2. The proposed fix is to change the assertion to a same-cycle implication (|->) so that the precondition and postcondition are evaluated in the same cycle. This matches the combinational nature of replacement_idx_o. Also, the assertion should check that replacement_idx_o is within the valid range [0:ENTRIES-1] when any bit of replace_en is set. This ensures that the replacement index output is valid whenever a replacement is enabled. Using the correct module prefix pseudoLRU. for internal signals is maintained.
+
+3. Corrected assertion:
+
+as__ReplacementIdxStableNextCycle: assert property (|pseudoLRU.replace_en |-> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Stored LLM interaction for correction stage iteration 1
+
+Found 2 assertions in response:
+Assertion 1: as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+Assertion 2: as__ReplacementIdxStableNextCycle: assert property (|pseudoLRU.replace_en |-> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+Selected last assertion from response: as__ReplacementIdxStableNextCycle: assert property (|pseudoLRU.replace_en |-> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+Successfully fixed assertion as__ReplacementIdxStableNextCycle after 1 attempts
+
+Processing unproven assertion: as__ReplacementIdxInRangeWhenReplaceEn
+Original assertion: as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2271
+
+
+Full LLM Response:
+1. The current assertion might be failing because it checks the replacement_idx_o range in the same cycle as replace_en is asserted (same-cycle assertion |->). However, replacement_idx_o is assigned combinationally from replace_en, which is derived from plru_tree_q, a registered signal updated on clk_i. The replace_en signals are combinational but depend on plru_tree_q (registered). The assertion does not consider that replacement_idx_o reflects the combinational logic based on the current plru_tree_q, but replace_en and replacement_idx_o are combinational signals. The assertion should check replacement_idx_o in the same cycle as replace_en is asserted, but the replace_en signals are combinational and depend on plru_tree_q, which updates next cycle. So the assertion might fail if replace_en is not stable or if replacement_idx_o is not valid in the same cycle as replace_en. Also, the assertion uses pseudoLRU.replace_en, but replace_en is an internal signal, not an output or input, so the prefix might be incorrect or missing.
+
+2. The fix is to use a next-cycle assertion (|=>) to check that when replace_en is asserted in the current cycle (precondition), the replacement_idx_o in the next cycle is within range. Since replacement_idx_o is combinationally assigned from replace_en, and replace_en depends on plru_tree_q (registered), the replacement_idx_o will be stable in the next cycle after replace_en is asserted. Also, the assertion should use the internal signal prefix pseudoLRU.replace_en (which is internal logic) and pseudoLRU.replacement_idx_o (output). The assertion should check that when replace_en is asserted (any bit), then in the next cycle replacement_idx_o is inside the valid range. Using |=> allows checking the registered output in the next cycle, consistent with pipeline behavior.
+
+3. Corrected assertion:
+
+as__ReplacementIdxInRangeWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__ReplacementIdxInRangeWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+Selected last assertion from response: as__ReplacementIdxInRangeWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+Successfully fixed assertion as__ReplacementIdxInRangeWhenReplaceEn after 1 attempts
+
+Processing unproven assertion: as__ReplacementIdxValidNextCycle
+Original assertion: as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Attempt 1 of 5
+Estimated input tokens: 2269
+
+
+Full LLM Response:
+// The original assertion fails because replacement_idx_o is a wire updated combinationally in the same cycle as replace_en, but the assertion uses a next-cycle implication (|=>), which checks replacement_idx_o in the next cycle, when it may have changed or be invalid. Also, replace_en is internal and registered as pseudoLRU.replace_en, so the assertion should refer to pseudoLRU.replace_en_q for stable registered value in the next cycle. The fix is to check that when replace_en_q has any bit set, replacement_idx_o matches one of the indices with replace_en_q set, using a next-cycle assertion referencing pseudoLRU.replace_en_q and replacement_idx_o, and using $past() on replacement_idx_o to refer to the value in the precondition cycle. This ensures the assertion checks the registered enable signals and the corresponding replacement index consistently.
+
+// Corrected assertion:
+as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en_q |=> $past(replacement_idx_o) inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]} & (pseudoLRU.replace_en_q[$past(replacement_idx_o)] == 1'b1));
+Stored LLM interaction for correction stage iteration 1
+
+Found 1 assertions in response:
+Assertion 1: as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en_q |=> $past(replacement_idx_o) inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]} & (pseudoLRU.replace_en_q[$past(replacement_idx_o)] == 1'b1));
+
+Selected last assertion from response: as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en_q |=> $past(replacement_idx_o) inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]} & (pseudoLRU.replace_en_q[$past(replacement_idx_o)] == 1'b1));
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                         cex
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+
+Attempt 2 of 5
+Estimated input tokens: 2334
+
+
+Full LLM Response:
+// Check that when replace_en is asserted, replacement_idx_o is a valid index within range in the next cycle
+as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && pseudoLRU.replace_en[replacement_idx_o]);
+Stored LLM interaction for correction stage iteration 2
+
+Found 1 assertions in response:
+Assertion 1: as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && pseudoLRU.replace_en[replacement_idx_o]);
+
+Selected last assertion from response: as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && pseudoLRU.replace_en[replacement_idx_o]);
+[1]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+Successfully fixed assertion as__ReplacementIdxValidNextCycle after 2 attempts
+
+Running JasperGold with all final assertions to collect complete results...
+[1]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[9]   pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[11]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid                                        proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid
+[16]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid                                                  proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid
+[19]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid
+[22]  pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle                                              proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle
+[25]  pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[28]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+[31]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                                   proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+[34]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                                     proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+[37]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                                      proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+[40]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+[43]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+[46]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                                          proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+Final comprehensive results collected for 17 assertions
+
+=== CORRECTION ATTEMPTS SUMMARY ===
+
+Assertion: as__AccessUpdateeotid
+Original assertion:
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+
+Correction attempts:
+Attempt 1: as__AccessUpdateeotid: assert property (access_hit_i && (access_array == (1 << access_idx_i)) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Attempt 2: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Attempt 3: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Attempt 4: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+Attempt 5: as__AccessUpdateeotid: assert property ((access_hit_i && (access_array == (1 << access_idx_i))) |=> (pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)));
+----------------------------------------------------------------------
+
+Assertion: as__ReplacementIdxInRangeeotid
+Original assertion:
+as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Correction attempts:
+Attempt 1: as__ReplacementIdxInRangeeotid: assert property (|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+----------------------------------------------------------------------
+
+Assertion: as__ReplacementIdxInRangeNextCycleeotid
+Original assertion:
+as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Correction attempts:
+Attempt 1: as__ReplacementIdxInRangeNextCycleeotid: assert property (|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+----------------------------------------------------------------------
+
+Assertion: as__ReplacementIdxValidNextCycleeotid
+Original assertion:
+as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Correction attempts:
+Attempt 1: as__ReplacementIdxValidNextCycleeotid: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && (|pseudoLRU.replace_en));
+----------------------------------------------------------------------
+
+Assertion: as__ReplacementIdxValidWhenReplaceEn
+Original assertion:
+as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Correction attempts:
+Attempt 1: as__ReplacementIdxValidWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]} && $past(pseudoLRU.replace_en[replacement_idx_o])));
+----------------------------------------------------------------------
+
+Assertion: as__ReplacementIdxStableNextCycle
+Original assertion:
+as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Correction attempts:
+Attempt 1: as__ReplacementIdxStableNextCycle: assert property (|pseudoLRU.replace_en |-> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+----------------------------------------------------------------------
+
+Assertion: as__ReplacementIdxInRangeWhenReplaceEn
+Original assertion:
+as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Correction attempts:
+Attempt 1: as__ReplacementIdxInRangeWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+----------------------------------------------------------------------
+
+Assertion: as__ReplacementIdxValidNextCycle
+Original assertion:
+as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]});
+
+Correction attempts:
+Attempt 1: as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en_q |=> $past(replacement_idx_o) inside {[0:pseudoLRU.pseudoLRU.ENTRIES-1]} & (pseudoLRU.replace_en_q[$past(replacement_idx_o)] == 1'b1));
+Attempt 2: as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && pseudoLRU.replace_en[replacement_idx_o]);
+----------------------------------------------------------------------
+
+=== SEMANTIC CORRECTION RESULTS ===
+Successfully corrected assertions: 7
+Failed to correct assertions: 1
+Total unproven assertions processed: 8
+
+Final property file contents:
+module pseudoLRU_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter int unsigned ENTRIES = 8
+)(
+		input logic clk_i,
+		input logic rstn_i,
+		
+		input logic access_hit_i, // only update the PLRU when there is a hit in the storage mechanism
+		input logic [$clog2(ENTRIES)-1:0] access_idx_i,
+		input  logic [$clog2(ENTRIES)-1:0] replacement_idx_o //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rstn_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+
+as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+
+as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+
+as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+
+as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+
+as__ReplacementIdxInRangeeotid: assert property (|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+as__ReplacementIdxInRangeNextCycleeotid: assert property (|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+as__ReplacementIdxValidNextCycleeotid: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && (|pseudoLRU.replace_en));
+
+as__ReplacementIdxValidWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]} && $past(pseudoLRU.replace_en[replacement_idx_o])));
+
+as__ReplacementIdxStableNextCycle: assert property (|pseudoLRU.replace_en |-> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+as__ReplacementIdxInRangeWhenReplaceEn: assert property (|pseudoLRU.replace_en |=> pseudoLRU.replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+
+as__ReplacementIdxValidNextCycle: assert property (|pseudoLRU.replace_en |=> (replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]}) && pseudoLRU.replace_en[replacement_idx_o]);
+
+endmodule
+
+Stored property file version for after_semantic_correction stage at ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_semantic_correction.sv
+
+Creating proven-only property file...
+[1]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[9]   pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[11]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid                                        proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid
+[16]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid                                                  proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid
+[19]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid
+[22]  pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle                                              proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle
+[25]  pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[28]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+[31]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                                   proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+[34]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                                     proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+[37]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                                      proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+[40]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+[43]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+[46]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                                          proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+Created proven-only property file: ft_pseudoLRU/sva/pseudoLRU_prop_only_proven.sv
+Proven assertions: 16
+Failing assertions: 1 (commented out)
+Total assertions: 17
+[1]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[9]   pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[11]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid                                        proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid
+[16]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid                                                  proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid
+[19]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid
+[22]  pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle                                              proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle
+[25]  pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[28]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+[31]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                                   proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+[34]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                                     proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+[37]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                                      proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+[40]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+[43]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+[46]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                                          proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+Stored property file version for after_semantic_correction stage at ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_semantic_correction.sv
+
+Creating proven-only property file...
+[1]   pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__NoAccessNoUpdateeotid
+[4]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexValideotid
+[7]   pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIndexMatchesReplaceEneotid
+[9]   pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid                                                 proven
+pseudoLRU.u_pseudoLRU_sva.as__OnlyOneReplaceEneotid
+[11]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxReflectsReplaceEnNextCycleeotid
+[14]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid                                        proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotMatcheotid
+[16]  pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid                                                  proven
+pseudoLRU.u_pseudoLRU_sva.as__PlruTreeQUpdateeotid
+[19]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxOneHotNextCycleeotid
+[22]  pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle                                              proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplaceEnOneHotNextCycle
+[25]  pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid                                                     cex
+pseudoLRU.u_pseudoLRU_sva.as__AccessUpdateeotid
+[28]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid                                            proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeeotid
+[31]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid                                   proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeNextCycleeotid
+[34]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid                                     proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycleeotid
+[37]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn                                      proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidWhenReplaceEn
+[40]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle                                         proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxStableNextCycle
+[43]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn                                    proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxInRangeWhenReplaceEn
+[46]  pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle                                          proven
+pseudoLRU.u_pseudoLRU_sva.as__ReplacementIdxValidNextCycle
+Created proven-only property file: ft_pseudoLRU/sva/pseudoLRU_prop_only_proven.sv
+Proven assertions: 16
+Failing assertions: 1 (commented out)
+Total assertions: 17
+
+================================================================================
+🚀 AI-SVA AGENT EXECUTION REPORT
+================================================================================
+
+📊 RTL MODULE ANALYSIS
+----------------------------------------
+Number of unique submodules:     0
+Total submodule instances:       0
+RTL module lines:                77
+Module type:                     Sequential
+
+📝 ASSERTION METRICS
+----------------------------------------
+Initial assertions:              7
+After syntax correction:         7
+After property set expansion:    18
+Added during expansion:          11
+Final assertions:                17
+
+🔧 AUTOMATIC SYNTACTICAL FIXES
+----------------------------------------
+Module prefix fixes:             13
+Duplicate name fixes:            0
+Total automatic fixes:           13
+
+✅ VERIFICATION RESULTS (Before Semantic Correction)
+----------------------------------------
+Passing assertions:              10
+Failing assertions:              8
+Undefined assertions:            0
+Total verified:                  18
+
+✅ VERIFICATION RESULTS (After Semantic Correction)
+----------------------------------------
+Passing assertions:              16
+Failing assertions:              1
+Undefined assertions:            0
+Total verified:                  17
+Improvement: +6 passing, -7 failing
+
+🎯 SEMANTIC CORRECTION RESULTS
+----------------------------------------
+Successfully corrected:          7
+Failed to correct:               1
+
+🕒 EXECUTION TIMING
+----------------------------------------
+Total execution time:            350.58s
+Preprocessing:                   0.09s (0.0%)
+Syntax correction:               16.20s (4.6%)
+Property set extension:          140.00s (39.9%)
+Semantic correction:             194.12s (55.4%)
+Core processing time:            350.40s (100.0%)
+JasperFPV time:                  234.38s (66.9%)
+LLM time:                        108.48s (30.9%)
+Other processing time:           7.54s (2.1%)
+
+🔢 LLM API USAGE STATISTICS
+----------------------------------------
+Total input tokens:              42,311
+Total output tokens:             3,825
+Total tokens:                    46,136
+Total API calls:                 18
+Syntax correction API calls:     0
+Semantic correction API calls:   13
+Avg input tokens per call:       2350.6
+Avg output tokens per call:      212.5
+Avg total tokens per call:       2563.1
+================================================================================
+
+=== COMPREHENSIVE EXECUTION REPORT ===
+RTL Analysis: 0 unique submodules, 0 instances, 77 lines, Sequential type
+Assertion Counts: 7 initial → 7 after syntax → 18 after expansion → 17 final
+Automatic Fixes: 13 prefix fixes, 0 name fixes
+Verification (Before): 10 passing, 8 failing
+Verification (After): 16 passing, 1 failing
+Semantic Correction: 7 corrected, 1 failed
+Timing: 350.58s total (0.09s preprocessing, 16.20s syntax, 140.00s extension, 194.12s semantic)
+Fine-grained Timing: 234.38s JasperFPV, 108.48s LLM
+API Usage: 46,136 tokens (42,311 input, 3,825 output), 18 calls (0 syntax, 13 semantic)
+==================================================
+Comprehensive results saved to: ft_pseudoLRU/sva/comprehensive_results.txt
+
+📁 PROPERTY FILE VERSIONS CREATED
+----------------------------------------
+Initial: ft_pseudoLRU/sva/versions/pseudoLRU_prop_initial.sv
+After Syntax: ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_syntax.sv
+After Extension: ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_extension.sv
+After Semantic Correction: ft_pseudoLRU/sva/versions/pseudoLRU_prop_after_semantic_correction.sv
+================================================================================
+[2025-08-23 06:32:21] [INFO] Agent execution completed
+================================================================================

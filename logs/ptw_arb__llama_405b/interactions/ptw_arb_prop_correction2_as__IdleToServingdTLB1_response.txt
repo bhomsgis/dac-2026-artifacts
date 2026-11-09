@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking the value of `ptw_arb.tlb_ptw_comm_o` in the same cycle as the precondition, but `ptw_arb.tlb_ptw_comm_o` is a wire that is assigned a value in the same cycle based on the current state and inputs. However, the value of `ptw_arb.tlb_ptw_comm_o` is not guaranteed to be updated yet, as it is a combinational logic output.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), and to use `$past()` to refer to the value of `dtlb_ptw_comm_i` in the previous cycle. However, this was already attempted and did not work.
+
+Upon further analysis, the issue is that the assertion is not considering the case where `is_req_waiting_q` is 1, which would cause `tlb_ptw_comm_o` to be assigned the value of `itlb_req_waiting_q` instead of `dtlb_ptw_comm_i`.
+
+Here is the corrected assertion:
+
+`as__IdleToServingdTLB1: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && ptw_arb.is_req_waiting_q == 1'b0 |-> ptw_arb.tlb_ptw_comm_o == dtlb_ptw_comm_i);`
+
+This assertion checks that when the current state is IDLE, `dtlb_ptw_comm_i.req.valid` is 1, and `is_req_waiting_q` is 0, then `tlb_ptw_comm_o` is equal to `dtlb_ptw_comm_i` in the same cycle.

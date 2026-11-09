@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if `ptw.ptw_dmem_comm_o.req.valid` is equal to `(ptw.current_state == ptw.S_REQ)` in the same cycle. However, in the RTL, `ptw.ptw_dmem_comm_o.req.valid` is assigned to 1'b1 only when `ptw.current_state` is `S_REQ` and certain conditions are met (e.g., `pte_cache_hit` is 0 or `count_q` is equal to `LEVELS-1`). Therefore, the assertion is too restrictive and does not account for these conditions.
+
+To fix this, we need to modify the assertion to only check if `ptw.ptw_dmem_comm_o.req.valid` is 1'b1 when `ptw.current_state` is `S_REQ` and the conditions for sending a request are met.
+
+Here is the corrected assertion:
+
+```
+as__ptwPtwReqValid: assert property(ptw.current_state == ptw.S_REQ && !(ptw.pte_cache_hit && (ptw.count_q < $unsigned(LEVELS-1))) |-> ptw.ptw_dmem_comm_o.req.valid);
+```
+
+This assertion checks if `ptw.ptw_dmem_comm_o.req.valid` is 1'b1 when `ptw.current_state` is `S_REQ` and the conditions for sending a request are met (i.e., `pte_cache_hit` is 0 or `count_q` is equal to `LEVELS-1`).

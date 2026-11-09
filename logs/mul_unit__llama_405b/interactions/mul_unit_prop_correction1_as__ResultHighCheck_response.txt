@@ -1,0 +1,11 @@
+The current assertion is failing because it is not considering the pipeline behavior and timing of the `mul_unit` module. The `result_high_d` signal is calculated in the same cycle as the `valid_i` signal, but it is not yet registered. Therefore, when `valid_i` is high, `result_high_d` may not yet have the correct value.
+
+To fix this, we need to consider the registered value of `result_high_d`, which is `result_high_q`. However, we also need to consider the timing of the pipeline. The `result_high_q` signal is registered one cycle after `valid_i` is high. Therefore, we need to use a next-cycle assertion (`|=>`) to check the value of `result_high_q` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__ResultHighCheck: assert property((valid_i) |=> (mul_unit.result_high_q == $past(mul_unit.data_rs1_q) * $past(mul_unit.data_rs2_q[mul_unit.WIDTH-1:(mul_unit.WIDTH/2)])));
+```
+
+In this assertion, we use `$past()` to refer to the values of `data_rs1_q` and `data_rs2_q` in the previous cycle, when `valid_i` was high. We then compare the registered value of `result_high_q` in the current cycle with the expected result of the multiplication.

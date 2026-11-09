@@ -1,0 +1,6 @@
+The current assertion `as__StateTransition7` is failing because it does not account for the case where `ptw_arb.is_req_waiting_q` becomes 1 in the same cycle due to both `itlb_ptw_comm_i.req.valid` and `dtlb_ptw_comm_i.req.valid` being high. In this case, the next state should still be `SERVING_dTLB`, not `SERVING_iTLB`.
+
+To fix this, we need to modify the assertion to consider the case where `ptw_arb.is_req_waiting_q` becomes 1 in the same cycle. We can do this by adding a condition to check if `ptw_arb.is_req_waiting_q` is 0 in the current cycle and `itlb_ptw_comm_i.req.valid` is 1, and `dtlb_ptw_comm_i.req.valid` is 0.
+
+Here is the corrected assertion:
+as__StateTransition7: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) && (!ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB) && ($past(ptw_arb.is_req_waiting_q) == 1'b0) && ($past(itlb_ptw_comm_i.req.valid) && !$past(dtlb_ptw_comm_i.req.valid)));

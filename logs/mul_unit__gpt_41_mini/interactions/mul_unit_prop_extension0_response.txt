@@ -1,0 +1,49 @@
+// Check that neg_q_final matches neg_q delayed by one cycle when valid_q[0] is set and not flushed at stage 1
+as__NegQFinalMatchesNegQ: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.neg_q_final == $past(mul_unit.neg_q));
+// Check that op_q_final matches op_q delayed by one cycle when valid_q[0] is set and not flushed at stage 1
+as__OpQFinalMatchesOpQ: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.op_q_final == $past(mul_unit.op_q));
+// Check that op_32bits_q_final matches op_32bits_q delayed by one cycle when valid_q[0] is set and not flushed at stage 1
+as__Op32BitsQFinalMatchesOp32BitsQ: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.op_32bits_q_final == $past(mul_unit.op_32bits_q));
+// Check that result_32_q is updated with result_32 delayed by one cycle when valid_q[0] is set and not flushed at stage 1
+as__Result32QMatchesResult32: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.result_32_q == $past(mul_unit.result_32));
+// Check that result_low_q is updated with result_low_d delayed by one cycle when valid_q[0] is set and not flushed at stage 1
+as__ResultLowQMatchesResultLowD: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.result_low_q == $past(mul_unit.result_low_d));
+// Check that result_high_q is updated with result_high_d delayed by one cycle when valid_q[0] is set and not flushed at stage 1
+as__ResultHighQMatchesResultHighD: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.result_high_q == $past(mul_unit.result_high_d));
+// Check that result_2width is the sum of zero-extended result_low_q and result_high_q shifted by WIDTH/2
+as__Result2WidthSumCorrectGeneral: assert property(mul_unit.result_2width == {{(mul_unit.WIDTH/2){1'b0}}, mul_unit.result_low_q} + {mul_unit.result_high_q, {(mul_unit.WIDTH/2){1'b0}}});
+// Check that result_2width_def is two's complement of result_2width if neg_q_final is set, else equal to result_2width
+as__Result2WidthDefTwoComplementCorrect: assert property(mul_unit.result_2width_def == (mul_unit.neg_q_final ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE) : mul_unit.result_2width));
+// Check that result is selected correctly based on op_32bits_q_final, REG_32, CONFIG32 and op_q_final
+as__ResultSelectionCorrect: assert property(((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) || (mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) || (mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32))) |-> ((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? (mul_unit.result == mul_unit.result_32_q) : (mul_unit.op_q_final == 0 ? (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) : (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]))));
+// Check that valid_o and result_o match valid_q and result signals according to REG_32 and CONFIG32 parameters
+as__ValidOResultOMatchConfig: assert property((mul_unit.REG_32 || mul_unit.CONFIG32 || (!mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> ((mul_unit.REG_32) ? (valid_o == mul_unit.valid_q[1] && result_o == mul_unit.result) : ((mul_unit.CONFIG32) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result) : ((mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result_32) : (valid_o == (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final) && result_o == mul_unit.result)))));
+
+generate for (genvar i = 0; i < mul_unit.WIDTH; i++) begin : gen_data_rs1_q_bits
+    // Check that data_rs1_q bits are updated correctly from data_rs1_d when valid_i and not flushed at stage 0
+    as__DataRs1QBitUpdated: assert property((valid_i && !flush_i[0]) |=> mul_unit.data_rs1_q[i] == mul_unit.data_rs1_d[i]);
+end endgenerate
+
+generate for (genvar j = 0; j < mul_unit.WIDTH; j++) begin : gen_data_rs2_q_bits
+    // Check that data_rs2_q bits are updated correctly from data_rs2_d when valid_i and not flushed at stage 0
+    as__DataRs2QBitUpdated: assert property((valid_i && !flush_i[0]) |=> mul_unit.data_rs2_q[j] == mul_unit.data_rs2_d[j]);
+end endgenerate
+
+// Check that valid_q[1] is cleared when flush_i[1] or !valid_q[0]
+as__ValidQ1ClearedOnFlushOrInvalidQ0: assert property((flush_i[1] || !mul_unit.valid_q[0]) |-> !mul_unit.valid_q[1]);
+// Check that valid_q[1] is set when valid_q[0] and not flushed at stage 1
+as__ValidQ1SetOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |-> mul_unit.valid_q[1]);
+// Check that valid_q[0] is cleared when flush_i[0] or !valid_i
+as__ValidQ0ClearedOnFlushOrInvalid: assert property((flush_i[0] || !valid_i) |-> !mul_unit.valid_q[0]);
+// Check that valid_q[0] is set when valid_i and not flushed at stage 0
+as__ValidQ0SetOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.valid_q[0]);
+// Check that op_q is updated with op_i when valid_i and not flushed at stage 0
+as__OpQUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.op_q == op_i);
+// Check that op_32bits_q is updated with op_32bits_i && (op_i == 0) when valid_i and not flushed at stage 0
+as__Op32BitsQUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)));
+// Check that neg_q is updated with neg_d when valid_i and not flushed at stage 0
+as__NegQUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.neg_q == mul_unit.neg_d);
+// Check that data_rs1_q is updated with data_rs1_d when valid_i and not flushed at stage 0
+as__DataRs1QUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.data_rs1_q == mul_unit.data_rs1_d);
+// Check that data_rs2_q is updated with data_rs2_d when valid_i and not flushed at stage 0
+as__DataRs2QUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.data_rs2_q == mul_unit.data_rs2_d);

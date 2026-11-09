@@ -1,0 +1,1 @@
+as__respValNext: assert property(ptw.resp_val |=> (ptw.current_state == ptw.S_DONE || ptw.current_state == ptw.S_ERROR || ptw.current_state == ptw.S_WAIT));

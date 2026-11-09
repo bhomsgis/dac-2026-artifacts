@@ -1,0 +1,13 @@
+The current assertion is failing because it checks if the `replacement_idx_o` changes whenever there is a hit (`access_hit_i` is high). However, this is not necessarily true. The `replacement_idx_o` only changes when the `plru_tree_q` is updated, which happens on the next clock cycle after a hit.
+
+The proposed fix is to check if the `replacement_idx_o` changes on the next clock cycle after a hit, and also to consider the case where the `plru_tree_q` is updated but the `replacement_idx_o` remains the same (because the new `plru_tree_q` value still points to the same replacement index).
+
+Here is the corrected assertion:
+
+```
+as__ReplacementIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 && pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q |=> replacement_idx_o == cast_integer($onehot0(pseudoLRU.replace_en)));
+```
+
+This assertion checks if, on the next clock cycle after a hit, the `replacement_idx_o` is equal to the index of the first bit set in the `replace_en` vector, which is the expected behavior of the pseudo-LRU algorithm. The `$onehot0` function is used to find the index of the first bit set in the `replace_en` vector. 
+
+Note that this assertion assumes that the `cast_integer` function is correctly implemented and that the `replace_en` vector is one-hot encoded.

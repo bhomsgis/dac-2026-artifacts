@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when there is no hit, no replacement is encoded
+as__PLRUTreeEncodeUniqueNoHit: assert property(!access_hit_i |-> $countones(pseudoLRU.replace_en) == 0);
+```

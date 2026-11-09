@@ -1,0 +1,2 @@
+// Check that is_req_waiting_q is set in the cycle after both req.valid are asserted in IDLE state
+as__IsReqWaitingSetOnlyWhenBothReqValid: assert property((ptw_arb.current_state == ptw_arb.IDLE) |=> (ptw_arb.is_req_waiting_q == ($past(ptw_arb.dtlb_ptw_comm_i.req.valid) && $past(ptw_arb.itlb_ptw_comm_i.req.valid))));

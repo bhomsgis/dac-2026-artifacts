@@ -1,0 +1,12 @@
+Here is the analysis and corrected assertion:
+
+**Why the current assertion might be failing:**
+The current assertion is checking that when the `ptw_arb` is in the `IDLE` state and receives a valid request from the `itlb_ptw_comm_i` interface, and there is no valid request from the `dtlb_ptw_comm_i` interface, then the next state should be `SERVING_iTLB`. However, this assertion does not consider the case where there is a pending request waiting to be served (i.e., `is_req_waiting_q` is 1).
+
+**Proposed fix and why it should work:**
+To fix this assertion, we need to add a condition to check that there is no pending request waiting to be served. We can do this by adding a check for `ptw_arb.is_req_waiting_q == 1'b0`. This ensures that the assertion only checks the case where there is no pending request.
+
+**Corrected assertion:**
+```
+as__IdleToServingiTLB6: assert property(ptw_arb.current_state == ptw_arb.IDLE && itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB);
+```

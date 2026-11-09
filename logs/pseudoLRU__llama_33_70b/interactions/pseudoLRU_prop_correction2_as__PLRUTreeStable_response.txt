@@ -1,0 +1,4 @@
+```systemverilog
+// Check that the PLRU tree remains stable when there is no access hit
+as__PLRUTreeStable: assert property(!access_hit_i |-> pseudoLRU.plru_tree_q == pseudoLRU.plru_tree_d);
+```

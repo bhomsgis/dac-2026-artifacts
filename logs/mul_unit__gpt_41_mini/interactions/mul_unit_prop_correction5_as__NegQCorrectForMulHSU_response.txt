@@ -1,0 +1,2 @@
+// Check that neg_q is correctly set for MULHSU operation considering op_32bits_q and valid_q[0] pipeline timing
+as__NegQCorrectForMulHSU: assert property((mul_unit.op_q == 2 && mul_unit.valid_q[0]) |=> mul_unit.neg_q == (mul_unit.op_32bits_q ? mul_unit.data_rs1_q[31] : mul_unit.data_rs1_q[mul_unit.WIDTH-1]));

@@ -1,0 +1,5 @@
+```systemverilog
+// Check that when a 64-bit multiplication is performed and the result is not 32-bit, 
+// the output result is not invalid.
+as__NoInvalidResult32: assert property(!(valid_o && op_i == mul_unit.MUL && !op_32bits_i && result_o != $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));
+```

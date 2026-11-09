@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking the result of the multiplication in the same cycle as the input is received, but the multiplication operation takes two cycles to complete. 
+
+The assertion is trying to check the result of the multiplication when the operation is MUL (2'b10), but it's not taking into account the pipeline behavior of the design. The result of the multiplication is not available until the next cycle.
+
+To fix this, we need to use a next-cycle assertion (|=>) instead of a same-cycle assertion (|->), and we need to check the result in the next cycle, after the multiplication has been completed.
+
+Here is the corrected assertion:
+
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |=> (result_o == mul_unit.result_2width_def[127:64]));

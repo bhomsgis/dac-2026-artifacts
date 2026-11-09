@@ -1,0 +1,9 @@
+as__fsmNextStateSError: assert property((ptw.current_state == ptw.S_ERROR) |=> (ptw.next_state == ptw.S_READY)); 
+
+This assertion is failing because it does not account for the fact that the `next_state` is updated in the next cycle, and its value in the current cycle is not necessarily the same as the value that will be assigned to `current_state` in the next cycle.
+
+A corrected version of the assertion would be:
+
+as__fsmNextStateSError: assert property((ptw.current_state == ptw.S_ERROR) |=> (ptw.current_state == ptw.S_READY)); 
+
+This assertion checks that if the current state is `S_ERROR`, then in the next cycle, the current state will be `S_READY`. This correctly accounts for the pipeline behavior and timing of the finite state machine.

@@ -1,0 +1,6 @@
+// The original assertion fails because it uses a same-cycle implication (|->) on signals that are registered and updated in the next cycle, and it does not consider the pipeline latency and valid signals properly. The result_32_aux depends on registered signals neg_q and result_low_d, which are only stable in the next cycle after op_i == 2 is sampled. Also, the assertion does not consider the valid pipeline stage signals, which are necessary to ensure the result is valid when checked.
+
+// The fix is to use a next-cycle implication (|=>) that checks the registered outputs (result_32_q) and uses $past() to refer to the inputs and intermediate signals at the time of the precondition. The precondition should check valid_q[0] and op_q == 2 (MULHSU) to ensure the pipeline stage is valid and the operation is correct. The neg_q and result_low_d signals are also referenced with $past() to match the timing of result_32_q. This approach respects the pipeline latency and timing of registered signals.
+
+// Corrected assertion:
+as__Result32AuxCorrectForMulHSU: assert property((mul_unit.valid_q[0] && mul_unit.op_q == 2) |=> mul_unit.result_32_q == ($past(mul_unit.neg_q) ? (~$past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0])));

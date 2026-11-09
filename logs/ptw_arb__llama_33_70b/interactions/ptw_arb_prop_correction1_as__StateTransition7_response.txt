@@ -1,0 +1,6 @@
+The current assertion `as__StateTransition7` might be failing because it does not consider the case where `ptw_arb.is_req_waiting_q` is high and `itlb_ptw_comm_i.req.valid` is also high. In this case, the state should transition to `SERVING_iTLB` regardless of the value of `dtlb_ptw_comm_i.req.valid`. 
+
+The proposed fix is to modify the assertion to consider the value of `ptw_arb.is_req_waiting_q` and `itlb_ptw_comm_i.req.valid` separately. 
+
+The corrected assertion is:
+as__StateTransition7: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) && (!ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB) || (ptw_arb.is_req_waiting_q && ptw_arb.next_state == ptw_arb.SERVING_iTLB));

@@ -1,0 +1,6 @@
+// The assertion fails because dividend_quotient_q is updated in the same cycle as valid_i, but valid_i is a wire and dividend_quotient_q is a register updated on the clock edge. The assignment to dividend_quotient_q happens on the clock edge when valid_i is high, so the correct timing is to check dividend_quotient_q in the next cycle after valid_i is asserted, not in the same cycle. Also, the assertion should consider that dividend_quotient_q is assigned dividend_d, which is combinationally derived from data_rs1_i with sign extension and zero padding depending on CONFIG32 and op_32bits_i. Therefore, the assertion should check that on the next cycle after valid_i, dividend_quotient_q equals dividend_d from the previous cycle (using $past).
+
+// The fix is to use a next-cycle assertion (|=>) with valid_i as precondition and check that dividend_quotient_q equals $past(dividend_d) in the postcondition. This accounts for the register update timing and the combinational assignment of dividend_d.
+
+// Corrected assertion:
+as__DividendQuotientQSetOnValidI: assert property (valid_i |=> (div_unit.dividend_quotient_q == $past(div_unit.dividend_d)));

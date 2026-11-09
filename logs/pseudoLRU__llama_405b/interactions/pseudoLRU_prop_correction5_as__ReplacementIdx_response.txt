@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to check the replacement index in the same cycle as the `replace_en` signal is being asserted. However, the `replacement_idx_o` signal is generated in a separate combinational block that iterates over the `replace_en` array to find the first set bit. This iteration may not complete in the same cycle as the `replace_en` signal is asserted.
+
+The proposed fix is to use a next-cycle assertion to check the replacement index in the next cycle after the `replace_en` signal is asserted. This allows the combinational block to complete its iteration and generate the correct `replacement_idx_o` value.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementIdx: assert property (pseudoLRU.replace_en != 0 |=> cast_integer($onehot($past(pseudoLRU.replace_en))) == $past(replacement_idx_o));
+```
+
+This assertion checks that in the next cycle after `pseudoLRU.replace_en` is non-zero, the `replacement_idx_o` value matches the index of the first set bit in the `pseudoLRU.replace_en` array. The `$past` function is used to refer to the value of `pseudoLRU.replace_en` and `replacement_idx_o` in the previous cycle.

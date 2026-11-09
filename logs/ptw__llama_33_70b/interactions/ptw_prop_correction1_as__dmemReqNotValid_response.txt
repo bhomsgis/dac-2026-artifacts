@@ -1,0 +1,18 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__dmemReqNotValid: assert property(!ptw_dmem_comm_o.req.valid |-> (ptw.current_state != ptw.S_REQ));` checks if the `ptw_dmem_comm_o.req.valid` signal is not asserted, then the current state of the PTW should not be `S_REQ`.
+2. **Identifying the issue**: The assertion might be failing because it does not consider the case when `ptw_dmem_comm_o.req.valid` is not asserted due to the `pte_cache_hit` condition in the `S_REQ` state. In this case, the `ptw_dmem_comm_o.req.valid` signal is not asserted, but the current state is still `S_REQ`.
+3. **Proposed fix**: To fix this issue, we need to modify the assertion to consider the `pte_cache_hit` condition. We can do this by adding a condition to check if `pte_cache_hit` is asserted when the current state is `S_REQ`.
+
+# Fixed solution:
+```systemverilog
+as__dmemReqNotValid: assert property(!ptw_dmem_comm_o.req.valid |-> (ptw.current_state != ptw.S_REQ || (ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit)));
+```
+
+# Explanation of changes:
+* **Added condition for `pte_cache_hit`**: We added a condition to check if `pte_cache_hit` is asserted when the current state is `S_REQ`. This ensures that the assertion passes when `ptw_dmem_comm_o.req.valid` is not asserted due to the `pte_cache_hit` condition.
+* **Modified the assertion**: We modified the assertion to include the new condition. The assertion now checks if the current state is not `S_REQ` or if the current state is `S_REQ` and `pte_cache_hit` is asserted.
+
+# Tests and example uses:
+* **Test case 1**: Verify that the assertion passes when `ptw_dmem_comm_o.req.valid` is not asserted and the current state is not `S_REQ`.
+* **Test case 2**: Verify that the assertion passes when `ptw_dmem_comm_o.req.valid` is not asserted and the current state is `S_REQ` with `pte_cache_hit` asserted.
+* **Test case 3**: Verify that the assertion fails when `ptw_dmem_comm_o.req.valid` is not asserted and the current state is `S_REQ` without `pte_cache_hit` asserted.

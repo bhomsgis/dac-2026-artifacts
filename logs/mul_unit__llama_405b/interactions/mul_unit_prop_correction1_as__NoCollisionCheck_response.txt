@@ -1,0 +1,15 @@
+The current assertion is failing because it's checking if there's a collision between a 32-bit multiplication in the first stage and a 64-bit multiplication in the second stage, but it's not considering the case where the 64-bit multiplication is not in the second stage.
+
+The assertion is checking `!(mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final)`, which means it's checking if there's no 64-bit multiplication in the second stage. However, this is not sufficient to guarantee that there's no collision.
+
+A collision can occur when a 32-bit multiplication is in the first stage and a 64-bit multiplication is in the first stage as well, and both are valid. In this case, the 64-bit multiplication will be in the second stage in the next cycle, causing a collision.
+
+To fix this, we need to check if there's a 64-bit multiplication in the first stage that will be in the second stage in the next cycle.
+
+Here's the corrected assertion:
+
+```
+as__NoCollisionCheck: assert property((mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) |-> !(mul_unit.valid_q[0] && !mul_unit.op_32bits_q[0] && mul_unit.op_q[0] != MUL));
+```
+
+This assertion checks if there's a 32-bit multiplication in the first stage and a valid 64-bit multiplication in the first stage that will be in the second stage in the next cycle. If both conditions are true, it means there's a collision, and the assertion will fail.

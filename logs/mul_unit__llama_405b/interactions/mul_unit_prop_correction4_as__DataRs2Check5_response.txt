@@ -1,0 +1,11 @@
+I believe the current assertion is failing because it's trying to check the value of `mul_unit.data_rs2_d` in the same cycle as the inputs `valid_i` and `op_i` are being checked. However, `mul_unit.data_rs2_d` is a combinational signal that depends on `data_rs2_i` and `op_32bits_i`, which are also inputs. This can cause a race condition, leading to incorrect results.
+
+To fix this, we should use a next-cycle assertion (`|=>`) to check the value of `mul_unit.data_rs2_d` in the next cycle, after the inputs have been registered. We also need to use `$past()` to refer to the values of `data_rs2_i` and `op_32bits_i` in the previous cycle.
+
+Here's the corrected assertion:
+
+```
+as__DataRs2Check5: assert property((valid_i && (op_i == mul_unit.MUL)) |=> (mul_unit.data_rs2_q == (($past(data_rs2_i[(mul_unit.WIDTH-1)]) & !$past(op_32bits_i)) | ($past(data_rs2_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs2_i) + mul_unit.ONE : $past(data_rs2_i)));
+```
+
+Note that I've also changed `mul_unit.data_rs2_d` to `mul_unit.data_rs2_q`, since we're checking the registered value of `data_rs2` in the next cycle.

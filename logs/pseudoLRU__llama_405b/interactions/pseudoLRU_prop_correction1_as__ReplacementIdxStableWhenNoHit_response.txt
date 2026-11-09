@@ -1,0 +1,21 @@
+The current assertion is failing because it is checking if the `replacement_idx_o` remains the same when there is no hit (`access_hit_i == 1'b0`). However, this assertion does not take into account the fact that the `replacement_idx_o` is updated in the next cycle after the `plru_tree_q` is updated.
+
+The issue lies in the fact that the assertion is using `$past(replacement_idx_o)` which is referring to the value of `replacement_idx_o` in the previous cycle, but it is not considering the update of `plru_tree_q` that happens in the current cycle.
+
+To fix this, we need to check if the `replacement_idx_o` remains the same when there is no hit, considering the update of `plru_tree_q` in the next cycle. We can do this by using a next-cycle assertion (`|=>`) and checking if the `replacement_idx_o` remains the same in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementIdxStableWhenNoHit: assert property(access_hit_i == 1'b0 |=> replacement_idx_o == $past(replacement_idx_o, 2));
+```
+
+However, this is still not correct, because we are comparing `replacement_idx_o` with its value two cycles ago. 
+
+A better approach is to check if `plru_tree_q` remains the same when there is no hit, which will indirectly ensure that `replacement_idx_o` also remains the same.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementIdxStableWhenNoHit: assert property(access_hit_i == 1'b0 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_q));
+```

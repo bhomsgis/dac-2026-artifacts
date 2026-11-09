@@ -1,0 +1,2 @@
+// The original assertion fails because it checks op_32bits_i in the same cycle as op_i == 0, but op_32bits_q_final is registered and valid only after pipeline stages. The assertion must consider pipeline timing and valid signals to check op_32bits_q_final when op_q_final == 0 and valid_q[1] is set.
+as__Op32BitsSetOnlyForMul: assert property (mul_unit.valid_q[1] && (mul_unit.op_q_final == 0) |=> mul_unit.op_32bits_q_final);

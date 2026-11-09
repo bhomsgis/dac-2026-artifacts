@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion uses a same-cycle implication (|->) to check that if all bits in the upper half of operands_regs_i are ones, then popcount.msport equals half the number of ports. However, msport is an internal signal registered at the output of the recursive popcount instance, so its value updates in the next cycle relative to operands_regs_i. Using a same-cycle assertion here is incorrect because msport reflects the previous cycle's input, not the current cycle's operands_regs_i. This timing mismatch causes the assertion to fail.
+
+2. Proposed fix:  
+Change the assertion to a next-cycle implication (|=>) so that the precondition is evaluated on the current cycle's operands_regs_i, and the postcondition checks the updated msport value in the next cycle. Also, use $past() on operands_regs_i in the postcondition to refer to the precondition cycle's input bits, ensuring correct temporal alignment. This respects the pipeline behavior and the registered nature of msport.
+
+3. Corrected assertion:  
+as__PopcountMsportAllOnesCheck: assert property ((&operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]) |=> (popcount.msport == $countones($past(operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]))));

@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to check the value of `result_32_aux` in the same cycle as the inputs are being checked. However, `result_32_aux` is a signal that is assigned in the combinational logic after the inputs have been registered, so it will not have the correct value until the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will allow the assertion to check the value of `result_32_aux` in the next cycle, after the inputs have been registered and the combinational logic has had a chance to update the signal.
+
+Here is the corrected assertion:
+
+```
+as__Result32AuxCheck: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_aux == ($past(mul_unit.neg_q) ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));
+```
+
+This assertion checks that if the input is valid, the operation is a 32-bit multiplication, and the operation is a MUL, then in the next cycle, `result_32_aux` should have the correct value based on the registered values of `neg_q` and `result_low_q`.

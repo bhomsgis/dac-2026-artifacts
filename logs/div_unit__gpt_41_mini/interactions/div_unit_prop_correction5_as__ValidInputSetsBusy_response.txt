@@ -1,0 +1,7 @@
+1. The current assertion as__ValidInputSetsBusy: assert property((valid_i) |-> busy_o); is failing because it expects busy_o to be asserted in the same cycle as valid_i. However, busy_o is driven by the cycles_counter register, which is loaded with a non-zero value only on the next clock cycle after valid_i is asserted (due to the sequential always_ff block). Therefore, busy_o will not be asserted in the same cycle as valid_i, causing the assertion to fail.
+
+2. The fix is to use a next-cycle assertion (|=>) to check that busy_o is asserted in the cycle after valid_i is asserted. Since busy_o is a wire driven combinationally from cycles_counter, which is updated on the clock edge, busy_o will reflect the updated cycles_counter value in the cycle after valid_i. Also, to be precise, busy_o should be asserted in the next cycle after valid_i only if the cycles_counter was zero in the current cycle (i.e., the unit was not already busy). This ensures that a new valid_i input starts a new operation and sets busy_o. So the assertion should check that if valid_i is asserted and the unit was not busy in the current cycle, then busy_o is asserted in the next cycle.
+
+3. Corrected assertion:
+
+as__ValidInputSetsBusy: assert property ((valid_i && !busy_o) |=> busy_o);

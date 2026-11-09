@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Why the current assertion might be failing:**
+The current assertion is checking that when the current state is SERVING_iTLB and a valid response is received from the PTW, the next state should be IDLE. However, this assertion does not consider the case where there is a pending request from the iTLB waiting to be served. In this case, the next state should still be SERVING_iTLB, not IDLE.
+
+**Proposed fix and why it should work:**
+To fix this assertion, we need to add a condition to check if there is a pending request from the iTLB waiting to be served. If there is, the next state should still be SERVING_iTLB. We can do this by checking the value of `ptw_arb.is_req_waiting_q`.
+
+**Corrected assertion:**
+```
+as__ServingiTLBToIdle: assert property(ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_tlb_comm_i.resp.valid == 1'b1 && ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.next_state == ptw_arb.IDLE);
+```
+This corrected assertion checks that when the current state is SERVING_iTLB, a valid response is received from the PTW, and there is no pending request from the iTLB waiting to be served, the next state should be IDLE.

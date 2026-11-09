@@ -1,0 +1,6 @@
+// The original assertion fails because data_rs1_q is a register updated on the clock edge, so its updated value appears in the next cycle after valid_i and flush_i[0] are sampled. The assertion incorrectly uses a same-cycle implication (|->) expecting data_rs1_q to match data_rs1_d in the same cycle as valid_i and flush_i[0]. Instead, a next-cycle implication (|=>) should be used, and $past() should be applied to data_rs1_d to refer to its value at the precondition cycle.
+
+// The fix is to use a next-cycle assertion (|=>) with $past(mul_unit.data_rs1_d) on the postcondition side, ensuring that when valid_i is high and flush_i[0] is low, in the next cycle data_rs1_q equals the previous cycle's data_rs1_d. This respects the pipeline timing and register update behavior.
+
+// Corrected assertion:
+as__DataRs1QUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |=> mul_unit.data_rs1_q == $past(mul_unit.data_rs1_d));

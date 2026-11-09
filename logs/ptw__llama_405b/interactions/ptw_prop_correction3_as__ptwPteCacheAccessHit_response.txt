@@ -1,0 +1,19 @@
+The current assertion is failing because it is trying to check the equality of `ptw.access_hit` and `ptw.pte_cache_hit` in the same cycle. However, `ptw.access_hit` is a registered signal that is updated in the next cycle, whereas `ptw.pte_cache_hit` is a combinational signal that is calculated in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the equality of `ptw.access_hit` and `$past(ptw.pte_cache_hit)`.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit |=> ptw.access_hit == $past(ptw.pte_cache_hit));
+```
+
+However, this assertion is still not correct because `ptw.access_hit` is not directly related to `ptw.pte_cache_hit`. `ptw.access_hit` is set to 1 when the PTE cache is hit and the current state is S_REQ, whereas `ptw.pte_cache_hit` is set to 1 when the PTE cache is hit regardless of the current state.
+
+A more correct assertion would be to check that `ptw.access_hit` is set to 1 when the PTE cache is hit and the current state is S_REQ.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit && ptw.current_state == S_REQ |=> ptw.access_hit);
+```

@@ -1,0 +1,5 @@
+// The assertion is failing because valid_q is a registered signal updated on the clock edge, so it reflects valid_i from the previous cycle. The original assertion expects valid_q to be set in the cycle immediately after valid_i is asserted, but valid_q may be set only in the next cycle after that due to pipeline timing. Therefore, the assertion should allow for valid_q to be set either in the next cycle or remain set in subsequent cycles while the operation is ongoing.
+// The fix is to assert that if valid_i is asserted, then valid_q will be set at least in the next cycle or remain set in the next cycle, reflecting the pipeline register update. This can be done by checking that valid_q is set in the next cycle or remains set in the cycle after that, i.e., valid_q is set in the next cycle or the cycle after next, to cover pipeline latency.
+// Corrected assertion:
+
+as__ValidQSetOnValidI: assert property (valid_i |=> (div_unit.valid_q || $past(div_unit.valid_q)));

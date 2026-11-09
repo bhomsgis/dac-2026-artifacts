@@ -1,0 +1,9 @@
+The current assertion is failing because it does not consider the case when `dtlb_ptw_comm_i.req.valid` is 1'b1. In this case, the `next_state` will be `SERVING_dTLB` instead of `SERVING_iTLB`.
+
+The proposed fix is to add a condition to check if `dtlb_ptw_comm_i.req.valid` is 1'b0. However, this is not sufficient because it does not consider the case when `is_req_waiting_q` is 1'b1 and `itlb_ptw_comm_i.req.valid` is 1'b0.
+
+The correct fix is to check if `is_req_waiting_q` is 1'b1 and `dtlb_ptw_comm_i.req.valid` is 1'b0.
+
+Here is the corrected assertion:
+
+as__IdleToServingiTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && ptw_arb.is_req_waiting_q == 1'b1 && !dtlb_ptw_comm_i.req.valid && (itlb_ptw_comm_i.req.valid || ptw_arb.itlb_req_waiting_q != '0) |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB);

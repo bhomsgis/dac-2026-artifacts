@@ -1,0 +1,3 @@
+```systemverilog
+as__NoCollision: assert property(!(valid_i && op_i == mul_unit.MUL && op_32bits_i && $past(mul_unit.valid_q[1]) && !$past(mul_unit.op_32bits_q_final)));
+```

@@ -1,0 +1,6 @@
+// The original assertion fails because valid_i triggers valid_q[0] only if flush_i[0] is not asserted and the pipeline is not stalled; also, for 64-bit operations with REG_32=0, valid_o is asserted at valid_q[1], so valid_q[0] may not be asserted immediately. The assertion does not consider flush_i or pipeline timing and assumes valid_q[0] always follows valid_i in the next cycle, which is not always true.
+
+
+// The fix is to include flush_i[0] being low and valid_i being high as precondition, and assert that valid_q[0] is asserted in the next cycle. This accounts for flush and pipeline behavior. Using a next-cycle assertion (|=>) is correct because valid_q[0] is a register updated on the next clock cycle. This should cover both 32-bit and 64-bit cases since valid_q[0] is the first pipeline stage valid register.
+
+as__ValidOutputMatchesInputValid: assert property((mul_unit.valid_i && !mul_unit.flush_i[0]) |=> mul_unit.valid_q[0]);

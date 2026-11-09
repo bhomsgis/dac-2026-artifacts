@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when a 32-bit operation is received, the op_32_q register is set to 1 in the next cycle
+as__Op32: assert property(valid_i && op_32bits_i |=> div_unit.op_32_q == $past(op_32bits_i));
+```

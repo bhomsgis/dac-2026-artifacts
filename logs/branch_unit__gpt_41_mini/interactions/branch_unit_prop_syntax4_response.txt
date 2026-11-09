@@ -1,0 +1,34 @@
+// Check that branch_taken is 0 for non-branch instructions
+as__BranchTakenZeroForNonBranch: assert property(!(instruction_i.instr.instr_type inside {JAL, JALR, BLT, BGE, BLTU, BGEU, BEQ, BNE}) |-> (branch_unit.branch_taken == 0));
+// Check that branch_taken is 1 for JAL and JALR instructions (redundant but explicit)
+as__BranchTakenOneForJAL_JALR: assert property((instruction_i.instr.instr_type inside {JAL, JALR}) |-> (branch_unit.branch_taken == 1));
+// Check that branch_taken matches equal condition for BEQ and BNE instructions
+as__BranchTakenCorrectForBEQ_BNE: assert property(((instruction_i.instr.instr_type == BEQ) || (instruction_i.instr.instr_type == BNE)) |-> (branch_unit.branch_taken == ((instruction_i.instr.instr_type == BEQ) ? (data_rs1 == data_rs2) : (data_rs1 != data_rs2))));
+// Check that branch_taken matches signed less condition for BLT and BGE instructions
+as__BranchTakenCorrectForBLT_BGE: assert property(((instruction_i.instr.instr_type == BLT) || (instruction_i.instr.instr_type == BGE)) |-> (branch_unit.branch_taken == ((instruction_i.instr.instr_type == BLT) ? ($signed(data_rs1) < $signed(data_rs2)) : !($signed(data_rs1) < $signed(data_rs2)))));
+// Check that branch_taken matches unsigned less condition for BLTU and BGEU instructions
+as__BranchTakenCorrectForBLTU_BGEU: assert property(((instruction_i.instr.instr_type == BLTU) || (instruction_i.instr.instr_type == BGEU)) |-> (branch_unit.branch_taken == ((instruction_i.instr.instr_type == BLTU) ? (data_rs1 < data_rs2) : !(data_rs1 < data_rs2))));
+// Check that target is correctly computed for JAL instructions
+as__TargetCorrectForJAL: assert property((instruction_i.instr.instr_type == JAL) |-> (branch_unit.target == ((instruction_i.instr.pc + instruction_i.instr.imm) & 64'hFFFFFFFFFFFFFFFE)));
+// Check that target is correctly computed for JALR instructions
+as__TargetCorrectForJALR: assert property((instruction_i.instr.instr_type == JALR) |-> (branch_unit.target == ((data_rs1 + instruction_i.instr.imm) & 64'hFFFFFFFFFFFFFFFE)));
+// Check that target is correctly computed for branch instructions BLT, BGE, BLTU, BGEU, BEQ, BNE
+as__TargetCorrectForBranches: assert property((instruction_i.instr.instr_type inside {BLT, BGE, BLTU, BGEU, BEQ, BNE}) |-> (branch_unit.target == (instruction_i.instr.pc + instruction_i.instr.imm)));
+// Check that target is zero for non-branch and non-jump instructions
+as__TargetZeroForNonBranchJump: assert property(!(instruction_i.instr.instr_type inside {JAL, JALR, BLT, BGE, BLTU, BGEU, BEQ, BNE}) |-> (branch_unit.target == 0));
+// Check that result equals target when branch is taken
+as__ResultEqualsTargetWhenBranchTaken: assert property(branch_unit.branch_taken |-> (branch_unit.result == branch_unit.target));
+// Check that result equals pc+4 when branch is not taken
+as__ResultEqualsPCPlus4WhenBranchNotTaken: assert property(!branch_unit.branch_taken |-> (branch_unit.result == (instruction_i.instr.pc + 4)));
+// Check that instruction_o.valid matches input valid and unit
+as__InstructionOValidMatchesInput: assert property(instruction_o.valid == (instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH)));
+// Check that instruction_o.branch_taken matches branch_unit.branch_taken
+as__InstructionOBranchTakenMatchesBranchUnitBranchTaken: assert property(instruction_o.branch_taken == branch_unit.branch_taken);
+// Check that instruction_o.result_pc matches branch_unit.target
+as__InstructionOResultPCMatchesBranchUnitTarget: assert property(instruction_o.result_pc == branch_unit.target);
+// Check that instruction_o.result always equals pc+4
+as__InstructionOResultAlwaysPCPlus4: assert property(instruction_o.result == (instruction_i.instr.pc + 4));
+// Check that exception valid is asserted on misaligned address for JALR and taken branches
+as__ExceptionValidOnMisalignedAddress: assert property((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && branch_unit.branch_taken)) && (branch_unit.result[1:0] != 0)) |-> (instruction_o.ex.valid == 1 && instruction_o.ex.cause == INSTR_ADDR_MISALIGNED && instruction_o.ex.origin == branch_unit.result));
+// Check that exception valid is zero when no misaligned address condition
+as__ExceptionInvalidWhenNoMisalignedAddressCondition: assert property(!((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && branch_unit.branch_taken)) && (branch_unit.result[1:0] != 0))) |-> (instruction_o.ex.valid == 0));

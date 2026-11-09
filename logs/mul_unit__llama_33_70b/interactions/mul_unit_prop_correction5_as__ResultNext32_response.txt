@@ -1,0 +1,11 @@
+The current assertion `as__ResultNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` might be failing because it does not account for the pipeline behavior and timing of the `mul_unit` module.
+
+In the `mul_unit` module, the result of the multiplication operation is computed in two stages. The first stage computes the low and high parts of the result, and the second stage combines these parts to form the final result. The assertion does not take into account the fact that the result is computed in two stages, and it does not account for the fact that the `result_o` signal is assigned the value of `result` which is computed based on the `op_q_final` and `op_32bits_q_final` signals.
+
+To fix this issue, we need to modify the assertion to account for the pipeline behavior and timing of the `mul_unit` module. We can do this by using the `$past` function to refer to the value of the `result_2width_def` signal in the previous cycle, and by using the `op_q_final` and `op_32bits_q_final` signals to determine the correct result.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__ResultNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTH-1:0]);
+```

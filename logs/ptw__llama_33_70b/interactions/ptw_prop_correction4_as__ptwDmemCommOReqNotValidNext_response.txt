@@ -1,0 +1,3 @@
+```systemverilog
+as__ptwDmemCommOReqNotValidNext: assert property(!ptw_dmem_comm_o.req.valid |=> ($past(ptw.current_state) != ptw.S_REQ));
+```

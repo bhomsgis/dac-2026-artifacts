@@ -1,0 +1,10 @@
+// 1. Explanation of failure:
+// The original assertion as__TargetRegUpdateOnResetCount: assert property(reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+// fails because target_reg_q is updated on the rising edge of clk_i when reset_count_i is asserted. The assertion uses a next-cycle implication (|=>) but does not consider that target_reg_q updates only after the clock edge. Also, the assertion does not use $past() to refer to the input signals at the precondition cycle, which is required for next-cycle assertions. Without $past(), JasperGold might not properly correlate the precondition cycle inputs with the postcondition cycle register value. Furthermore, the assertion does not consider that target_reg_q updates synchronously with clk_i, so the updated value appears in the cycle after reset_count_i is asserted.
+
+// 2. Proposed fix:
+// Use a next-cycle assertion (|=>) with the precondition reset_count_i asserted in the current cycle, and in the postcondition check that target_reg_q equals target_value_i from the previous cycle (using $past(target_value_i)) because target_reg_q updates on the clock edge after reset_count_i is asserted. Also, use $past(reset_count_i) in the postcondition to ensure the update corresponds to the cycle when reset_count_i was asserted. This aligns with pipeline behavior and timing. The assertion should be:
+// as__TargetRegUpdateOnResetCount: assert property(reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i) && $past(reset_count_i)));
+
+// 3. Corrected assertion:
+as__TargetRegUpdateOnResetCount: assert property(reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i) && $past(reset_count_i)));

@@ -1,0 +1,1 @@
+as__PLRUTreeEncode: assert property(pseudoLRU.replace_en[0] == 1'b1 |-> &pseudoLRU.plru_tree_d[0:2*(ENTRIES-1)-1] == 1'b1);

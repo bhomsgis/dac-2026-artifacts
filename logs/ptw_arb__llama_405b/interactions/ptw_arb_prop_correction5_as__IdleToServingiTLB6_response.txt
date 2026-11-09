@@ -1,0 +1,13 @@
+Here is the corrected assertion:
+
+as__IdleToServingiTLB6: assert property(ptw_arb.current_state == ptw_arb.IDLE && itlb_ptw_comm_i.req.valid == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 && ptw_arb.ptw_itlb_comm_o.ptw_ready == 1'b1 |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB);
+
+Explanation:
+
+The original assertion is failing because it does not consider the case where `ptw_arb.is_req_waiting_q` is 1'b1. In this case, the next state will be `SERVING_iTLB` regardless of the value of `itlb_ptw_comm_i.req.valid`. 
+
+However, this fix alone is not enough. We also need to consider the value of `ptw_arb.ptw_itlb_comm_o.ptw_ready`. If it is 1'b0, it means that the PTW is not ready to serve the iTLB request, and the next state will not be `SERVING_iTLB`.
+
+The corrected assertion checks that the current state is `IDLE`, `itlb_ptw_comm_i.req.valid` is 1'b1, `dtlb_ptw_comm_i.req.valid` is 1'b0, and `ptw_arb.ptw_itlb_comm_o.ptw_ready` is 1'b1. If all these conditions are true, then the next state should be `SERVING_iTLB`. 
+
+This assertion should work because it correctly models the behavior of the `ptw_arb` module when it is in the `IDLE` state and receives a valid iTLB request.

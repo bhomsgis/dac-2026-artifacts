@@ -1,0 +1,2 @@
+// Check that if a request is waiting in the current cycle, the next_state will be SERVING_iTLB or remain SERVING_iTLB if already serving itlb
+as__ReqWaitingLeadsToServingITLB: assert property((ptw_arb.is_req_waiting_q) |=> ((ptw_arb.next_state == ptw_arb.SERVING_iTLB) || (ptw_arb.current_state == ptw_arb.SERVING_iTLB)));

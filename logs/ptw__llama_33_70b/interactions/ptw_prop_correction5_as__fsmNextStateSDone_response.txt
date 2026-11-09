@@ -1,0 +1,1 @@
+as__fsmNextStateSDone: assert property((ptw.current_state == ptw.S_DONE) |=> (ptw.next_state == ptw.S_READY && ptw.count_q == $unsigned(LEVELS-1)));

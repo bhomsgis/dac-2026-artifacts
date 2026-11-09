@@ -1,0 +1,9 @@
+1. Explanation of failure:
+The original assertion uses a same-cycle implication (|->) to check that if all bits in the upper half of operands_regs_i are ones, then popcount.msport equals half the number of ports. However, msport is an output of a submodule and is registered internally, meaning its value updates in the next cycle relative to operands_regs_i. Therefore, the assertion fails because it compares operands_regs_i and msport in the same cycle, ignoring the pipeline delay.
+
+2. Proposed fix:
+Use a next-cycle implication (|=>) so that when all bits in the upper half of operands_regs_i are ones in the current cycle, the assertion checks that msport in the next cycle equals the count of ones in the upper half of operands_regs_i from the current cycle. Use $past() on operands_regs_i in the postcondition to refer to the value at the precondition cycle. This respects the pipeline timing and the registered nature of msport.
+
+3. Corrected assertion:
+
+as__PopcountMsportAllOnesCheck: assert property ((&operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]) |=> (popcount.msport == $countones($past(operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]))));

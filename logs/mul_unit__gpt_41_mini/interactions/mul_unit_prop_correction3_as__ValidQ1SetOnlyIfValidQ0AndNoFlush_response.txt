@@ -1,0 +1,4 @@
+// The assertion fails because valid_q[1] is registered from valid_q[0] only if flush_i[1] is not asserted in the next cycle. The original assertion checks flush_i[1] in the same cycle as valid_q[1], which is incorrect timing. The flush_i[1] that affects valid_q[1] is sampled in the previous cycle. Therefore, the assertion must check that valid_q[1] implies that valid_q[0] was set in the previous cycle and flush_i[1] was not asserted in the previous cycle. This requires a next-cycle assertion with $past() on valid_q[0] and flush_i[1].
+// The fix is to use a next-cycle assertion (|=>) where the postcondition refers to $past(mul_unit.valid_q[0]) and !$past(mul_unit.flush_i[1]) to correctly capture the pipeline timing and flush behavior.
+
+as__ValidQ1SetOnlyIfValidQ0AndNoFlush: assert property (mul_unit.valid_q[1] |=> ($past(mul_unit.valid_q[0]) && !$past(mul_unit.flush_i[1])));

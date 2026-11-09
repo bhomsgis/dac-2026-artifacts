@@ -1,0 +1,13 @@
+The current assertion is failing because it is trying to check the value of `data_rs2_d` in the same cycle as the inputs `valid_i` and `op_i`. However, `data_rs2_d` is a combinational signal that is assigned a value based on the inputs `data_rs2_i` and `op_32bits_i`, and this assignment happens after the inputs have been sampled.
+
+The issue is that the assertion is trying to check the value of `data_rs2_d` before it has been assigned a value. This is because the assertion is using a same-cycle implication (`|->`), which means that the precondition and postcondition are evaluated in the same cycle.
+
+To fix this, we need to use a next-cycle implication (`|=>`) instead, which allows us to check the value of `data_rs2_d` in the next cycle, after it has been assigned a value.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check9: assert property((valid_i && (op_i == 2'b11)) |=> (mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+```
+
+This assertion checks that if `valid_i` is high and `op_i` is equal to `2'b11` in the current cycle, then in the next cycle, `data_rs2_d` should have the correct value based on the inputs `data_rs2_i` and `op_32bits_i`.

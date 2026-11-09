@@ -1,0 +1,28 @@
+// Check op_q resets to zero on flush or invalid input
+as__OpQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.op_q == {mul_unit.MUL_OPS_BITS{1'b0}});
+// Check op_32bits_q resets to zero on flush or invalid input
+as__Op32BitsQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.op_32bits_q == 1'b0);
+// Check neg_q resets to zero on flush or invalid input
+as__NegQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.neg_q == 1'b0);
+// Check data_rs1_q resets to zero on flush or invalid input
+as__DataRs1QResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.data_rs1_q == {mul_unit.WIDTH{1'b0}});
+// Check data_rs2_q resets to zero on flush or invalid input
+as__DataRs2QResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.data_rs2_q == {mul_unit.WIDTH{1'b0}});
+// Check result_32_aux negation correctness on valid_q[1] for specific ops
+as__Result32AuxNegationCorrectOnValidQ1: assert property(((mul_unit.op_q_final == 0) || (mul_unit.op_q_final == 1) || (mul_unit.op_q_final == 2) || (mul_unit.op_q_final == 3)) && mul_unit.valid_q[1] |=> (mul_unit.result_32_aux == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));
+// Check result_32 sign extension correctness on valid_q[1]
+as__Result32SignExtendedCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> mul_unit.result_32 == {{{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]}});
+// Check result matches result_32_q on valid_q[1] for 32-bit reg
+as__ResultMatchesResult32QOnValidQ1For32BitReg: assert property((mul_unit.valid_q[1] && mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) |-> mul_unit.result == mul_unit.result_32_q);
+// Check result matches low part on valid_q[1] for MUL op
+as__ResultMatchesLowPartOnValidQ1ForMul: assert property((mul_unit.valid_q[1] && mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]);
+// Check result matches high part on valid_q[1] for non-MUL ops
+as__ResultMatchesHighPartOnValidQ1ForNonMul: assert property((mul_unit.valid_q[1] && mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+// Check valid_o matches valid_q[1] when REG_32 is set
+as__ValidOMatchesValidQ1WhenReg32: assert property(mul_unit.REG_32 |-> valid_o == mul_unit.valid_q[1]);
+// Check result_o matches result when REG_32 is set
+as__ResultOMatchesResultWhenReg32: assert property(mul_unit.REG_32 |-> result_o == mul_unit.result);
+// Check valid_o matches valid_q[0] when CONFIG32 is set
+as__ValidOMatchesValidQ0WhenConfig32: assert property(mul_unit.CONFIG32 |-> valid_o == mul_unit.valid_q[0]);
+// Check result_o matches result when CONFIG32 is set
+as__ResultOMatchesResultWhenConfig32: assert property(mul_unit.CONFIG32 |-> result_o == mul_unit.result);

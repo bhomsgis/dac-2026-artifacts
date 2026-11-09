@@ -1,0 +1,11 @@
+1. Explanation of failure:  
+The original assertion fails because it does not consider the pipeline behavior and timing of the signals involved. The signal `tmp_remanent[1]` is combinationally assigned based on `remanent_i` and `dividend_quotient_i` in the same cycle, but the assertion is checking equality directly without considering that `dividend_quotient_i` might be updated or that the selection of the bit from `dividend_quotient_i` depends on the dynamic `sew_i` signal. Also, the original assertion does not handle the timing of the signals properly, especially for the SIMD_ENABLE case where the bit index depends on `sew_i`. The assertion should use a same-cycle assertion (`|->`) because `tmp_remanent[1]` is combinationally assigned from `remanent_i` and `dividend_quotient_i` in the same cycle.
+
+2. Proposed fix:  
+The fix is to write a same-cycle assertion (`|->`) that checks `tmp_remanent[1]` equals the concatenation of `remanent_i[WIDTH-2:0]` and the correct bit of `dividend_quotient_i` depending on `SIMD_ENABLE` and `sew_i`. For SIMD_ENABLE, the bit index depends on `sew_i` (8, 16, 32, or 64), otherwise it is `WIDTH-1`. The assertion must use the correct module prefix `div_4bits.` for internal signals and inputs. This assertion will check the combinational assignment in the same cycle, matching the RTL behavior.
+
+3. Corrected assertion:
+
+```systemverilog
+as__TmpRemanentShiftCorrecteotid: assert property((1'b1) |-> ((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.WIDTH-2:0], (div_4bits.SIMD_ENABLE ? (div_4bits.dividend_quotient_i[(div_4bits.sew_i == 2'b00 ? 7 : (div_4bits.sew_i == 2'b01 ? 15 : (div_4bits.sew_i == 2'b10 ? 31 : 63)))] ) : div_4bits.dividend_quotient_i[div_4bits.WIDTH-1])})));
+```

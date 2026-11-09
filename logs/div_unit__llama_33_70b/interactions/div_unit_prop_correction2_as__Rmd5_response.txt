@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when div_zero_q is high, rmd_aux is equal to first_dividend_q
+as__Rmd5: assert property(div_unit.div_zero_q |-> div_unit.rmd_aux == (div_unit.signed_op_q) ? ((div_unit.first_dividend_q[(div_unit.WIDTH - 1)] & (!div_unit.op_32_q)) | (div_unit.first_dividend_q[31] & div_unit.op_32_q)) ? (~div_unit.remanent_q + div_unit.ONE) : div_unit.remanent_q : div_unit.remanent_q);
+```

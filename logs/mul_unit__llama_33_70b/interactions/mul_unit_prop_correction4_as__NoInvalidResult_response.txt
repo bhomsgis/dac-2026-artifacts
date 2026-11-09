@@ -1,0 +1,10 @@
+The current assertion `as__NoInvalidResult: assert property(!(valid_o && result_o == {WIDTH{1'bx}}));` is failing because it does not correctly check for invalid results. 
+
+The issue with this assertion is that it only checks if the result is all unknown (`1'bx`) when `valid_o` is high. However, an invalid result can also occur when some bits of the result are unknown (`1'bx`) and others are not. 
+
+To fix this, we need to modify the assertion to check if any bits of the result are unknown when `valid_o` is high.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidResult: assert property(!(valid_o && !(|mul_unit.result_o) && !(&mul_unit.result_o)));
+```

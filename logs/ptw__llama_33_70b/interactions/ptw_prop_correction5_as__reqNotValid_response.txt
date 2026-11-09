@@ -1,0 +1,1 @@
+as__reqNotValid: assert property(!tlb_ptw_comm_i.req.valid |=> (ptw.next_state == ptw.S_READY && ptw.count_q == '0));

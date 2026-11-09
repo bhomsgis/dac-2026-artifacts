@@ -1,0 +1,2 @@
+// Check that the result is not invalid when the operation is MUL and 32-bit operation is not enabled
+as__NoInvalidResult32: assert property(!(valid_o && op_i == mul_unit.MUL && !$past(op_32bits_i) && result_o != $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));

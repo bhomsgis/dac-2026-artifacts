@@ -1,0 +1,1 @@
+as__DivisorOutput_q: assert property((div_4bits.divisor_i == $past(div_4bits.divisor_i)) |=> (div_4bits.divisor_o_q == $past(div_4bits.divisor_i)));

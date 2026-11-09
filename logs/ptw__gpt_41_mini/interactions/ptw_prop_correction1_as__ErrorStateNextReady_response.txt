@@ -1,0 +1,3 @@
+// The assertion fails because the transition from S_ERROR to S_READY happens combinationally in next_state, but current_state updates only on clk edge. The original assertion checks next_state in the cycle when current_state is S_ERROR, but next_state is a combinational signal and current_state won't be S_READY until the next clock cycle. Therefore, the assertion should check that after current_state is S_ERROR, on the next clock cycle current_state_q becomes S_READY.
+
+as__ErrorStateNextReady: assert property ((ptw.current_state == ptw.S_ERROR) |=> ($past(ptw.current_state) == ptw.S_ERROR && ptw.current_state == ptw.S_READY));

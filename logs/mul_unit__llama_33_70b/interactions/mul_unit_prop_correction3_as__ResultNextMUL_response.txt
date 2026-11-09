@@ -1,0 +1,25 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultNextMUL` checks if the result of a multiplication operation is correct when the operation is valid and the operation type is `MUL`. The result is expected to be the product of the two operands, with the correct sign.
+2. **Identifying the issue**: The assertion is failing, which means that the result of the multiplication operation is not as expected. This could be due to incorrect handling of the sign or the product calculation.
+3. **Analyzing the RTL code**: The RTL code shows that the result of the multiplication operation is calculated using the `result_low_d` and `result_high_d` signals, which are assigned values based on the `data_rs1_q` and `data_rs2_q` signals. The sign of the result is determined by the `neg_q` signal.
+4. **Considering pipeline behavior and timing**: The assertion is using a next-cycle assertion (`|=>`), which means that the result is expected to be correct in the next cycle. This implies that the result is being calculated in the current cycle and will be available in the next cycle.
+
+# Fixed solution:
+```systemverilog
+as__ResultNextMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == ($past(mul_unit.neg_q_final) ? (~$past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) + $past(mul_unit.ONEDOUBLE[mul_unit.WIDTH-1:0])) : $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));
+```
+
+# Explanation of changes:
+* **Using `$past` for `neg_q_final` and `result_2width_def`**: To correctly capture the values of `neg_q_final` and `result_2width_def` in the previous cycle, we use `$past`.
+* **Using `result_2width_def` instead of `result_low_d`**: Since `result_2width_def` is the final result after considering the sign, we use it instead of `result_low_d`.
+* **Using `ONEDOUBLE[mul_unit.WIDTH-1:0]` instead of `mul_unit.ONE`**: To correctly handle the case where the result is negative, we use `ONEDOUBLE[mul_unit.WIDTH-1:0]` instead of `mul_unit.ONE`.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different input values and verifying that the result is correct. For example, we can test the assertion with the following input values:
+* `valid_i = 1`
+* `op_i = mul_unit.MUL`
+* `op_32bits_i = 1`
+* `data_rs1_i = 2`
+* `data_rs2_i = 3`
+
+The expected result should be `result_o = 6` in the next cycle.

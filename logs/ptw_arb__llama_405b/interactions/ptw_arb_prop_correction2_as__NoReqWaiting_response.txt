@@ -1,0 +1,17 @@
+The current assertion is failing because it is checking the value of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q` is 0. However, `itlb_req_waiting_q` is a registered signal that is updated in the next cycle. Therefore, when `is_req_waiting_q` is 0, `itlb_req_waiting_q` may still have a value from the previous cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `itlb_req_waiting_q` in the next cycle after `is_req_waiting_q` is 0. This ensures that we are checking the updated value of `itlb_req_waiting_q` after the register has been updated.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.itlb_req_waiting_q == '0);`
+
+However, this assertion has already been tried and failed. A different approach is needed.
+
+Upon further analysis, it appears that the issue is not with the timing of the assertion, but with the condition being checked. When `is_req_waiting_q` is 0, it means that there are no pending requests. In this case, `itlb_req_waiting_q` should not be checked because it is only valid when there is a pending request.
+
+A better approach is to check that when `is_req_waiting_q` is 0, the `itlb_req_waiting_d` signal is also 0. This ensures that when there are no pending requests, no new requests are being registered.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |-> ptw_arb.itlb_req_waiting_d == '0);`

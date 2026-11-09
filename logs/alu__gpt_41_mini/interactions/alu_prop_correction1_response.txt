@@ -1,0 +1,9 @@
+The current assertion is failing because it assumes that when CONFIG32 is 0 (64-bit mode), the AND operation result is simply the bitwise AND of the full 64-bit operands. However, the RTL shows that in 64-bit mode, if op_size_i == WORD (32-bit operation), the result_o upper 32 bits are sign-extended from bit 31 of the lower 32 bits after the AND operation. The assertion does not consider this sign-extension and the op_size_i condition, so it fails when op_size_i == WORD in 64-bit mode.
+
+The proposed fix is to include the condition on op_size_i for the 64-bit mode (CONFIG32 == 0) and check the result accordingly: if op_size_i == WORD, result_o[31:0] should be the AND of the lower 32 bits of data_rs1_i and data_rs2_i, and result_o[63:32] should be sign-extension of bit 31 of result_o[31:0]; else, result_o should be the full 64-bit AND. For 32-bit mode (CONFIG32 == 1), the original simple AND applies.
+
+This fix should work because it matches the RTL behavior exactly, considering both CONFIG32 and op_size_i, and the sign-extension in 64-bit mode for 32-bit operations.
+
+Corrected assertion:
+
+as__AndOperationNonConfig32: assert property((valid_i && op_i == alu.AND && alu.CONFIG32 == 1'b0) |-> ((op_size_i == alu.WORD) ? (result_o[31:0] == (data_rs1_i[31:0] & data_rs2_i[31:0]) && result_o[63:32] == {32{result_o[31]}}) : (result_o == (data_rs1_i & data_rs2_i))));

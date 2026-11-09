@@ -1,0 +1,10 @@
+The current assertion is failing because it's checking if the `op_q` register remains the same when `valid_i` is low, but it's not considering the case when `flush_i` is high. When `flush_i` is high, the `op_q` register is reset to 0, regardless of the value of `valid_i`.
+
+Proposed fix:
+The correct assertion should check that `op_q` remains the same when `valid_i` is low and `flush_i` is low. This can be achieved by adding a condition to the precondition of the assertion.
+
+Corrected assertion:
+```
+as__OpQNoUpdate: assert property(!valid_i && !flush_i |=> div_unit.op_q == $past(div_unit.op_q));
+```
+This assertion checks that when `valid_i` is low and `flush_i` is low, the `op_q` register remains the same in the next cycle.

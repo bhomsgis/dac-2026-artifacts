@@ -1,0 +1,8 @@
+The current assertion `as__ptecacheEntryValid: assert property(ptw.ptecache_entry[ptw.hit_idx].valid |-> (ptw.pte_cache_hit));` might be failing because it does not consider the case when `ptw.hit_idx` is not a valid index for `ptw.ptecache_entry`. 
+
+A proposed fix is to add a condition to check if `ptw.hit_idx` is within the valid range of indices for `ptw.ptecache_entry`. 
+
+Here is the corrected assertion:
+```systemverilog
+as__ptecacheEntryValid: assert property(ptw.hit_idx < PTW_CACHE_SIZE && ptw.ptecache_entry[ptw.hit_idx].valid |-> (ptw.pte_cache_hit));
+```

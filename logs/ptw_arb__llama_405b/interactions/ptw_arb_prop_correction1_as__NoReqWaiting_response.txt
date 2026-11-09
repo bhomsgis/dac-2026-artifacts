@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Why the current assertion might be failing:**
+The current assertion `as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |-> ptw_arb.itlb_req_waiting_q == '0);` is checking that when `is_req_waiting_q` is 0, `itlb_req_waiting_q` should also be 0. However, this assertion does not consider the pipeline behavior of the design. Specifically, `itlb_req_waiting_q` is updated in the next cycle after `is_req_waiting_q` is set to 0. Therefore, the assertion may fail because it is checking the value of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q`, rather than in the next cycle.
+
+**Proposed fix:**
+To fix this issue, we need to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will allow us to check the value of `itlb_req_waiting_q` in the next cycle after `is_req_waiting_q` is set to 0.
+
+**Corrected assertion:**
+```
+as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.itlb_req_waiting_q == '0);
+```
+This assertion checks that when `is_req_waiting_q` is 0, `itlb_req_waiting_q` will be 0 in the next cycle. This should fix the issue and ensure that the assertion passes.

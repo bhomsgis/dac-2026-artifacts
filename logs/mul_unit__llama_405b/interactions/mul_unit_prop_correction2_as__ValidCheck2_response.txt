@@ -1,0 +1,31 @@
+The current assertion is failing because it's checking the value of `valid_o` in the same cycle as `valid_i` and `op_32bits_i`, but `valid_o` is assigned the value of `valid_q[mul_unit.MAX_CYCLES-1]` which is a registered signal that will only be updated in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), and to check the value of `valid_q[mul_unit.MAX_CYCLES-1]` in the next cycle using `$past()`.
+
+Here is the corrected assertion:
+
+```
+as__ValidCheck2: assert property((valid_i && !op_32bits_i) |=> (valid_o == $past(mul_unit.valid_q[mul_unit.MAX_CYCLES-1], 1)));
+```
+
+However, this is still not correct, because `valid_o` is not necessarily assigned the value of `valid_q[mul_unit.MAX_CYCLES-1]` in all cases. The correct assignment of `valid_o` depends on the values of `op_32bits_q` and `REG_32`.
+
+A more accurate assertion would be:
+
+```
+as__ValidCheck2: assert property((valid_i && !op_32bits_i) |=> (valid_o == mul_unit.valid_q[mul_unit.MAX_CYCLES-1]));
+```
+
+But this is still not correct, because when `REG_32` is 1 and `CONFIG32` is 0, `valid_o` is assigned the value of `valid_q[1]`, not `valid_q[mul_unit.MAX_CYCLES-1]`.
+
+A more accurate assertion would be:
+
+```
+as__ValidCheck2: assert property((valid_i && !op_32bits_i && (mul_unit.REG_32 == 1'b0 || mul_unit.CONFIG32 == 1'b1)) |=> (valid_o == mul_unit.valid_q[mul_unit.MAX_CYCLES-1]));
+```
+
+And another assertion to cover the case when `REG_32` is 1 and `CONFIG32` is 0:
+
+```
+as__ValidCheck2_REG32: assert property((valid_i && !op_32bits_i && mul_unit.REG_32 == 1'b1 && mul_unit.CONFIG32 == 1'b0) |=> (valid_o == mul_unit.valid_q[1]));
+```

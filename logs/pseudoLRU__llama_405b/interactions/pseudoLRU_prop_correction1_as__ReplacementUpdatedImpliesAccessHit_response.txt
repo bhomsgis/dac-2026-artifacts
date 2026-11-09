@@ -1,0 +1,9 @@
+The current assertion is failing because it checks if `access_hit_i` is high in the previous cycle when `pseudoLRU.replace_en` is high in the current cycle. However, `pseudoLRU.replace_en` is a combinational signal that is updated in the same cycle as `access_hit_i`. Therefore, the assertion should check if `access_hit_i` is high in the same cycle as `pseudoLRU.replace_en`.
+
+Proposed fix:
+The assertion should be modified to use a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`). Additionally, `$past(access_hit_i)` should be replaced with `access_hit_i` to check the value of `access_hit_i` in the same cycle.
+
+Corrected assertion:
+```
+as__ReplacementUpdatedImpliesAccessHit: assert property(|pseudoLRU.replace_en |-> access_hit_i == 1'b1);
+```

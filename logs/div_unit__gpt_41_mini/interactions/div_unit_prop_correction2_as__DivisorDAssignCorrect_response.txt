@@ -1,0 +1,6 @@
+// The original assertion fails because it uses a same-cycle implication (|->) to check the value of divisor_d, which is a register input updated on the next cycle after valid_i is asserted. The assignment to divisor_d depends on combinational logic but is registered in divisor_q on the next clock. Therefore, the assertion should use a next-cycle implication (|=>) and refer to the previous cycle's divisor_aux_d and other signals using $past() to correctly check the registered value divisor_d.
+
+// The fix is to change the implication to next-cycle (|=>) and use $past() on the right-hand side signals to compare with divisor_d in the cycle after valid_i is asserted. This respects pipeline timing and register update semantics.
+
+// Corrected assertion:
+as__DivisorDAssignCorrect: assert property (valid_i |=> (div_unit.divisor_d == ((div_unit.CONFIG32 == 1'b1) ? $past(div_unit.divisor_aux_d) : ($past(div_unit.op_32_d) ? {32'b0, $past(div_unit.divisor_aux_d[31:0])} : $past(div_unit.divisor_aux_d)))));

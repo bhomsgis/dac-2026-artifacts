@@ -1,0 +1,4 @@
+// The original assertion fails because divisor_q is a register updated on the clock edge, while divisor_d is a combinational signal assigned in the same cycle as valid_i. The assertion checks divisor_q against divisor_d in the same cycle (|=>), but divisor_q will only update in the next cycle. Therefore, the assertion should check divisor_q in the next cycle against the previous cycle's divisor_d.  
+// The fix is to check valid_i in the current cycle and then assert that in the next cycle divisor_q equals the previous cycle's divisor_d using $past(divisor_d). This respects the pipeline timing and register update behavior.
+
+as__DivisorQSetOnValidI: assert property (valid_i |=> (div_unit.divisor_q == $past(div_unit.divisor_d)));

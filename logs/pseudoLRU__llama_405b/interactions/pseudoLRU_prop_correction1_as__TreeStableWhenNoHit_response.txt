@@ -1,0 +1,13 @@
+The current assertion is failing because it is checking if the `plru_tree_q` remains the same when there is no hit (`access_hit_i == 1'b0`). However, this assertion does not consider the fact that `plru_tree_q` is a registered signal and its value only changes on the next clock cycle.
+
+The issue with the current assertion is that it is using `$past(pseudoLRU.plru_tree_q)` to compare with the current value of `pseudoLRU.plru_tree_q`. This comparison is incorrect because `$past(pseudoLRU.plru_tree_q)` gives the value of `pseudoLRU.plru_tree_q` in the previous clock cycle, not the current clock cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). We also need to compare the current value of `pseudoLRU.plru_tree_q` with its value in the next clock cycle, which can be obtained using `$past(pseudoLRU.plru_tree_d)`.
+
+Here is the corrected assertion:
+
+```
+as__TreeStableWhenNoHit: assert property(access_hit_i == 1'b0 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+```
+
+This assertion checks if the `plru_tree_q` remains the same in the next clock cycle when there is no hit (`access_hit_i == 1'b0`) in the current clock cycle.

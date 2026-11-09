@@ -1,0 +1,2 @@
+// valid_i input must be reflected in valid_q[0] in the next cycle, considering flush and pipeline behavior
+as__ValidOutputMatchesInputValid: assert property(mul_unit.valid_i |=> (mul_unit.flush_i[0] == 1'b0 && mul_unit.valid_q[0]));

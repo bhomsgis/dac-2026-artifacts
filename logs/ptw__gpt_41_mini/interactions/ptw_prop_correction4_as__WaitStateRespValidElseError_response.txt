@@ -1,0 +1,2 @@
+// Check that when in S_WAIT state and dmem response is valid with no nack, and the PTE is invalid or neither table nor leaf, next state is S_ERROR
+as__WaitStateRespValidElseError: assert property((ptw.current_state == ptw.S_WAIT && ptw.dmem_ptw_comm_i.resp.valid && !ptw.dmem_ptw_comm_i.resp.nack && (!ptw.is_pte_table && !ptw.is_pte_leaf || ptw.invalid_pte)) |=> (ptw.next_state == ptw.S_ERROR));

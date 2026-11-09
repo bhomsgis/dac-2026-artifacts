@@ -1,0 +1,1 @@
+as__pteCacheHitNext: assert property(ptw.pte_cache_hit |=> (ptw.ptw_dmem_comm_o.req.valid == 1'b0 && ptw.count_q < $unsigned(LEVELS-1) && ptw.current_state == ptw.S_REQ && ptw.pmu_ptw_hit_o == 1'b1 && ptw.ptw_dmem_comm_o.req.addr == ptw.pte_addr));

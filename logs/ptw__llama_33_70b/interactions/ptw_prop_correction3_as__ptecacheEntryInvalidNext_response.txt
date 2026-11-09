@@ -1,0 +1,1 @@
+as__ptecacheEntryInvalidNext: assert property(!ptw.ptecache_entry[ptw.hit_idx].valid |=> (!ptw.pte_cache_hit && ptw.ptecache_entry[ptw.hit_idx].valid == $past(ptw.ptecache_entry[ptw.hit_idx].valid) && $past(ptw.ptecache_entry[ptw.hit_idx].valid) == 1'b0 && ptw.hit_idx == $past(ptw.hit_idx)));

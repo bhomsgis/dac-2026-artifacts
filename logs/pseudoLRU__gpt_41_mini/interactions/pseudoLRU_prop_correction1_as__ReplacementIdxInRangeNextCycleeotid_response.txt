@@ -1,0 +1,7 @@
+1. The current assertion is failing because it uses a next-cycle implication (|=>) with the postcondition referencing the wire replacement_idx_o in the same cycle as replace_en is asserted. However, replace_en is an internal signal derived combinationally from plru_tree_q, and replacement_idx_o is also combinationally assigned from replace_en in the same cycle. The assertion checks replacement_idx_o in the next cycle after replace_en is asserted, which is incorrect timing. The replacement_idx_o output is combinational and valid in the same cycle as replace_en. Also, the assertion does not consider that replace_en might be zero (no replacement enabled), so the precondition should check that replace_en has at least one bit set.
+
+2. The fix is to use a same-cycle implication (|->) so that when replace_en has any bit set (|pseudoLRU.replace_en), then replacement_idx_o must be within the valid range in the same cycle. This matches the combinational logic behavior of replacement_idx_o. Also, the precondition should check that replace_en is not zero (|pseudoLRU.replace_en) rather than replace_en being enabled as a single bit. This ensures the assertion only triggers when a replacement candidate is valid.
+
+3. Corrected assertion:
+
+as__ReplacementIdxInRangeNextCycleeotid: assert property (|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});

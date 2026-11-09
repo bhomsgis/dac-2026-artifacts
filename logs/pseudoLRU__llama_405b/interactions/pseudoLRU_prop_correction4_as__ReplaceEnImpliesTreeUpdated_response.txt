@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if the `plru_tree_q` register is updated in the same cycle when `replace_en` is high. However, the `plru_tree_q` register is updated in the next cycle, not in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will check if the `plru_tree_q` register is updated in the next cycle when `replace_en` is high.
+
+However, simply changing to a next-cycle assertion is not enough. We also need to consider the pipeline behavior and timing. The `plru_tree_q` register is updated with the value of `plru_tree_d` in the next cycle. Therefore, we should check if the value of `plru_tree_d` in the current cycle is different from the value of `plru_tree_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+`as__ReplaceEnImpliesTreeUpdated: assert property (pseudoLRU.replace_en |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_d));`
+
+This assertion checks if the `plru_tree_q` register is updated with a new value in the next cycle when `replace_en` is high. The `$past(pseudoLRU.plru_tree_d)` expression refers to the value of `plru_tree_d` in the previous cycle, which is the value that was used to update `plru_tree_q` in the current cycle.

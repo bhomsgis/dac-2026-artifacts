@@ -1,0 +1,7 @@
+as__AccessArrayUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q)); 
+
+The original assertion is failing because it's checking if the `access_array` has changed in the same cycle as the `access_hit_i` signal is asserted. However, the `access_array` is a combinational signal that is updated in the same cycle, but the `plru_tree_q` is a sequential signal that is updated in the next cycle.
+
+The corrected assertion checks if the `plru_tree_q` has changed in the next cycle after the `access_hit_i` signal is asserted. This is because the `plru_tree_q` is updated in the next cycle based on the `plru_tree_d` signal, which is calculated in the same cycle as the `access_hit_i` signal.
+
+The reason why the previous attempt didn't work is that it was checking if the `plru_tree_q` has changed in the same cycle as the `access_hit_i` signal is asserted, which is not correct. The `plru_tree_q` is updated in the next cycle, so we need to use the `$past` function to refer to the previous value of `plru_tree_q` and check if it has changed in the next cycle.

@@ -1,0 +1,13 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultNextMULHU: assert property(valid_i && op_i == mul_unit.MULHU |=> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` checks if the result of the MULHU operation is correctly assigned to `result_o` in the next cycle.
+2. **Identifying the issue**: The assertion might be failing because it does not consider the pipeline behavior and timing of the `mul_unit` module. Specifically, it does not account for the fact that the `result_2width_def` signal is updated in the same cycle, but its value is not yet available in the next cycle.
+3. **Analyzing the RTL**: The `result_2width_def` signal is assigned in the same cycle, but its value depends on the `neg_q_final` signal, which is updated in the next cycle. Therefore, the assertion should use `$past()` to refer to the value of `result_2width_def` in the previous cycle.
+
+# Fixed solution:
+```systemverilog
+as__ResultNextMULHU: assert property(valid_i && op_i == mul_unit.MULHU |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Added `$past()`**: The `$past()` function is used to refer to the value of `result_2width_def` in the previous cycle, which is the correct value to compare with `result_o` in the next cycle.
+* **No other changes**: The rest of the assertion remains the same, as the issue was only related to the timing and pipeline behavior of the `mul_unit` module.

@@ -1,0 +1,38 @@
+// Check that priority_valid implies current_active_vector is non-zero
+as__PriorityValidImpliesCurrentActiveVectorNonZero: assert property(skipper_counter.priority_valid |-> |skipper_counter.current_active_vector);
+// Check that one_hot signal is asserted only when exactly one bit in current_active_vector is set
+as__OneHotImpliesSingleBitInCurrentActiveVector: assert property(skipper_counter.one_hot |-> $countones(skipper_counter.current_active_vector) == 1);
+// Check that stall_i holds turn_count_o stable
+as__StallHoldsTurnCountNextCycle: assert property(stall_i |=> turn_count_o == $past(turn_count_o));
+// Check that when not stalled and not stalled previous cycle, turn_count_o advances
+as__TurnCountAdvancesNextCycle: assert property((!stall_i && $past(!stall_i)) |=> turn_count_o != $past(turn_count_o));
+// Check that same_vector signal correctly reflects equality of active_vector_i and last_active_vector
+as__SameVectorSignalCorrectNextCycle: assert property(skipper_counter.same_vector == (~|(active_vector_i ^ $past(skipper_counter.last_active_vector))));
+// Check that one_hot signal correctly reflects one-hotness of current_active_vector
+as__OneHotSignalCorrectNextCycle: assert property(skipper_counter.one_hot == (~|(skipper_counter.current_active_vector & (skipper_counter.current_active_vector - 1))));
+// Check that same_count signal correctly reflects equality of turn_count and last_count
+as__SameCountSignalCorrectNextCycle: assert property(skipper_counter.same_count == (~|(skipper_counter.turn_count_o ^ $past(skipper_counter.last_count))));
+// Check that last_active_vector tracks active_vector_i from previous cycle
+as__LastActiveVectorTracksActiveVectorPrevCycle: assert property($past(active_vector_i) == skipper_counter.last_active_vector);
+// Check that last_count tracks turn_count_o from previous cycle
+as__LastCountTracksTurnCountPrevCycle: assert property($past(skipper_counter.turn_count_o) == skipper_counter.last_count);
+// Check that last_state tracks state_count_o from previous cycle
+as__LastStateTracksStateCountPrevCycle: assert property($past(skipper_counter.state_count_o) == skipper_counter.last_state);
+// Check that one_hot_q tracks one_hot_d from previous cycle
+as__OneHotQTracksOneHotDPrevCycle: assert property($past(skipper_counter.one_hot_d) == skipper_counter.one_hot_q);
+// Check that valid_state_o matches priority_valid
+as__ValidStateMatchesPriorityValidNextCycle: assert property(valid_state_o == skipper_counter.priority_valid);
+// Check that state_count_o matches priority_encoder output
+as__StateCountMatchesPriorityEncoderOutputNextCycle: assert property(state_count_o == skipper_counter.priority_encoder_inst.encoded_value_o);
+// Check that current_active_vector updates correctly on immediate change enabled and change in count or vector
+as__CurrentActiveVectorAssignsCorrectlyImmediateChangeNextCycle: assert property((skipper_counter.IMMEDIATE_CHANGE && (!skipper_counter.same_count || !skipper_counter.same_vector)) |=> ((!skipper_counter.same_vector || skipper_counter.one_hot_q) ? (skipper_counter.current_active_vector == active_vector_i) : (skipper_counter.current_active_vector[skipper_counter.last_state] == 1'b0)));
+// Check that current_active_vector updates correctly on immediate change disabled and change in count
+as__CurrentActiveVectorAssignsCorrectlyNoImmediateChangeNextCycle: assert property((!skipper_counter.IMMEDIATE_CHANGE && !skipper_counter.same_count) |=> ((!skipper_counter.same_vector || skipper_counter.one_hot_q) ? (skipper_counter.current_active_vector == active_vector_i) : (skipper_counter.current_active_vector[skipper_counter.last_state] == 1'b0)));
+// Check that stall_i holds last_count stable
+as__StallHoldsLastCountNextCycle: assert property(stall_i |=> skipper_counter.last_count == $past(skipper_counter.last_count));
+// Check that stall_i holds last_active_vector stable
+as__StallHoldsLastActiveVectorNextCycle: assert property(stall_i |=> skipper_counter.last_active_vector == $past(skipper_counter.last_active_vector));
+// Check that stall_i holds last_state stable
+as__StallHoldsLastStateNextCycle: assert property(stall_i |=> skipper_counter.last_state == $past(skipper_counter.last_state));
+// Check that stall_i holds one_hot_q stable
+as__StallHoldsOneHotQNextCycle: assert property(stall_i |=> skipper_counter.one_hot_q == $past(skipper_counter.one_hot_q));

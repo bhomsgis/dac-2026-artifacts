@@ -1,0 +1,44 @@
+// Check that branch_taken is 1 for all branch instructions except JAL and JALR which are already checked
+as__BranchTakenOneForBranchesExceptJAL_JALR: assert property((instruction_i.instr.instr_type inside {BLT, BGE, BLTU, BGEU, BEQ, BNE}) |-> (branch_unit.branch_taken == ((instruction_i.instr.instr_type == BEQ) ? (data_rs1 == data_rs2) : (instruction_i.instr.instr_type == BNE) ? (data_rs1 != data_rs2) : (instruction_i.instr.instr_type == BLT) ? ($signed(data_rs1) < $signed(data_rs2)) : (instruction_i.instr.instr_type == BGE) ? !($signed(data_rs1) < $signed(data_rs2)) : (instruction_i.instr.instr_type == BLTU) ? (data_rs1 < data_rs2) : !(data_rs1 < data_rs2))));
+
+// Check that target is zero for instructions that are not branch or jump
+as__TargetZeroForNonBranchJumpNonBranch: assert property(!(instruction_i.instr.instr_type inside {JAL, JALR, BLT, BGE, BLTU, BGEU, BEQ, BNE}) |-> (branch_unit.target == 0));
+
+// Check that result equals target when branch_taken is true
+as__ResultEqualsTargetWhenBranchTakenNextCycle: assert property(branch_unit.branch_taken |=> (branch_unit.result == $past(branch_unit.target)));
+
+// Check that result equals PC+4 when branch_taken is false
+as__ResultEqualsPCPlus4WhenBranchNotTakenNextCycle: assert property(!branch_unit.branch_taken |=> (branch_unit.result == $past(instruction_i.instr.pc + 4)));
+
+// Check that instruction_o.valid is set only when instruction_i.instr.valid and unit is UNIT_BRANCH
+as__InstructionOValidMatchesInputNextCycle: assert property((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH)) |=> (instruction_o.valid == 1));
+
+// Check that instruction_o.valid is zero when instruction_i.instr.valid is zero or unit is not UNIT_BRANCH
+as__InstructionOValidZeroWhenNotBranchNextCycle: assert property(!(instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH)) |=> (instruction_o.valid == 0));
+
+// Check that instruction_o.branch_taken matches branch_unit.branch_taken
+as__InstructionOBranchTakenMatchesBranchUnitBranchTakenNextCycle: assert property(1 |=> (instruction_o.branch_taken == $past(branch_unit.branch_taken)));
+
+// Check that instruction_o.result_pc matches branch_unit.target
+as__InstructionOResultPCMatchesBranchUnitTargetNextCycle: assert property(1 |=> (instruction_o.result_pc == $past(branch_unit.target)));
+
+// Check that instruction_o.result is always PC+4
+as__InstructionOResultAlwaysPCPlus4NextCycle: assert property(1 |=> (instruction_o.result == $past(instruction_i.instr.pc + 4)));
+
+// Check that exception valid is set only when misaligned address condition is met
+as__ExceptionValidOnMisalignedAddressNextCycle: assert property((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && $past(branch_unit.branch_taken))) && ($past(branch_unit.result[1:0]) != 0)) |=> (instruction_o.ex.valid == 1 && instruction_o.ex.cause == INSTR_ADDR_MISALIGNED && instruction_o.ex.origin == $past(branch_unit.result)));
+
+// Check that exception valid is zero when no misaligned address condition
+as__ExceptionInvalidWhenNoMisalignedAddressConditionNextCycle: assert property(!((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && $past(branch_unit.branch_taken))) && ($past(branch_unit.result[1:0]) != 0))) |=> (instruction_o.ex.valid == 0));
+
+// Check that branch_taken is zero for instructions not in branch or jump set
+as__BranchTakenZeroForNonBranchNextCycle: assert property(!(instruction_i.instr.instr_type inside {JAL, JALR, BLT, BGE, BLTU, BGEU, BEQ, BNE}) |=> (branch_unit.branch_taken == 0));
+
+// Check that target for JAL is PC plus immediate with lower bit zero
+as__TargetCorrectForJALNextCycle: assert property((instruction_i.instr.instr_type == JAL) |=> (branch_unit.target == (($past(instruction_i.instr.pc) + $past(instruction_i.instr.imm)) & 64'hFFFFFFFFFFFFFFFE)));
+
+// Check that target for JALR is data_rs1 plus immediate with lower bit zero
+as__TargetCorrectForJALRNextCycle: assert property((instruction_i.instr.instr_type == JALR) |=> (branch_unit.target == (($past(data_rs1) + $past(instruction_i.instr.imm)) & 64'hFFFFFFFFFFFFFFFE)));
+
+// Check that target for branch instructions is PC plus immediate
+as__TargetCorrectForBranchesNextCycle: assert property((instruction_i.instr.instr_type inside {BLT, BGE, BLTU, BGEU, BEQ, BNE}) |=> (branch_unit.target == ($past(instruction_i.instr.pc) + $past(instruction_i.instr.imm))));

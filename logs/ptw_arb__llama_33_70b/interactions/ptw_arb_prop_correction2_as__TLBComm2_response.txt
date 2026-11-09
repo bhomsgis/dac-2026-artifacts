@@ -1,0 +1,1 @@
+as__TLBComm2: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |-> (ptw_arb.tlb_ptw_comm_o == (ptw_arb.is_req_waiting_q) ? ptw_arb.itlb_req_waiting_q : itlb_ptw_comm_i));

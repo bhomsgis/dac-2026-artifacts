@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking if the `valid_q` signal remains the same when `valid_i` is low. However, this is not the correct behavior. The `valid_q` signal should remain the same until the operation is completed, which is indicated by the `cycles_counter` reaching 1.
+
+The proposed fix is to check if the `valid_q` signal remains the same until the operation is completed. This can be done by checking if `valid_q` is equal to `$past(valid_q)` when `cycles_counter` is not equal to 1.
+
+Here is the corrected assertion:
+
+```
+as__ValidQNoUpdate: assert property(!valid_i && div_unit.cycles_counter != 6'd1 |=> div_unit.valid_q == $past(div_unit.valid_q));
+```

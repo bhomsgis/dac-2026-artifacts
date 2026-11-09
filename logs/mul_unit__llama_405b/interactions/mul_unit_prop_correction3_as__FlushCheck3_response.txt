@@ -1,0 +1,19 @@
+The current assertion is failing because it does not consider the scenario where `flush_i[1]` is also asserted when `flush_i[0]` is asserted. In this case, the `valid_q[1]` will be cleared by the `flush_i[1]` signal, not just `flush_i[0]`.
+
+To fix this, we need to modify the assertion to consider both `flush_i[0]` and `flush_i[1]`. Here is the corrected assertion:
+
+as__FlushCheck3: assert property((flush_i[0] && !flush_i[1]) |=> (mul_unit.valid_q[1] == 1'b0));
+
+However, this is still not correct because it does not consider the case where `flush_i[1]` is asserted in the next cycle after `flush_i[0]` is asserted. To fix this, we need to use the `$past` function to check the value of `flush_i[1]` in the previous cycle. Here is the corrected assertion:
+
+as__FlushCheck3: assert property((flush_i[0]) |=> (!$past(flush_i[1]) -> (mul_unit.valid_q[1] == 1'b0)));
+
+However, this was already tried in Attempt 2 and did not work.
+
+The issue is that the assertion is only checking if `valid_q[1]` is cleared when `flush_i[0]` is asserted, but it's not checking if `valid_q[1]` is also cleared when `flush_i[1]` is asserted.
+
+To fix this, we need to modify the assertion to check both conditions. Here is the corrected assertion:
+
+as__FlushCheck3: assert property((flush_i[0] || $past(flush_i[1])) |=> (mul_unit.valid_q[1] == 1'b0));
+
+This assertion checks if `valid_q[1]` is cleared when either `flush_i[0]` is asserted or `flush_i[1]` was asserted in the previous cycle.

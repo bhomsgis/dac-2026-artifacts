@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking the result of the multiplication in the same cycle as the input is provided, but the multiplication operation takes two cycles to complete. 
+
+The assertion is also not considering the case where the operation is a 32-bit multiplication, which takes only one cycle to complete.
+
+To fix this, we need to use a next-cycle assertion (|=>) to check the result of the multiplication in the next cycle after the input is provided. We also need to consider the case where the operation is a 32-bit multiplication.
+
+Here is the corrected assertion:
+
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |=> (mul_unit.valid_o && (result_o == mul_unit.result_2width_def[127:64])));

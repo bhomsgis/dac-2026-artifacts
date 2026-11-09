@@ -1,0 +1,3 @@
+```systemverilog
+as__pteCacheDataNext: assert property(ptw.pte_cache_hit |=> (ptw.pte_cache_data == ptw.ptecache_entry[$past(ptw.hit_idx)].data));
+```

@@ -1,0 +1,2 @@
+// Check that for MUL and MULH operations, result_32_aux matches the sign-corrected result_low_q value in the cycle after op_q is set
+as__Result32AuxCorrectForMulAndMulH: assert property((mul_unit.op_q == mul_unit.MUL || mul_unit.op_q == mul_unit.MULH) |=> (mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));

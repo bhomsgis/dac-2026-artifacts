@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking if the `valid_i` input directly affects the `valid_q` register in the next cycle. However, the `valid_q` register is updated based on the `valid_d` signal, which is assigned the value of `valid_q` when `valid_i` is not asserted.
+
+The issue here is that the assertion is not considering the pipeline behavior of the `valid_q` register. When `valid_i` is asserted, it updates the `valid_d` signal, which in turn updates the `valid_q` register in the next cycle. However, when `valid_i` is not asserted, the `valid_d` signal is assigned the value of `valid_q`, effectively keeping the `valid_q` register in its current state.
+
+To fix this, we need to modify the assertion to consider the pipeline behavior of the `valid_q` register. We can do this by checking if the `valid_q` register is updated correctly based on the `valid_i` input and the current state of the `valid_q` register.
+
+Here's the corrected assertion:
+
+as__ValidQUpdate: assert property(valid_i |=> div_unit.valid_q == $past(valid_i) || div_unit.valid_q == $past(div_unit.valid_q));
+
+This assertion checks if the `valid_q` register is updated correctly in the next cycle based on the `valid_i` input and the current state of the `valid_q` register. If `valid_i` is asserted, the `valid_q` register should be updated to the value of `valid_i`. If `valid_i` is not asserted, the `valid_q` register should remain in its current state.

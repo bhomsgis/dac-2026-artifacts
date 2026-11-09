@@ -1,0 +1,11 @@
+The current assertion `as__NoInvalidDataNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));` might be failing because it does not correctly account for the pipeline behavior and timing of the `mul_unit` module.
+
+The assertion checks if the output `valid_o` is not asserted when either of the input operands `data_rs1_i` or `data_rs2_i` is unknown (`{WIDTH{1'bx}}`). However, this check is performed in the next cycle after the input `valid_i` is asserted, which might not be sufficient to cover all possible scenarios.
+
+A more robust approach would be to check the validity of the input operands in the same cycle as the input `valid_i` is asserted, and then check the output `valid_o` in the next cycle. Additionally, we should consider the case where the operation is 32-bit or 64-bit.
+
+Here is a corrected assertion:
+
+```systemverilog
+as__NoInvalidDataNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && ($past(data_rs1_i) == {WIDTH{1'bx}} || $past(data_rs2_i) == {WIDTH{1'bx}} || $past(data_rs1_i) == {WIDTH{1'b0}} || $past(data_rs2_i) == {WIDTH{1'b0}})));
+```

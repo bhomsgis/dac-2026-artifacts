@@ -1,0 +1,9 @@
+The current assertion is failing because it checks if `access_hit_i` is high whenever `pseudoLRU.access_array` is high. However, `pseudoLRU.access_array` is a decoded version of `access_idx_i` and is not directly related to `access_hit_i`. The correct relationship is that `access_hit_i` should be high when `pseudoLRU.access_array[access_idx_i]` is high.
+
+However, even this relationship is not entirely accurate. The RTL shows that `pseudoLRU.access_array` is set based on `access_idx_i`, but it is only used to update the PLRU tree when `access_hit_i` is high. Therefore, the correct assertion should check if `pseudoLRU.access_array[access_idx_i]` is high whenever `access_hit_i` is high.
+
+Here is the corrected assertion:
+
+as__AccessArraySetImpliesAccessHit: assert property(access_hit_i |-> pseudoLRU.access_array[access_idx_i] == 1'b1);
+
+This assertion checks if `pseudoLRU.access_array[access_idx_i]` is high whenever `access_hit_i` is high, which is the correct relationship between these signals.

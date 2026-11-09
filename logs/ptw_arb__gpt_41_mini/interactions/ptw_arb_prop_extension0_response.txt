@@ -1,0 +1,38 @@
+// Check that when in SERVING_iTLB state and response valid, is_req_waiting_q is cleared next cycle
+assert property ( (ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_tlb_comm_i.resp.valid) |=> (ptw_arb.is_req_waiting_d == 1'b0) );
+// Check that when in SERVING_iTLB state and response invalid, is_req_waiting_q remains unchanged next cycle
+assert property ( (ptw_arb.current_state == ptw_arb.SERVING_iTLB && !ptw_tlb_comm_i.resp.valid) |=> (ptw_arb.is_req_waiting_d == ptw_arb.is_req_waiting_q) );
+// Check that when in SERVING_dTLB state and response valid, next_state goes to IDLE
+assert property ( (ptw_arb.current_state == ptw_arb.SERVING_dTLB && ptw_tlb_comm_i.resp.valid) |-> (ptw_arb.next_state == ptw_arb.IDLE) );
+// Check that when in SERVING_dTLB state and response invalid, next_state remains SERVING_dTLB
+assert property ( (ptw_arb.current_state == ptw_arb.SERVING_dTLB && !ptw_tlb_comm_i.resp.valid) |-> (ptw_arb.next_state == ptw_arb.SERVING_dTLB) );
+// Check that when in IDLE state and both requests valid, is_req_waiting_d is set and itlb_req_waiting_d equals itlb_ptw_comm_i
+assert property ( (ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid && itlb_ptw_comm_i.req.valid) |-> (ptw_arb.is_req_waiting_d == 1'b1 && ptw_arb.itlb_req_waiting_d == itlb_ptw_comm_i) );
+// Check that when in IDLE state and only dtlb request valid and no waiting request, next_state is SERVING_dTLB
+assert property ( (ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid && !itlb_ptw_comm_i.req.valid && !ptw_arb.is_req_waiting_q) |-> (ptw_arb.next_state == ptw_arb.SERVING_dTLB) );
+// Check that when in IDLE state and only itlb request valid and no waiting request, next_state is SERVING_iTLB
+assert property ( (ptw_arb.current_state == ptw_arb.IDLE && itlb_ptw_comm_i.req.valid && !dtlb_ptw_comm_i.req.valid && !ptw_arb.is_req_waiting_q) |-> (ptw_arb.next_state == ptw_arb.SERVING_iTLB) );
+// Check that when in IDLE state and no requests valid and no waiting request, next_state remains IDLE
+assert property ( (ptw_arb.current_state == ptw_arb.IDLE && !dtlb_ptw_comm_i.req.valid && !itlb_ptw_comm_i.req.valid && !ptw_arb.is_req_waiting_q) |-> (ptw_arb.next_state == ptw_arb.IDLE) );
+// Check that when is_req_waiting_q is set, next_state is SERVING_iTLB
+assert property ( ptw_arb.is_req_waiting_q |-> (ptw_arb.next_state == ptw_arb.SERVING_iTLB) );
+// Check that when in SERVING_iTLB state, ptw_itlb_comm_o.resp equals ptw_tlb_comm_i.resp and ptw_dtlb_comm_o.resp is zero
+assert property ( ptw_arb.current_state == ptw_arb.SERVING_iTLB |-> (ptw_itlb_comm_o.resp == ptw_tlb_comm_i.resp && ptw_dtlb_comm_o.resp == '0) );
+// Check that when in SERVING_dTLB state, ptw_dtlb_comm_o.resp equals ptw_tlb_comm_i.resp and ptw_itlb_comm_o.resp is zero
+assert property ( ptw_arb.current_state == ptw_arb.SERVING_dTLB |-> (ptw_dtlb_comm_o.resp == ptw_tlb_comm_i.resp && ptw_itlb_comm_o.resp == '0) );
+// Check that when in SERVING_iTLB state and is_req_waiting_q set, tlb_ptw_comm_o equals itlb_req_waiting_q
+assert property ( (ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_arb.is_req_waiting_q) |-> (tlb_ptw_comm_o == ptw_arb.itlb_req_waiting_q) );
+// Check that when in SERVING_iTLB state and no waiting request, tlb_ptw_comm_o equals itlb_ptw_comm_i
+assert property ( (ptw_arb.current_state == ptw_arb.SERVING_iTLB && !ptw_arb.is_req_waiting_q) |-> (tlb_ptw_comm_o == itlb_ptw_comm_i) );
+// Check that when in SERVING_dTLB state, tlb_ptw_comm_o equals dtlb_ptw_comm_i
+assert property ( ptw_arb.current_state == ptw_arb.SERVING_dTLB |-> (tlb_ptw_comm_o == dtlb_ptw_comm_i) );
+// Check that ptw_itlb_comm_o.ptw_ready and ptw_dtlb_comm_o.ptw_ready are 1 only when current_state is IDLE
+assert property ( (ptw_itlb_comm_o.ptw_ready == 1'b1 && ptw_dtlb_comm_o.ptw_ready == 1'b1) |-> (ptw_arb.current_state == ptw_arb.IDLE) );
+// Check that ptw_itlb_comm_o.ptw_ready and ptw_dtlb_comm_o.ptw_ready are 0 when current_state is not IDLE
+assert property ( (ptw_arb.current_state != ptw_arb.IDLE) |-> (ptw_itlb_comm_o.ptw_ready == 1'b0 && ptw_dtlb_comm_o.ptw_ready == 1'b0) );
+// Check that when in IDLE state and no requests valid and no waiting request, tlb_ptw_comm_o is zero
+assert property ( (ptw_arb.current_state == ptw_arb.IDLE && !dtlb_ptw_comm_i.req.valid && !itlb_ptw_comm_i.req.valid && !ptw_arb.is_req_waiting_q) |-> (tlb_ptw_comm_o == '0) );
+// Check that is_req_waiting_d is set only when both dtlb_ptw_comm_i.req.valid and itlb_ptw_comm_i.req.valid are true in IDLE state
+assert property ( ptw_arb.current_state == ptw_arb.IDLE |-> (ptw_arb.is_req_waiting_d == (dtlb_ptw_comm_i.req.valid && itlb_ptw_comm_i.req.valid)) );
+// Check that is_req_waiting_d is cleared only on valid itlb response when in SERVING_iTLB state and is_req_waiting_q is set
+assert property ( (ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_arb.is_req_waiting_q && ptw_tlb_comm_i.resp.valid) |-> (ptw_arb.is_req_waiting_d == 1'b0) );

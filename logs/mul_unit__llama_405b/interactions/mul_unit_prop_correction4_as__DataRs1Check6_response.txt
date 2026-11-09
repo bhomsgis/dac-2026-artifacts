@@ -1,0 +1,37 @@
+The current assertion is failing because it is trying to check the value of `data_rs1_d` in the same cycle as the inputs `valid_i` and `op_i` are checked. However, `data_rs1_d` is a combinational signal that is assigned a value based on the inputs `data_rs1_i` and `op_32bits_i`, and this assignment happens after the inputs have been checked.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `data_rs1_q` in the next cycle, after the inputs have been registered.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check6: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.data_rs1_q == (($past(data_rs1_i)[(mul_unit.WIDTH-1)] & !$past(op_32bits_i)) | ($past(data_rs1_i)[31] & $past(op_32bits_i))) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```
+
+However, this assertion is still not correct because it is using `$past(data_rs1_i)` and `$past(op_32bits_i)` in the postcondition, which is not necessary. The correct assertion should be:
+
+```
+as__DataRs1Check6: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.data_rs1_q == ((mul_unit.data_rs1_i[(mul_unit.WIDTH-1)] & !mul_unit.op_32bits_i) | (mul_unit.data_rs1_i[31] & mul_unit.op_32bits_i)) ? ~mul_unit.data_rs1_i + mul_unit.ONE : mul_unit.data_rs1_i));
+```
+
+But this is still not correct, the reason is that `data_rs1_i` and `op_32bits_i` are not registered, they are wires, so we can't use them in the postcondition of a next-cycle assertion. We should use the registered versions of these signals, which are `data_rs1_q` and `op_32bits_q`.
+
+However, we can't use `data_rs1_q` in the calculation because it's the result we are trying to check. We should use the registered version of `data_rs1_i` before the calculation, which is not available. 
+
+So, the correct assertion should check the combinational signal `data_rs1_d` in the same cycle as the inputs:
+
+```
+as__DataRs1Check6: assert property((valid_i && (op_i == 2'b01)) |-> (mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? ~data_rs1_i + mul_unit.ONE : data_rs1_i));
+```
+
+This is the same as the original assertion, which means the original assertion is actually correct. The problem might be in the testbench or the inputs. 
+
+However, if we want to check the registered version of `data_rs1_d`, we can use:
+
+```
+as__DataRs1Check6: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.data_rs1_q == ((mul_unit.data_rs1_d[(mul_unit.WIDTH-1)] & !mul_unit.op_32bits_q) | (mul_unit.data_rs1_d[31] & mul_unit.op_32bits_q)) ? ~mul_unit.data_rs1_d + mul_unit.ONE : mul_unit.data_rs1_d));
+```
+
+But this assertion is not checking the correct thing, it's checking if `data_rs1_q` is equal to a calculation based on `data_rs1_d`, which is not the original intention of the assertion. 
+
+In conclusion, the original assertion is actually correct, and the problem might be in the testbench or the inputs.

@@ -1,0 +1,3 @@
+// The assertion fails because cycles_counter is updated in the same clock cycle as valid_i is asserted, but cycles_counter is a register updated on posedge clk_i. The precondition valid_i is sampled at the current cycle, but cycles_counter reflects the previous cycle's value until the clock edge. Therefore, the assertion should check cycles_counter in the next cycle and compare it to the value of op_32bits_i in the previous cycle (using $past). This accounts for pipeline timing and register update behavior.
+
+as__CyclesLoadOnValid: assert property (valid_i |=> (div_unit.cycles_counter == ($past(div_unit.op_32_q) ? div_unit.CYCLES_32[5:0] : div_unit.CYCLES_64[5:0])));

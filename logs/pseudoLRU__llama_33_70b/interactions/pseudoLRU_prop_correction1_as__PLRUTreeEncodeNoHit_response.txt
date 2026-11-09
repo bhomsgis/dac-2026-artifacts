@@ -1,0 +1,2 @@
+// Check that when there is no hit, the replace_en signal is not set
+as__PLRUTreeEncodeNoHit: assert property(!access_hit_i |-> &{pseudoLRU.replace_en} == 1'b0);

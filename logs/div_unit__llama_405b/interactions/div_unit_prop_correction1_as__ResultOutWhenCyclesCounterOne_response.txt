@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if `result_o` is not all zeros when `cycles_counter` is 1. However, this is not necessarily true for all cases. When `div_zero_q` is 1, `result_o` will be all ones, not a non-zero value.
+
+The proposed fix is to check if `result_o` is not all zeros only when `div_zero_q` is 0. This ensures that the assertion is only checking for non-zero results when the division is valid.
+
+Here is the corrected assertion:
+
+```
+as__ResultOutWhenCyclesCounterOne: assert property(div_unit.cycles_counter == 6'd1 && !div_unit.div_zero_q |-> result_o != {WIDTH{1'b0}});
+```
+
+This assertion checks if `result_o` is not all zeros when `cycles_counter` is 1 and `div_zero_q` is 0. This ensures that the assertion is only checking for non-zero results when the division is valid.

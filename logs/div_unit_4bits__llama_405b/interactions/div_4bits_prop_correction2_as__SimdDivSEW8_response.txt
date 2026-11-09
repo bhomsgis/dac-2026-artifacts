@@ -1,0 +1,1 @@
+as__SimdDivSEW8: assert property(sew_i == 2'b00 |-> div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[(SIMD_ENABLE ? 7 : div_4bits.WIDTH-1)]});

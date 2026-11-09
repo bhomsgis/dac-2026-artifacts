@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking the result of the multiplication in the same cycle as the input is provided, but the multiplication operation takes two cycles to complete. 
+
+The assertion should be modified to check the result in the next cycle, after the multiplication operation has completed. Also, it should consider the case where the operation is a 32-bit multiplication, as the result is available in the next cycle in the `result_32_q` register.
+
+Here is the corrected assertion:
+
+as__ResultCheck4: assert property((valid_i && (op_i == 2'b11)) |=> (result_o == ((mul_unit.neg_q_final) ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE)[127:64] : mul_unit.result_2width[127:64])));

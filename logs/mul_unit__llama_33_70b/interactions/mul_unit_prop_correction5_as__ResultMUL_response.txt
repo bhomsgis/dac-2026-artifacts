@@ -1,0 +1,3 @@
+```systemverilog
+as__ResultMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == ($past(mul_unit.neg_q) ? (~$past(mul_unit.result_32) + mul_unit.ONE) : $past(mul_unit.result_32)));
+```

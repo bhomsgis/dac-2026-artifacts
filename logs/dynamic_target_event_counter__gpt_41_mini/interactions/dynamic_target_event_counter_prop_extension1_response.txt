@@ -1,0 +1,22 @@
+// Check that target_reached_o reflects correct comparison when OPEN_CLLOSE_LIMIT is 1'b1
+as__TargetReachedOpenLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+// Check that target_reached_o reflects correct comparison when OPEN_CLLOSE_LIMIT is 1'b0
+as__TargetReachedClosedLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+// Check that target_reg_q updates to target_value_i on reset_count_i
+as__TargetRegUpdateOnResetCountNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+// Check that target_reg_q holds value when reset_count_i is not asserted
+as__TargetRegHoldNoResetCountNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+// Check that counter_q updates to counter_d on next cycle when no reset_count_i
+as__CounterUpdateOnEventNoResetNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+// Check that counter_q updates to reset value on reset_count_i depending on EXT_COUNT_RESET
+as__CounterUpdateNextCycleResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+// Check that when no event triggers, counter_d holds counter_q
+as__CounterHoldNoEventNextCycle: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+// Check that when event triggers occur, counter_d updates correctly based on INCR_DECR_COUNT and number of events
+as__CounterIncrementDecrementNextCycle: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+// Check current_count_o output matches counter_q when CURRENT_COUNT_PCONF == 1
+as__CurrentCountOutputConfigOneSameCycle: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+// Check current_count_o output matches target_reg_q when CURRENT_COUNT_PCONF == 0
+as__CurrentCountOutputConfigZeroSameCycle: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+// Check current_count_o output is zero when CURRENT_COUNT_PCONF is neither 0 nor 1
+as__CurrentCountOutputConfigOtherSameCycle: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);

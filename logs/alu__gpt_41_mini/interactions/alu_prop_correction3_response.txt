@@ -1,0 +1,2 @@
+// Check that for AND operation with CONFIG32=0, the result matches the bitwise AND of operands, with sign extension for 32-bit operations
+as__AndOperationNonConfig32: assert property((valid_i && op_i == alu.AND && alu.CONFIG32 == 1'b0) |-> ((op_size_i == alu.WORD) ? (result_o[31:0] == (data_rs1_i[31:0] & data_rs2_i[31:0]) && result_o[63:32] == {32{result_o[31]}}) : (result_o == (data_rs1_i & data_rs2_i))));

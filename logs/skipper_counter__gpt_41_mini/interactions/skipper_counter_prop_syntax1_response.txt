@@ -1,0 +1,43 @@
+assert property (@(posedge clk_i) skipper_counter.priority_valid |-> |skipper_counter.current_active_vector) as__PriorityValidImpliesActiveVectorNonZero;
+
+assert property (@(posedge clk_i) (skipper_counter.one_hot) |-> ($countones(skipper_counter.current_active_vector) == 1)) as__OneHotImpliesSingleBitSet;
+
+assert property (@(posedge clk_i) (valid_state_o == skipper_counter.priority_valid)) as__ValidStateMatchesPriorityValid;
+
+assert property (@(posedge clk_i) (turn_count_o <= CLOSE_LIMIT)) as__TurnCountWithinLimit;
+
+assert property (@(posedge clk_i) (state_count_o <= CLOSE_LIMIT)) as__StateCountWithinLimit;
+
+assert property (@(posedge clk_i) stall_i |-> (turn_count_o == $past(turn_count_o))) as__StallHoldsTurnCount;
+
+assert property (@(posedge clk_i) ((!same_vector || skipper_counter.one_hot) |-> (skipper_counter.current_active_vector == active_vector_i))) as__ActiveVectorChangesUpdateCurrentActiveVector;
+
+assert property (@(posedge clk_i) ((same_vector && !skipper_counter.one_hot) |-> (skipper_counter.current_active_vector[state_count] == 1'b0))) as__CurrentActiveVectorClearsBitAtStateCountWhenNoChange;
+
+assert property (@(posedge clk_i) ($past(active_vector_i) == last_active_vector)) as__LastActiveVectorTracksActiveVector;
+
+assert property (@(posedge clk_i) (same_vector == (~|(active_vector_i ^ last_active_vector)))) as__SameVectorSignalCorrect;
+
+assert property (@(posedge clk_i) (skipper_counter.one_hot == (~|(skipper_counter.current_active_vector & (skipper_counter.current_active_vector - 1))))) as__OneHotSignalCorrect;
+
+assert property (@(posedge clk_i) skipper_counter.priority_valid |-> (state_count == priority_encoder_inst.encoded_value_o)) as__PriorityValidImpliesStateCountIsEncoded;
+
+assert property (@(posedge clk_i) ((!stall_i && $past(!stall_i)) |=> (turn_count_o != $past(turn_count_o)))) as__TurnCountAdvancesWhenNotStalled;
+
+assert property (@(posedge clk_i) (stall_i |=> (turn_count_o == $past(turn_count_o)))) as__TurnCountHoldsWhenStalled;
+
+assert property (@(posedge clk_i) (valid_state_o == skipper_counter.priority_valid)) as__ValidStateOutputMatchesPriorityValid;
+
+assert property (@(posedge clk_i) (state_count_o == priority_encoder_inst.encoded_value_o)) as__StateCountMatchesPriorityEncoderOutput;
+
+assert property (@(posedge clk_i) ($past(state_count_o) == last_state)) as__LastStateTracksStateCount;
+
+assert property (@(posedge clk_i) ($past(skipper_counter.one_hot_d) == skipper_counter.one_hot_q)) as__OneHotQTracksOneHotD;
+
+assert property (@(posedge clk_i) (same_count == (~|(turn_count ^ last_count)))) as__SameCountSignalCorrect;
+
+assert property (@(posedge clk_i) ($past(turn_count) == last_count)) as__LastCountTracksTurnCount;
+
+assert property (@(posedge clk_i) (IMMEDIATE_CHANGE && (!same_count || !same_vector)) |-> (((!same_vector || skipper_counter.one_hot_q) ? (skipper_counter.current_active_vector == active_vector_i) : (skipper_counter.current_active_vector[last_state] == 1'b0)))) as__CurrentActiveVectorAssignsCorrectlyImmediateChange;
+
+assert property (@(posedge clk_i) (!IMMEDIATE_CHANGE && !same_count) |-> (((!same_vector || skipper_counter.one_hot_q) ? (skipper_counter.current_active_vector == active_vector_i) : (skipper_counter.current_active_vector[last_state] == 1'b0)))) as__CurrentActiveVectorAssignsCorrectlyNoImmediateChange;

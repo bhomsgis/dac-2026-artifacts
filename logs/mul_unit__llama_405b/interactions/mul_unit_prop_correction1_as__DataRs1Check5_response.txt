@@ -1,0 +1,11 @@
+I believe the current assertion is failing because it's trying to check the value of `data_rs1_d` in the same cycle as `valid_i` and `op_i`. However, `data_rs1_d` is a combinational signal that depends on `data_rs1_i` and `op_32bits_i`, which are also inputs. This means that `data_rs1_d` may not be stable or valid in the same cycle as `valid_i` and `op_i`.
+
+My proposed fix is to check the value of `data_rs1_d` in the next cycle, after it has been registered into `data_rs1_q`. This can be done by using a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`).
+
+Here's the corrected assertion:
+
+```
+as__DataRs1Check5: assert property((valid_i && (op_i == mul_unit.MUL)) |=> (mul_unit.data_rs1_q == ((mul_unit.data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (mul_unit.data_rs1_i[31] & op_32bits_i)) ? ~mul_unit.data_rs1_i + mul_unit.ONE : mul_unit.data_rs1_i));
+```
+
+This assertion checks that in the next cycle after `valid_i` and `op_i` are valid, the value of `data_rs1_q` is correct based on the values of `data_rs1_i` and `op_32bits_i`. Note that I've also prepended `mul_unit.` to the internal signals `data_rs1_q`, `data_rs1_i`, and `ONE` to match the module prefix.

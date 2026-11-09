@@ -1,0 +1,12 @@
+// Check result selection correctness based on operation and configuration
+as__ResultSelectionCorrect: assert property(((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) || (mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) || (mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32))) |-> ((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? (mul_unit.result == mul_unit.result_32_q) : (mul_unit.op_q_final == 0 ? (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) : (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]))));
+// Check valid_o and result_o match configuration and internal valid and result signals
+as__ValidOResultOMatchConfig: assert property((mul_unit.REG_32 || mul_unit.CONFIG32 || (!mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> ((mul_unit.REG_32) ? (valid_o == mul_unit.valid_q[1] && result_o == mul_unit.result) : ((mul_unit.CONFIG32) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result) : ((mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result_32) : (valid_o == (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final) && result_o == mul_unit.result)))));
+// Check data_rs1_q updates to data_rs1_d on valid_i and no flush_i[0]
+genvar i; generate for (i=0; i<mul_unit.WIDTH; i=i+1) begin : gen_data_rs1_q_update
+  as__DataRs1QBitUpdated: assert property((valid_i && !flush_i[0]) |=> mul_unit.data_rs1_q[i] == mul_unit.data_rs1_d[i]);
+end endgenerate
+// Check data_rs2_q updates to data_rs2_d on valid_i and no flush_i[0]
+genvar j; generate for (j=0; j<mul_unit.WIDTH; j=j+1) begin : gen_data_rs2_q_update
+  as__DataRs2QBitUpdated: assert property((valid_i && !flush_i[0]) |=> mul_unit.data_rs2_q[j] == mul_unit.data_rs2_d[j]);
+end endgenerate

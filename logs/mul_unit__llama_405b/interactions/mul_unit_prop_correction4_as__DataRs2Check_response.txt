@@ -1,0 +1,38 @@
+The current assertion is failing because it is trying to check the value of `data_rs2_d` in the same cycle as `valid_i`, but `data_rs2_d` is a combinational signal that is assigned a value based on `data_rs2_i` and `op_32bits_i` in the same cycle. This means that the value of `data_rs2_d` is not yet stable when the assertion is checked.
+
+To fix this, we need to check the value of `data_rs2_d` in the next cycle, after it has been assigned a value based on `data_rs2_i` and `op_32bits_i`. We can do this by using a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`).
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check: assert property((valid_i) |=> (mul_unit.data_rs2_q == ((data_rs2_i[(mul_unit.WIDTH-1)] & !$past(op_32bits_i)) | (data_rs2_i[31] & $past(op_32bits_i))) ? ~$past(data_rs2_i) + mul_unit.ONE : $past(data_rs2_i)));
+```
+
+However, this assertion is still not correct because it is using `$past(data_rs2_i)` and `$past(op_32bits_i)` in the postcondition, but it is not using `$past()` for `mul_unit.data_rs2_q`. To fix this, we need to use `$past()` consistently for all signals in the postcondition.
+
+But we can't use `$past()` with `mul_unit.data_rs2_q` because it is a registered signal and we want to check its value in the current cycle, not in the past cycle.
+
+So, the correct assertion is:
+
+```
+as__DataRs2Check: assert property((valid_i) |=> (mul_unit.data_rs2_q == (($past(data_rs2_i[(mul_unit.WIDTH-1)]) & !$past(op_32bits_i)) | ($past(data_rs2_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs2_i) + mul_unit.ONE : $past(data_rs2_i)));
+```
+
+However, this is the same as Attempt 3, which didn't work.
+
+Let's try to rewrite the assertion in a different way. Instead of checking the value of `mul_unit.data_rs2_q` directly, we can check the value of `mul_unit.data_rs2_d` in the same cycle as `valid_i`, and then check that the value of `mul_unit.data_rs2_q` is equal to the value of `mul_unit.data_rs2_d` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check: assert property((valid_i) |-> (mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+as__DataRs2Check_q: assert property((valid_i) |=> (mul_unit.data_rs2_q == $past(mul_unit.data_rs2_d)));
+```
+
+However, this is not a single assertion, but two separate assertions.
+
+Let's try to combine them into a single assertion:
+
+```
+as__DataRs2Check: assert property((valid_i) |=> (mul_unit.data_rs2_q == $past(((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i)));
+```

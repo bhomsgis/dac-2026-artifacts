@@ -1,0 +1,9 @@
+The current assertion is failing because it is comparing the current state with the past value of the next state. However, the next state is only updated at the next clock cycle, so this comparison is not valid.
+
+The issue with the current assertion is that it is using $past(ptw.next_state) which is trying to access the value of next_state from the previous clock cycle. However, next_state is a combinational signal that is calculated in the same clock cycle, so using $past on it doesn't make sense.
+
+A corrected version of the assertion would be to compare the current state with the next state at the next clock cycle. This can be achieved by using a next-cycle assertion (|=>) and not using $past on the next_state signal.
+
+Here is the corrected assertion:
+
+as__ptwCurrentState: assert property(ptw.current_state == ##1 ptw.next_state);

@@ -1,0 +1,1 @@
+as__StateTransition11: assert property((ptw_arb.current_state == ptw_arb.SERVING_dTLB) && (!ptw_tlb_comm_i.resp.valid) |=> (ptw_arb.next_state == ptw_arb.SERVING_dTLB) || (ptw_arb.next_state == ptw_arb.IDLE));

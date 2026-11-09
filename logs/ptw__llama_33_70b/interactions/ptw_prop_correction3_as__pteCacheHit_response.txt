@@ -1,0 +1,3 @@
+```systemverilog
+as__pteCacheHit: assert property(ptw.pte_cache_hit |-> ptw.ptw_dmem_comm_o.req.valid == 1'b0);
+```

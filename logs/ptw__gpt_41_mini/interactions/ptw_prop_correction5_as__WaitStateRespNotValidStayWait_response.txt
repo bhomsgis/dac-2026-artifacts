@@ -1,0 +1,4 @@
+// The assertion fails because the original assertion assumes that whenever resp.valid is false in S_WAIT, the state must remain S_WAIT in the next cycle. However, the FSM transitions out of S_WAIT not only when resp.valid is true but also when resp.nack is true, which causes a transition back to S_REQ. Therefore, the assertion must exclude the case when resp.nack is asserted to correctly capture the condition for staying in S_WAIT.
+// The fix is to add a precondition that resp.nack is false along with resp.valid being false, so that the assertion only checks for staying in S_WAIT when there is no valid response and no nack signal. This matches the FSM behavior and should pass formal verification.
+// Corrected assertion:
+as__WaitStateRespNotValidStayWait: assert property ((ptw.current_state == ptw.S_WAIT && !ptw.dmem_ptw_comm_i.resp.valid && !ptw.dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_WAIT));

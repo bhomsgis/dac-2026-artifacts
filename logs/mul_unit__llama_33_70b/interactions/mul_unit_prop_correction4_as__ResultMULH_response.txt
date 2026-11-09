@@ -1,0 +1,10 @@
+The current assertion `as__ResultMULH: assert property(valid_i && op_i == mul_unit.MULH |-> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` is failing because it's trying to check the result of the MULH operation in the same cycle as the input is valid and the operation is MULH. However, the result of the MULH operation is not available in the same cycle due to the pipeline behavior of the mul_unit.
+
+The result of the MULH operation is calculated in the `result_2width_def` signal, which is assigned in the same cycle as the inputs, but it's not the final result that is output by the mul_unit. The final result is selected by the `always_comb` block that assigns the `result` signal, which takes into account the `op_32bits_q_final` signal that is updated in the next cycle.
+
+To fix this assertion, we need to check the result of the MULH operation in the next cycle, when the `op_q_final` signal is updated to MULH. We also need to use the `$past` function to refer to the value of the `result_2width_def` signal in the previous cycle.
+
+Here is the corrected assertion:
+```systemverilog
+as__ResultMULH: assert property(valid_i && op_i == mul_unit.MULH |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```

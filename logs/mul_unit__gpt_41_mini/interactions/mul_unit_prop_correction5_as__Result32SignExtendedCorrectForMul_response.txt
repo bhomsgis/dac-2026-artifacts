@@ -1,0 +1,4 @@
+// The original assertion fails because it compares mul_unit.result_32 (a wire) directly in the next cycle postcondition, which is incorrect timing; also, it does not consider the valid_q pipeline stage and uses result_32 instead of result_32_q for registered output. The assertion must check when op_q_final == 0 (MUL) and valid_q[1] is asserted, then the registered result_32_q must be the sign-extended version of the registered result_low_q[31:0], using $past() on result_low_q to refer to the value at the precondition cycle. This aligns with pipeline timing and registered outputs.
+
+// Corrected assertion:
+as__Result32SignExtendedCorrectForMul: assert property ((mul_unit.op_q_final == 0 && mul_unit.valid_q[1]) |=> mul_unit.result_32_q == {{(mul_unit.WIDTH-32){$past(mul_unit.result_low_q[31])}}, $past(mul_unit.result_low_q[31:0])});

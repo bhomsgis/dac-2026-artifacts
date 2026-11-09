@@ -1,0 +1,7 @@
+I believe the current assertion is failing because it's checking if the `flush_i[1]` signal is high, then the `valid_q[0]` should be low in the next cycle. However, the `valid_q[0]` signal is not necessarily updated in the same cycle as the `flush_i[1]` signal. The `valid_q[0]` signal is updated in the first stage of the pipeline, while the `flush_i[1]` signal is used to flush the second stage of the pipeline.
+
+To fix this, we should check if the `flush_i[0]` signal is high, then the `valid_q[0]` should be low in the next cycle.
+
+Here is the corrected assertion:
+
+as__FlushCheck4: assert property((flush_i[0]) |=> (mul_unit.valid_q[0] == 1'b0));

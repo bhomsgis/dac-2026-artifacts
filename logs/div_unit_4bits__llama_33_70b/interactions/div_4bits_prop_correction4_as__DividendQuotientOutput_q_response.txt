@@ -1,0 +1,5 @@
+The current assertion is failing because it is trying to compare the value of `div_4bits.dividend_quotient_o_q` with the value of `div_4bits.tmp_dividend_quotient[0]` from the previous cycle. However, `div_4bits.tmp_dividend_quotient[0]` is a wire and its value changes in the same cycle, so using `$past` to refer to its value from the previous cycle is not correct.
+
+The proposed fix is to compare the value of `div_4bits.dividend_quotient_o_q` with the value of `div_4bits.tmp_dividend_quotient[0]` from the current cycle, but considering the pipeline behavior and timing. Since `div_4bits.dividend_quotient_o_q` is a register, its value changes in the next cycle, so we should compare it with the value of `div_4bits.tmp_dividend_quotient[0]` from the current cycle, using a next-cycle assertion.
+
+as__DividendQuotientOutput_q: assert property((div_4bits.tmp_dividend_quotient[0] == {div_4bits.dividend_quotient_i[WIDTH-2:0], div_4bits.quotient_bit[0]}) |=> (div_4bits.dividend_quotient_o_q == $past({div_4bits.dividend_quotient_i[WIDTH-2:0], div_4bits.quotient_bit[0]})));

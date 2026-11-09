@@ -1,0 +1,7 @@
+as__DividendQuotientOutput2: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+as__DividendQuotientOutput3: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+as__SimdDivSEW8_2: assert property(sew_i == 2'b00 |-> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][7]});
+as__SimdDivSEW16_2: assert property(sew_i == 2'b01 |-> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][15]});
+as__SimdDivSEW32_2: assert property(sew_i == 2'b10 |-> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][31]});
+as__SimdDivSEW64_2: assert property(sew_i == 2'b11 |-> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][63]});
+as__ScalarDiv2: assert property(!div_4bits.SIMD_ENABLE |-> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][(div_4bits.WIDTH-1)]});

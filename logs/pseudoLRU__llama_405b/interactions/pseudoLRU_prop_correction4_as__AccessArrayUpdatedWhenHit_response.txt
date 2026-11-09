@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking if the `access_array` is updated when there is a hit, but the `access_array` is a combinational signal that is updated in the same cycle as the hit. The assertion is using `$past` to compare the current value of `access_array` with its previous value, but this is not necessary because the update of `access_array` happens in the same cycle.
+
+Moreover, the assertion is not checking the correct signal. The `access_array` is not a registered signal, it's a combinational signal that is used to update the `plru_tree_d` signal. The correct signal to check is `plru_tree_d`.
+
+The proposed fix is to check if the `plru_tree_d` signal is updated when there is a hit. We can do this by comparing the current value of `plru_tree_d` with the value of `plru_tree_q` (which is the registered version of `plru_tree_d`). If there is a hit, the `plru_tree_d` signal should be different from the `plru_tree_q` signal.
+
+Here is the corrected assertion:
+
+as__AccessArrayUpdatedWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);

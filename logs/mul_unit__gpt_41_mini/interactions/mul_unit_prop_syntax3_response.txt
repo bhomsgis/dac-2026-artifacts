@@ -1,0 +1,14 @@
+// Check result_32_aux correctness for MUL operation with negation
+as__Result32AuxCorrectForMul: assert property((mul_unit.op_q == 0) |=> mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0]));
+// Check sign extension correctness of result_32 for MUL operation
+as__Result32SignExtendedCorrectForMul: assert property((mul_unit.op_q == 0) |=> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]});
+// Check result_2width_def negation correctness on valid_q[1]
+as__Result2WidthDefNegationCorrect: assert property(mul_unit.valid_q[1] |=> mul_unit.result_2width_def == (mul_unit.neg_q_final ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE) : mul_unit.result_2width));
+// Check result_2width sum correctness on valid_q[1]
+as__Result2WidthSumCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> mul_unit.result_2width == {{(mul_unit.WIDTH/2){1'b0}}, mul_unit.result_low_q} + {mul_unit.result_high_q, {(mul_unit.WIDTH/2){1'b0}}});
+// Check second stage registers update on valid_q[0] with no flush
+as__SecondStageRegistersUpdateOnValidQ0NoFlush: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> (mul_unit.op_q_final == $past(mul_unit.op_q) && mul_unit.op_32bits_q_final == $past(mul_unit.op_32bits_q) && mul_unit.neg_q_final == $past(mul_unit.neg_q) && mul_unit.result_32_q == $past(mul_unit.result_32) && mul_unit.result_low_q == $past(mul_unit.result_low_d) && mul_unit.result_high_q == $past(mul_unit.result_high_d)));
+// Check result selection correctness on valid_q[1]
+as__ResultSelectionCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> ((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? (mul_unit.result == mul_unit.result_32_q) : (mul_unit.op_q_final == 0 ? (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) : (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]))));
+// Check valid_o signal correctness based on configuration and operation
+as__ValidOSetCorrectly: assert property(mul_unit.valid_o |-> ((mul_unit.REG_32) ? mul_unit.valid_q[1] : ((mul_unit.CONFIG32) ? mul_unit.valid_q[0] : ((mul_unit.op_32bits_q[0]) ? mul_unit.valid_q[0] : (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final)))));

@@ -1,0 +1,9 @@
+1. Explanation of failure:  
+The original assertion uses a next-cycle implication (|=>) with valid_q[1] as precondition and compares mul_unit.result_32 directly to a sign-extended version of mul_unit.result_32_aux. However, mul_unit.result_32_aux is a wire assigned combinationally from signals that are registered at the previous cycle (neg_q, result_low_d), so its value at the cycle of valid_q[1] may not be stable or correspond to the expected pipeline stage. Also, the assertion does not consider that the sign extension should be based on the sign bit of the 32-bit result at the previous cycle (when valid_q[0] was asserted), not the current cycle. Using |=> means the postcondition is checked at cycle of valid_q[1], but referencing mul_unit.result_32_aux directly (a wire) at that cycle may not reflect the correct value corresponding to the pipeline stage. This mismatch in timing and signal stability causes the assertion to fail.
+
+2. Proposed fix:  
+Use a same-cycle implication (|->) instead of next-cycle (|=>) because mul_unit.result_32 is a wire assigned combinationally from registered signals, and the assertion is about the value in the same cycle as valid_q[1]. Also, replace mul_unit.result_32_aux with the registered signal mul_unit.result_32_q which holds the stable 32-bit result at the cycle of valid_q[1]. The sign extension should be done from mul_unit.result_32_q[31], which is the registered 32-bit result sign bit. This ensures the assertion checks the stable registered value at the correct pipeline stage and timing.
+
+3. Corrected assertion:
+
+as__Result32SignExtendedCorrectOnValidQ1AllOps: assert property(mul_unit.valid_q[1] |-> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_q[31]}}, mul_unit.result_32_q[31:0]});

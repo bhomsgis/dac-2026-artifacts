@@ -1,0 +1,7 @@
+The current assertion `as__reqValidNext: assert property(tlb_ptw_comm_i.req.valid |=> (ptw.next_state == ptw.S_REQ));` might be failing because it does not consider the current state of the PTW FSM. The PTW FSM only transitions to `S_REQ` when it is in the `S_READY` state and a valid request is received. 
+
+The proposed fix is to add a condition to check the current state of the PTW FSM. The corrected assertion should be:
+
+```systemverilog
+as__reqValidNext: assert property(tlb_ptw_comm_i.req.valid && ptw.current_state == ptw.S_READY |=> (ptw.next_state == ptw.S_REQ));
+```

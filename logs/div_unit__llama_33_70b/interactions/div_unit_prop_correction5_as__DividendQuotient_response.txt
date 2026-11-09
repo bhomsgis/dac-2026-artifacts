@@ -1,0 +1,1 @@
+as__DividendQuotient: assert property(!valid_i |=> div_unit.dividend_quotient_q == $past(div_unit.dividend_quotient_out) && $past(div_unit.cycles_counter) > 6'd0);

@@ -1,0 +1,19 @@
+The current assertion is failing because it is using a same-cycle assertion (`|->`) to check the value of `quo_aux`, which depends on the updated value of `dividend_quotient_q`. However, since `dividend_quotient_q` is a register, its updated value is only available in the next cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `quo_aux` in the next cycle, after the update of `dividend_quotient_q`. We also need to use `$past()` to refer to the value of `same_sign_q` and `dividend_quotient_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__QuoAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.quo_aux == ((div_unit.same_sign_q) ? $past(div_unit.dividend_quotient_q) : ~$past(div_unit.dividend_quotient_q) + div_unit.ONE));
+```
+
+However, this is the same as Attempt 1, which didn't work. Let's try another approach.
+
+The issue might be due to the fact that `quo_aux` is not directly updated by `dividend_quotient_q`, but rather by `quo`, which is assigned to `quo_aux` through a generate block. Therefore, we need to check the value of `quo` instead of `quo_aux`.
+
+Here is the corrected assertion:
+
+```
+as__QuoAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.quo == ((div_unit.same_sign_q) ? $past(div_unit.dividend_quotient_q) : ~$past(div_unit.dividend_quotient_q) + div_unit.ONE));
+```

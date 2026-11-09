@@ -1,0 +1,11 @@
+The assertion `as__ValidCheck2` is failing because it's checking the wrong condition. The assertion is trying to check if the `valid_o` signal is equal to the `valid_q` signal in the last cycle of the multiplication operation when `op_32bits_i` is low. However, the `valid_q` signal is a registered signal that is updated in the next cycle, so it's not possible to check its value in the same cycle.
+
+The correct condition to check is that the `valid_o` signal is equal to the `valid_q` signal in the previous cycle, which can be accessed using the `$past()` function.
+
+Here is the corrected assertion:
+
+```
+as__ValidCheck2: assert property((valid_i && !op_32bits_i) |=> (valid_o == $past(mul_unit.valid_q[mul_unit.MAX_CYCLES-1])));
+```
+
+This assertion checks that if `valid_i` is high and `op_32bits_i` is low in the current cycle, then `valid_o` is equal to the value of `valid_q` in the previous cycle. The `$past()` function is used to access the value of `valid_q` in the previous cycle.

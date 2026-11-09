@@ -1,0 +1,7 @@
+1. The current assertion is failing because it checks that div_zero_q equals div_zero_d in the next cycle when valid_i is asserted in the current cycle. However, div_zero_q is updated with div_zero_d only when valid_i is asserted, and div_zero_d is combinationally computed from inputs valid_i and data_rs2_i in the current cycle. The assertion does not account for the fact that div_zero_q updates only on the clock edge and only if valid_i is asserted. Also, the assertion compares div_zero_q in the next cycle to div_zero_d in the same cycle, but div_zero_d depends on valid_i, so if valid_i is low in the next cycle, div_zero_d may not match div_zero_q. This timing mismatch causes the assertion to fail.
+
+2. The proposed fix is to check that when valid_i is asserted in the current cycle, div_zero_q in the next cycle equals div_zero_d from the current cycle. Since div_zero_q is a register updated on the clock edge, the correct way is to compare div_zero_q in the next cycle to div_zero_d in the current cycle. Using a next-cycle assertion (|=>) with div_zero_q on the left side and $past(div_zero_d) on the right side ensures the timing is correct. Also, the precondition should be valid_i in the current cycle, so the assertion triggers only when valid_i is high.
+
+3. Corrected assertion:
+
+as__DivZeroQSetOnValidI: assert property (valid_i |=> (div_unit.div_zero_q == $past(div_unit.div_zero_d)));

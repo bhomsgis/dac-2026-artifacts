@@ -1,0 +1,1 @@
+as__respPpnLvl: assert property(ptw.resp_ppn_lvl[ptw.count_q] == ptw.r_resp_ppn[PPN_SIZE-1:0] |=> ptw.resp_ppn_lvl[$past(ptw.count_q)] == $past(ptw.r_resp_ppn[PPN_SIZE-1:0]));

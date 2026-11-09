@@ -1,0 +1,9 @@
+The current assertion is failing because it's checking the result of a 32-bit multiplication against the wrong signal. The signal `mul_unit.result_2width_def[63:32]` is used for 64-bit multiplications, not 32-bit multiplications.
+
+The correct signal to check for 32-bit multiplications is `mul_unit.result_32_q`. However, this signal is only valid when `op_32bits_q_final` is high and `REG_32` is high. 
+
+The proposed fix is to check the result of the 32-bit multiplication against `mul_unit.result_32_q` when `op_32bits_q_final` is high and `REG_32` is high.
+
+Here is the corrected assertion:
+
+as__ResultCheck7: assert property((valid_i && (op_i == 2'b01) && op_32bits_i && REG_32) |=> (result_o == mul_unit.result_32_q));

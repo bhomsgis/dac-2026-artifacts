@@ -1,0 +1,4 @@
+```systemverilog
+// Check that the signed operation is correctly set when a new operation is received
+as__SignedOp2: assert property(valid_i |=> div_unit.signed_op_q == $past(!op_unsigned_i));
+```

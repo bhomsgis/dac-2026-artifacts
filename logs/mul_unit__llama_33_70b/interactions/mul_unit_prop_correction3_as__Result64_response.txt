@@ -1,0 +1,17 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__Result64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |-> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` checks if the result output `result_o` is equal to the lower 64 bits of `result_2width_def` when the operation is not a multiplication (`op_i != mul_unit.MUL`) and it's a 64-bit operation (`!op_32bits_i`).
+2. **Identifying the issue**: The assertion might be failing because it doesn't consider the case when the operation is a multiplication (`op_i == mul_unit.MUL`) and it's a 64-bit operation. In this case, the result output `result_o` should be equal to the lower 64 bits of `result_2width_def`.
+3. **Considering pipeline behavior**: The assertion should also consider the pipeline behavior of the `mul_unit` module. The result output `result_o` is updated in the next cycle after the operation is performed.
+
+# Fixed solution:
+```systemverilog
+as__Result64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Added $past()**: The `$past()` function is used to refer to the value of `result_2width_def` in the previous cycle.
+* **Changed to next-cycle assertion**: The assertion is changed to a next-cycle assertion (`|=>`) to consider the pipeline behavior of the `mul_unit` module.
+* **Updated the bit range**: The bit range of `result_2width_def` is updated to `[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]` to correctly select the lower 64 bits of the result.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different input operations and verifying that the result output `result_o` matches the expected value.

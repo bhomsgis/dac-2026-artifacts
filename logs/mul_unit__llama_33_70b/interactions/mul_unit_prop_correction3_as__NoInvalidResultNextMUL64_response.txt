@@ -1,0 +1,9 @@
+The current assertion `as__NoInvalidResultNextMUL64: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && result_o != mul_unit.result_2width_def[WIDTH-1:0]));` is failing because it does not correctly account for the pipeline behavior and timing of the `mul_unit` module.
+
+The assertion is trying to check that when a 64-bit multiplication operation is performed, the result is not invalid in the next cycle. However, the assertion does not consider the fact that the `result_o` signal is only valid when `valid_o` is high, and that the `result_2width_def` signal is only updated in the next cycle.
+
+To fix this assertion, we need to use the `$past` function to refer to the value of the `result_2width_def` signal in the previous cycle, and we need to check that the `result_o` signal is not invalid when `valid_o` is high.
+
+Here is the corrected assertion:
+
+`as__NoInvalidResultNextMUL64: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && result_o != $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));`

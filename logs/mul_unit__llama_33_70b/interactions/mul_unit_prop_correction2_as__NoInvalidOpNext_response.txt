@@ -1,0 +1,1 @@
+as__NoInvalidOpNext: assert property(valid_i |=> !(valid_o && $past(op_i) != {MUL_OPS_BITS{1'bx}}));

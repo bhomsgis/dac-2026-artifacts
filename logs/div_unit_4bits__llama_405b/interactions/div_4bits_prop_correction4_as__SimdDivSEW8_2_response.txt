@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to check the value of `div_4bits.tmp_remanent[0]` in the same cycle as `sew_i == 2'b00`. However, `div_4bits.tmp_remanent[0]` is a combinatorial signal that depends on `div_4bits.tmp_remanent_sub[1]` and `div_4bits.tmp_dividend_quotient[1]`, which are also combinatorial signals that are calculated in the same cycle. This means that the values of `div_4bits.tmp_remanent_sub[1]` and `div_4bits.tmp_dividend_quotient[1]` are not yet stable when `div_4bits.tmp_remanent[0]` is being calculated, resulting in an incorrect comparison.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `div_4bits.tmp_remanent[0]` in the next cycle, after the values of `div_4bits.tmp_remanent_sub[1]` and `div_4bits.tmp_dividend_quotient[1]` have been calculated and stabilized.
+
+Here is the corrected assertion:
+
+```
+as__SimdDivSEW8_2: assert property(sew_i == 2'b00 |=> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], $past(div_4bits.tmp_dividend_quotient[1][7])});
+```
+
+In this corrected assertion, we use `$past(div_4bits.tmp_dividend_quotient[1][7])` to refer to the value of `div_4bits.tmp_dividend_quotient[1][7]` in the previous cycle, which is the cycle when `sew_i == 2'b00` is true. This ensures that we are comparing the correct values of `div_4bits.tmp_remanent[0]` and `div_4bits.tmp_dividend_quotient[1][7]`.

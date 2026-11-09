@@ -1,0 +1,77 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a div_4bits. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the div_4bits interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of div_4bits but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+
+Our SystemVerilog Assertions property file has assertions that are flawed, the name of the RTL module isdiv_4bits
+Correct the syntax errors of the assertions. The current error output from JasperGold is:
+[ERROR (VERI-1103)] ft_div_4bits/sva/div_4bits_prop.sv(48): range index value is not constant
+
+Here is the current version of the assertions:
+  as__RemanentOutput_q: assert property((div_4bits.remanent_o_q == $past(div_4bits.tmp_remanent_sub[0])) |=> (div_4bits.remanent_o_q == $past(div_4bits.tmp_remanent_sub[0])));
+  as__DividendQuotientOutput_q: assert property((div_4bits.dividend_quotient_o_q == $past(div_4bits.tmp_dividend_quotient[0])) |=> (div_4bits.dividend_quotient_o_q == $past(div_4bits.tmp_dividend_quotient[0])));
+  as__DivisorOutput_q: assert property((div_4bits.divisor_o_q == $past(div_4bits.divisor_i)) |=> (div_4bits.divisor_o_q == $past(div_4bits.divisor_i)));
+  as__RemanentCalculation_q: assert property((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-1]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-1]}));
+  as__DividendQuotientCalculation_q: assert property((div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__RemanentSubCalculation_q: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) && (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - div_4bits.divisor_i)) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - div_4bits.divisor_i));
+  as__QuotientBitCalculation_q: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) && (div_4bits.quotient_bit[1] == 1'b1)) |-> (div_4bits.quotient_bit[1] == 1'b1));
+  as__RemanentSubCalculationElse_q: assert property(((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) && (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1])) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]));
+  as__QuotientBitCalculationElse_q: assert property(((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) && (div_4bits.quotient_bit[1] == 1'b0)) |-> (div_4bits.quotient_bit[1] == 1'b0));
+  as__SEW8RemanentCalculation_q: assert property((div_4bits.sew_i == 2'b00) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[7]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[7]}));
+  as__SEW16RemanentCalculation_q: assert property((div_4bits.sew_i == 2'b01) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[15]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[15]}));
+  as__SEW32RemanentCalculation_q: assert property((div_4bits.sew_i == 2'b10) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[31]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[31]}));
+  as__SEW64RemanentCalculation_q: assert property((div_4bits.sew_i == 2'b11) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[63]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[63]}));
+  as__SEW8DividendQuotientCalculation_q: assert property((div_4bits.sew_i == 2'b00) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__SEW16DividendQuotientCalculation_q: assert property((div_4bits.sew_i == 2'b01) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__SEW32DividendQuotientCalculation_q: assert property((div_4bits.sew_i == 2'b10) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__SEW64DividendQuotientCalculation_q: assert property((div_4bits.sew_i == 2'b11) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__RemanentOutput_q2: assert property((div_4bits.remanent_o_q == div_4bits.tmp_remanent_sub[0]) |-> (div_4bits.remanent_o_q == div_4bits.tmp_remanent_sub[0]));
+  as__DividendQuotientOutput_q2: assert property((div_4bits.dividend_quotient_o_q == div_4bits.tmp_dividend_quotient[0]) |-> (div_4bits.dividend_quotient_o_q == div_4bits.tmp_dividend_quotient[0]));
+  as__DivisorOutput_q2: assert property((div_4bits.divisor_o_q == div_4bits.divisor_i) |-> (div_4bits.divisor_o_q == div_4bits.divisor_i));
+  as__RemanentCalculation_q2: assert property((div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-1]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-1]}));
+  as__DividendQuotientCalculation_q2: assert property((div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__RemanentSubCalculation_q2: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) && (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - div_4bits.divisor_i)) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - div_4bits.divisor_i));
+  as__QuotientBitCalculation_q2: assert property(((div_4bits.tmp_remanent[1] >= div_4bits.divisor_i) && (div_4bits.quotient_bit[1] == 1'b1)) |-> (div_4bits.quotient_bit[1] == 1'b1));
+  as__RemanentSubCalculationElse_q2: assert property(((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) && (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1])) |-> (div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]));
+  as__QuotientBitCalculationElse_q2: assert property(((div_4bits.tmp_remanent[1] < div_4bits.divisor_i) && (div_4bits.quotient_bit[1] == 1'b0)) |-> (div_4bits.quotient_bit[1] == 1'b0));
+  as__SEW8RemanentCalculation_q2: assert property((div_4bits.sew_i == 2'b00) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[7]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[7]}));
+  as__SEW16RemanentCalculation_q2: assert property((div_4bits.sew_i == 2'b01) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[15]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[15]}));
+  as__SEW32RemanentCalculation_q2: assert property((div_4bits.sew_i == 2'b10) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[31]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[31]}));
+  as__SEW64RemanentCalculation_q2: assert property((div_4bits.sew_i == 2'b11) && (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[63]}) |-> (div_4bits.tmp_remanent[1] == {div_4bits.remanent_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.dividend_quotient_i[63]}));
+  as__SEW8DividendQuotientCalculation_q2: assert property((div_4bits.sew_i == 2'b00) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__SEW16DividendQuotientCalculation_q2: assert property((div_4bits.sew_i == 2'b01) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__SEW32DividendQuotientCalculation_q2: assert property((div_4bits.sew_i == 2'b10) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+  as__SEW64DividendQuotientCalculation_q2: assert property((div_4bits.sew_i == 2'b11) && (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}) |-> (div_4bits.tmp_dividend_quotient[1] == {div_4bits.dividend_quotient_i[div_4bits.div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]}));
+Here is the RTL:
+[Internal RTL for div_4bits.sv omitted from this release.]
+
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'div_4bits.'
+TRY TO NOT REMOVE ANY ASSERTIONS, ONLY CORRECT THE SYNTAX ERRORS.

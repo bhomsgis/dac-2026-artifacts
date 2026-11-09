@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if the `dividend_quotient_q` register remains the same when `cycles_counter` is 0. However, this is not the correct behavior. The `dividend_quotient_q` register is updated every cycle, except when `valid_i` is high, in which case it is loaded with the new dividend value.
+
+The proposed fix is to check if the `dividend_quotient_q` register remains the same when `cycles_counter` is not 0 and `valid_i` is not high. This is because when `cycles_counter` is not 0, the `dividend_quotient_q` register should be updated with the output of the `div_pipeline` module, and when `valid_i` is not high, the `dividend_quotient_q` register should not be loaded with a new value.
+
+Here is the corrected assertion:
+
+as__DividendQuotientQNoUpdate: assert property(div_unit.cycles_counter != 6'd0 && !div_unit.valid_i |=> div_unit.dividend_quotient_q == $past(div_unit.dividend_quotient_q));

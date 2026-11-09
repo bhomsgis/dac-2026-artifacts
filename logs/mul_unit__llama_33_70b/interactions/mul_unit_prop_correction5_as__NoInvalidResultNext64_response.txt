@@ -1,0 +1,28 @@
+The current assertion `as__NoInvalidResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && result_o == {WIDTH{1'bx}}));` might be failing because it does not correctly consider the pipeline behavior and timing of the `mul_unit` module.
+
+The assertion checks that when `valid_i` is high, `op_i` is not `MUL`, and `op_32bits_i` is low, then in the next cycle, `valid_o` should not be high and `result_o` should not be all unknown (`{WIDTH{1'bx}}`). However, this assertion does not take into account the fact that the `mul_unit` module has a pipeline with multiple stages, and the output `result_o` may not be immediately available in the next cycle.
+
+To fix this assertion, we need to consider the pipeline behavior and timing of the `mul_unit` module. Specifically, we need to check the output `result_o` in the correct cycle, taking into account the latency of the pipeline.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && $past(result_o) == {WIDTH{1'bx}}));
+```
+However, this assertion still might not work as expected because it does not consider the case where `result_o` is not yet available in the next cycle.
+
+A better approach would be to use a more specific assertion that takes into account the pipeline behavior and timing of the `mul_unit` module. For example:
+```systemverilog
+as__NoInvalidResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !($past(valid_o) && $past(result_o) == {WIDTH{1'bx}}));
+```
+This assertion checks that when `valid_i` is high, `op_i` is not `MUL`, and `op_32bits_i` is low, then in the next cycle, `valid_o` should not be high and `result_o` should not be all unknown (`{WIDTH{1'bx}}`) in the previous cycle.
+
+However, the best approach would be to use the internal signals of the `mul_unit` module to check the correctness of the output `result_o`. For example:
+```systemverilog
+as__NoInvalidResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(mul_unit.valid_q[1] && mul_unit.result == {WIDTH{1'bx}}));
+```
+This assertion checks that when `valid_i` is high, `op_i` is not `MUL`, and `op_32bits_i` is low, then in the next cycle, `valid_q[1]` should not be high and `result` should not be all unknown (`{WIDTH{1'bx}}`).
+
+But the best one considering the module's behavior would be:
+```systemverilog
+as__NoInvalidResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(mul_unit.valid_o && mul_unit.result_o == {WIDTH{1'bx}}));
+```

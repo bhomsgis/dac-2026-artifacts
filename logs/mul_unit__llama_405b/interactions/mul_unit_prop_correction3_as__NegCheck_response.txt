@@ -1,0 +1,27 @@
+The current assertion is failing because it is checking the value of `neg_q_final` in the same cycle as `valid_i`, but `neg_q_final` is a registered signal that is updated in the next cycle.
+
+The assertion is trying to check if the `neg_q_final` signal is correctly updated based on the `neg_d` signal, which is calculated in the same cycle as `valid_i`. However, since `neg_q_final` is a registered signal, its value will not be updated until the next cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `neg_q_final` in the next cycle, after it has been updated.
+
+Here is the corrected assertion:
+
+```
+as__NegCheck: assert property((valid_i) |=> (mul_unit.neg_q_final == $past(mul_unit.neg_d)));
+```
+
+However, this assertion is still not correct because it is using `$past(mul_unit.neg_d)` which is not necessary in this case. The `neg_d` signal is already calculated in the same cycle as `valid_i`, so we can directly compare it with `neg_q_final` in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__NegCheck: assert property((valid_i) |=> (mul_unit.neg_q_final == mul_unit.neg_d));
+```
+
+But, considering the pipeline behavior and timing, the `neg_d` signal is calculated in the same cycle as `valid_i`, and `neg_q_final` is updated in the next cycle, but it's value comes from `neg_q` which is also updated in the next cycle. Therefore, we should compare `neg_q_final` with `neg_q` instead of `neg_d`.
+
+Here is the corrected assertion:
+
+```
+as__NegCheck: assert property((valid_i) |=> (mul_unit.neg_q_final == mul_unit.neg_q));
+```

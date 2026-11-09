@@ -1,0 +1,6 @@
+// The original assertion fails because it checks the result_32_aux combinational assignment directly against result_32_aux signal, but result_32_aux is not registered and the assertion checks result_32_aux against result_32_aux itself, which is tautological. Also, the original assertion does not consider pipeline latency and valid signals, and it uses op_q without considering op_32bits_q and valid_q timing. The assertion must check the registered result_32_q after the pipeline latency, using the correct valid and op signals, and use $past() to refer to the combinational inputs at the time of the precondition.
+
+// The fix is to use a next-cycle assertion (|=>) triggered by the valid_q[1] and op_q_final == MUL and op_32bits_q_final signals, and check that result_32_q matches the expected value computed from the past values of neg_q_final and result_low_q. This respects the pipeline latency and uses the registered signals correctly.
+
+// Corrected assertion:
+as__Result32AuxCorrectForMul: assert property(($past(mul_unit.valid_q[1]) && $past(mul_unit.op_q_final) == 0 && $past(mul_unit.op_32bits_q_final)) |=> (mul_unit.result_32_q == ($past(mul_unit.neg_q_final) ? (~$past(mul_unit.result_low_q[mul_unit.WIDTH-1:0]) + mul_unit.ONE) : $past(mul_unit.result_low_q[mul_unit.WIDTH-1:0]))));

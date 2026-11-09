@@ -1,0 +1,1 @@
+as__vpnIdxNext: assert property(ptw.vpn_idx |=> ptw.vpn_req[ptw.count_q] == $past(ptw.vpn_req[ptw.count_q]));

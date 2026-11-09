@@ -1,0 +1,2 @@
+// Check that when in S_WAIT state with dmem response valid and PTE is leaf, next_state transitions to S_DONE unless invalid_pte or nack is asserted
+as__WaitStatePteLeafNextDone: assert property ((ptw.current_state == ptw.S_WAIT && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_leaf && !ptw.invalid_pte && !ptw.dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_DONE));

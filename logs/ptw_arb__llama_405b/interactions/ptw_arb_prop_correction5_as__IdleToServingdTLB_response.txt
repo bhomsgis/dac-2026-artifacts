@@ -1,0 +1,23 @@
+Here is the analysis and corrected assertion:
+
+**Analysis:**
+
+The original assertion is failing because it does not consider the case where `itlb_ptw_comm_i.req.valid` is also high when `dtlb_ptw_comm_i.req.valid` is high. In this case, the arbiter will prioritize the dTLB request and set `is_req_waiting_d` to 1, but the assertion does not account for this.
+
+**Proposed Fix:**
+
+To fix this, we need to add a condition to the assertion to check if `itlb_ptw_comm_i.req.valid` is high when `dtlb_ptw_comm_i.req.valid` is high. We can do this by adding a conditional statement to the assertion.
+
+**Corrected Assertion:**
+
+as__IdleToServingdTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 && (itlb_ptw_comm_i.req.valid == 1'b0 || ptw_arb.is_req_waiting_d == 1'b1) |=> ptw_arb.next_state == ptw_arb.SERVING_dTLB && ptw_arb.tlb_ptw_comm_o == dtlb_ptw_comm_i);
+
+However, this corrected assertion is the same as Attempt 3, which did not work. Let's try another approach.
+
+**Alternative Fix:**
+
+Another possible reason for the assertion failure is that the `next_state` is not being updated correctly. To fix this, we can add a condition to the assertion to check if `ptw_arb.tlb_ptw_comm_o` is equal to `dtlb_ptw_comm_i` in the next cycle.
+
+**Corrected Assertion:**
+
+as__IdleToServingdTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 |=> ptw_arb.next_state == ptw_arb.SERVING_dTLB && $past(ptw_arb.tlb_ptw_comm_o, 1) == $past(dtlb_ptw_comm_i, 1));

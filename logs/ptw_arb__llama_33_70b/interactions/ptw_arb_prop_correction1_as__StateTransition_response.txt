@@ -1,0 +1,6 @@
+The current assertion `as__StateTransition: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) |=> (ptw_arb.next_state == ptw_arb.SERVING_dTLB));` might be failing because it does not consider the case where `is_req_waiting_q` is already set, which would cause the state to transition to `SERVING_iTLB` instead of `SERVING_dTLB`. 
+
+The proposed fix is to add a condition to check if `is_req_waiting_q` is not set, ensuring that the state transitions to `SERVING_dTLB` only when there are no pending requests from the iTLB.
+
+The corrected assertion is: 
+as__StateTransition: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (!ptw_arb.is_req_waiting_q) && (dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) |=> (ptw_arb.next_state == ptw_arb.SERVING_dTLB));

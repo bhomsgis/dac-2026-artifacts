@@ -1,0 +1,8 @@
+The current assertion `as__NoInvalidOp: assert property(!(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));` is failing because it is checking if the operation is valid and the operation code is unknown (`1'bx`) in the same cycle. However, the operation code is unknown when it is not a valid operation.
+
+The proposed fix is to check if the operation is valid and the operation code is unknown in the same cycle, considering the pipeline behavior and timing. Since `op_i` is a wire, its value can be referenced in the current cycle. However, we need to ensure that the operation is valid before checking the operation code.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidOp: assert property(!(valid_o && $past(valid_i) && $past(op_i) == {MUL_OPS_BITS{1'bx}}));
+```

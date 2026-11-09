@@ -1,0 +1,6 @@
+The current assertion `as__StateTransition8: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) && (ptw_arb.is_req_waiting_q) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB));` might be failing because it is checking for a condition where `ptw_arb.is_req_waiting_q` is already set, but the state machine is transitioning to `SERVING_iTLB` only when `ptw_arb.is_req_waiting_q` is not set and both `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are set. 
+
+The proposed fix is to remove the condition `ptw_arb.is_req_waiting_q` from the assertion, as it is not necessary for the state machine to transition to `SERVING_iTLB`. 
+
+Here is the corrected assertion:
+as__StateTransition8: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (itlb_ptw_comm_i.req.valid) |=> (ptw_arb.next_state == ptw_arb.SERVING_iTLB));

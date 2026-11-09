@@ -1,0 +1,41 @@
+The current assertion is failing because it is checking the value of `ptw_arb.itlb_req_waiting_q` in the same cycle as `ptw_arb.is_req_waiting_q` is 0. However, `ptw_arb.itlb_req_waiting_q` is a registered signal that is updated in the next cycle, so its value may not be 0 yet.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `ptw_arb.itlb_req_waiting_q` in the next cycle, after `ptw_arb.is_req_waiting_q` has been updated to 0.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 |=> ptw_arb.itlb_req_waiting_q == '0);`
+
+However, this assertion has already been tried (Attempt 1) and did not work. 
+
+Analyzing the RTL, we can see that `ptw_arb.itlb_req_waiting_d` is updated in the same cycle as `ptw_arb.is_req_waiting_d` is updated to 0, but `ptw_arb.itlb_req_waiting_q` is updated in the next cycle. 
+
+Also, when `ptw_arb.is_req_waiting_q` is 0, `ptw_arb.itlb_req_waiting_d` is not necessarily 0, because `ptw_arb.itlb_req_waiting_d` is only updated when `ptw_arb.current_state` is IDLE and `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are both 1.
+
+Considering this, we need to add more conditions to the assertion to make sure that `ptw_arb.itlb_req_waiting_d` is 0 when `ptw_arb.is_req_waiting_q` is 0.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 && ptw_arb.current_state == IDLE && !(dtlb_ptw_comm_i.req.valid && itlb_ptw_comm_i.req.valid) |-> ptw_arb.itlb_req_waiting_d == '0);`
+
+However, this assertion has also been tried (Attempt 3) and did not work.
+
+Considering the pipeline behavior and timing, we need to check the value of `ptw_arb.itlb_req_waiting_q` in the next cycle, after `ptw_arb.is_req_waiting_q` has been updated to 0, and also consider the current state and the input requests.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 && ptw_arb.current_state == IDLE && !(dtlb_ptw_comm_i.req.valid && itlb_ptw_comm_i.req.valid) |=> ptw_arb.itlb_req_waiting_q == '0);`
+
+However, this assertion is not one of the previous attempts, but it is very similar to Attempt 4. 
+
+Considering that Attempt 4 did not work, we need to think about what else could be causing the assertion to fail.
+
+One possibility is that the assertion is failing because `ptw_arb.itlb_req_waiting_q` is not being reset to 0 when `ptw_arb.is_req_waiting_q` is 0 and `ptw_arb.current_state` is not IDLE.
+
+Here is the corrected assertion:
+
+`as__NoReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b0 && (ptw_arb.current_state == IDLE || ptw_arb.current_state == SERVING_dTLB) |=> ptw_arb.itlb_req_waiting_q == '0);`
+
+This assertion checks that `ptw_arb.itlb_req_waiting_q` is 0 in the next cycle, after `ptw_arb.is_req_waiting_q` has been updated to 0, and also considers the current state. 
+
+This assertion is different from the original and previous attempts, and it should work.

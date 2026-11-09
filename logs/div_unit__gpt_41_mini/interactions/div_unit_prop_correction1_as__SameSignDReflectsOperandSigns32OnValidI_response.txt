@@ -1,0 +1,5 @@
+// The assertion fails because same_sign_d is combinational and updated in the same cycle as valid_i and op_32bits_i inputs, but the original assertion uses div_unit.op_32_d which is a registered signal updated next cycle, causing mismatch in timing and incorrect comparison. Also, the assertion does not consider the 64-bit operation case properly.
+// The fix is to use the combinational signal div_unit.op_32bits_i (wire) in the precondition and compare div_unit.same_sign_d (combinational) with the expected sign calculation based on valid_i and op_32bits_i inputs, ensuring timing alignment and correct bit selection for both 32-bit and 64-bit cases.
+// Corrected assertion:
+
+as__SameSignDReflectsOperandSigns32OnValidI: assert property((valid_i) |-> (div_unit.same_sign_d == ((div_unit.op_32bits_i) ? ~(data_rs2_i[31] ^ data_rs1_i[31]) : ~(data_rs2_i[63] ^ data_rs1_i[63]))));

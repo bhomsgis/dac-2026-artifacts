@@ -1,0 +1,22 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__NoInvalidResultMULHSU: assert property(!(valid_o && op_i == mul_unit.MULHSU && result_o != mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]));` checks that when the operation is `MULHSU` and the output is valid, the result should be equal to the high part of `result_2width_def`.
+2. **Identifying the issue**: The assertion might be failing because it does not consider the case when `op_32bits_q_final` is true. In this case, the result is selected from `result_32_q` instead of `result_2width_def`.
+3. **Proposed fix**: The assertion should be modified to consider the case when `op_32bits_q_final` is true. We need to check if the operation is `MULHSU` and `op_32bits_q_final` is true, and if so, the result should be equal to `result_32_q`. Otherwise, the result should be equal to the high part of `result_2width_def`.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidResultMULHSU: assert property(!(valid_o && op_i == mul_unit.MULHSU && ((op_32bits_q_final && result_o != mul_unit.result_32_q) || (!op_32bits_q_final && result_o != mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]))));
+```
+
+# Explanation of changes:
+*   Added a check for `op_32bits_q_final` to consider the case when the result is selected from `result_32_q`.
+*   Modified the assertion to check if the result is equal to `result_32_q` when `op_32bits_q_final` is true, and equal to the high part of `result_2width_def` when `op_32bits_q_final` is false.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different inputs and checking if the assertion passes or fails. For example, you can test the assertion with the following inputs:
+*   `op_i = MULHSU`
+*   `op_32bits_q_final = 1'b1`
+*   `result_o = result_32_q`
+*   `op_i = MULHSU`
+*   `op_32bits_q_final = 1'b0`
+*   `result_o = result_2width_def[WIDTHDOUBLE-1:WIDTH]`

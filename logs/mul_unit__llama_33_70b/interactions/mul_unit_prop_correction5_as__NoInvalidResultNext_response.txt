@@ -1,0 +1,2 @@
+// Check that there is no invalid result in the next cycle
+as__NoInvalidResultNext: assert property(valid_i |=> !(valid_o && !(|mul_unit.result_o)));

@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking if the `access_array` remains the same when there is no hit (`access_hit_i == 1'b0`). However, the `access_array` is updated in the same cycle based on the `access_idx_i` signal, regardless of the `access_hit_i` signal. Therefore, the assertion is checking the wrong condition.
+
+The proposed fix is to check if the `plru_tree_q` register remains the same when there is no hit (`access_hit_i == 1'b0`). This is because the `plru_tree_q` register is updated only when there is a hit, and it is the register that holds the state of the PLRU tree.
+
+Here is the corrected assertion:
+
+`as__AccessArrayStableWhenNoHit: assert property(access_hit_i == 1'b0 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_q));`
+
+This assertion checks if the `plru_tree_q` register remains the same in the next cycle when there is no hit in the current cycle. The `$past` function is used to refer to the value of `plru_tree_q` in the previous cycle.

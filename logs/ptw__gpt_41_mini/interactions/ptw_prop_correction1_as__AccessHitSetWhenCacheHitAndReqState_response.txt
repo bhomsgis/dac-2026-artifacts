@@ -1,0 +1,2 @@
+// Check that when in S_REQ state and pte_cache_hit is true, access_hit is asserted in the same cycle
+as__AccessHitSetWhenCacheHitAndReqState: assert property((ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit) |-> (ptw.access_hit == 1'b1));

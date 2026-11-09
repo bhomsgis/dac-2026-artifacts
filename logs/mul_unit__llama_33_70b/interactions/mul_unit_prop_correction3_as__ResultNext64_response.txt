@@ -1,0 +1,8 @@
+The current assertion `as__ResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` might be failing because it does not consider the case when `op_i` is `MUL` and `op_32bits_i` is `1'b0`. In this case, the result should be `result_2width_def[WIDTH-1:0]`. 
+
+Moreover, the assertion does not account for the pipeline behavior of the `mul_unit` module. The `result_o` is assigned in the next cycle after the inputs are valid, and it depends on the values of `op_q_final`, `op_32bits_q_final`, and `neg_q_final`.
+
+To fix this, we need to modify the assertion to consider the pipeline behavior and the different cases for `op_i` and `op_32bits_i`. 
+
+Here is the corrected assertion:
+as__ResultNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);

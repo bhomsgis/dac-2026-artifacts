@@ -1,0 +1,5 @@
+// The assertion is failing because div_zero_q is updated on the clock edge after valid_i is asserted, so div_zero_q reflects the previous cycle's value, not the current div_zero_d. The original assertion compares div_zero_q to div_zero_d in the same cycle, which is incorrect timing.
+// The fix is to check that when valid_i is asserted, div_zero_q in the next cycle equals div_zero_d in the current cycle. This requires a next-cycle assertion with div_zero_q on the postcondition side and div_zero_d referenced with $past() to get the value at the precondition cycle.
+// This corrected assertion uses a next-cycle implication (|=>) and compares div_zero_q to $past(div_zero_d), ensuring the register updates are correctly accounted for.
+
+as__DivZeroQSetOnValidI: assert property (valid_i |=> (div_unit.div_zero_q == $past(div_unit.div_zero_d,1)));

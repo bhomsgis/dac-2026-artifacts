@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if the `access_idx_i` signal changes when `access_hit_i` is high, which is not the correct behavior. The `access_idx_i` signal is an input signal that indicates the index of the accessed entry, and it does not necessarily change when `access_hit_i` is high. Instead, the `plru_tree_q` signal is updated when `access_hit_i` is high, which in turn affects the `replacement_idx_o` signal.
+
+The correct behavior to check is that the `plru_tree_q` signal is updated correctly when `access_hit_i` is high. Specifically, the `plru_tree_q` signal should be updated such that the nodes corresponding to the accessed entry are set to the correct values.
+
+Here is the corrected assertion:
+
+```
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+```
+
+This assertion checks that when `access_hit_i` is high, the `plru_tree_q` signal is updated to a new value in the next cycle. Note that we use the `$past` function to refer to the value of `plru_tree_q` in the previous cycle, and we use the `|=>` operator to specify that the update should happen in the next cycle.

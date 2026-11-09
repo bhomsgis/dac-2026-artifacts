@@ -1,0 +1,11 @@
+The current assertion is failing because it checks if `ptw_arb.current_state` is `IDLE` and then immediately checks if `ptw_itlb_comm_o.ptw_ready` and `ptw_dtlb_comm_o.ptw_ready` are both `1'b1`. However, the RTL code shows that when `ptw_arb.current_state` is `IDLE`, `ptw_itlb_comm_o.ptw_ready` and `ptw_dtlb_comm_o.ptw_ready` are only set to `1'b1` if there are no valid requests from iTLB or dTLB. If there are valid requests, the state machine will transition to `SERVING_iTLB` or `SERVING_dTLB` and `ptw_itlb_comm_o.ptw_ready` and `ptw_dtlb_comm_o.ptw_ready` will be set to `1'b0`.
+
+To fix this, we need to add a condition to check if there are no valid requests from iTLB or dTLB when `ptw_arb.current_state` is `IDLE`.
+
+Here is the corrected assertion:
+
+```
+as__IdleState: assert property(ptw_arb.current_state == ptw_arb.IDLE && !itlb_ptw_comm_i.req.valid && !dtlb_ptw_comm_i.req.valid && !ptw_arb.is_req_waiting_q |-> ptw_itlb_comm_o.ptw_ready == 1'b1 && ptw_dtlb_comm_o.ptw_ready == 1'b1);
+```
+
+This assertion checks if `ptw_arb.current_state` is `IDLE`, there are no valid requests from iTLB or dTLB, and there is no request waiting in the queue. If all these conditions are true, then `ptw_itlb_comm_o.ptw_ready` and `ptw_dtlb_comm_o.ptw_ready` should be both `1'b1`.

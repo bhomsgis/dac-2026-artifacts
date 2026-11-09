@@ -1,0 +1,40 @@
+// Check that when access_hit_i and access_array matches access_idx_i, plru_tree_d is updated differently from plru_tree_q
+as__AccessUpdateeotid: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+// Check that when no access hit, plru_tree_d remains equal to plru_tree_q
+as__NoAccessNoUpdateeotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+// Check that replacement_idx_o is valid index when replace_en is asserted
+as__ReplacementIndexValideotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that replacement_idx_o bit is set in replace_en
+as__ReplacementIndexMatchesReplaceEneotid: assert property(pseudoLRU.replace_en[replacement_idx_o]);
+// Check that only one bit is set in replace_en
+as__OnlyOneReplaceEneotid: assert property($countones(pseudoLRU.replace_en) == 1);
+// Check that plru_tree_d does not change when no access hit
+as__PlruTreeNoChangeWithoutAccesseotid: assert property(!access_hit_i |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+// Check that replacement_idx_o bit in replace_en is set in next cycle
+as__ReplacementIdxReflectsReplaceEnNextCycleeotid: assert property(1 |=> pseudoLRU.replace_en[replacement_idx_o]);
+// Check that replace_en is one-hot and replacement_idx_o bit is set
+as__ReplacementIdxOneHotMatcheotid: assert property(|pseudoLRU.replace_en && pseudoLRU.replace_en[replacement_idx_o]);
+// Check that replacement_idx_o is in range when replace_en is asserted
+as__ReplacementIdxInRangeeotid: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that plru_tree_q updates to plru_tree_d in next cycle
+as__PlruTreeQUpdateeotid: assert property(1 |=> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_d));
+// Check that replacement_idx_o is in range in next cycle when replace_en is asserted
+as__ReplacementIdxInRangeNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that replace_en is one-hot and replacement_idx_o bit is set in next cycle
+as__ReplacementIdxOneHotNextCycleeotid: assert property(1 |=> (pseudoLRU.replace_en[replacement_idx_o] && $countones(pseudoLRU.replace_en) == 1));
+// Check that replacement_idx_o is valid in next cycle when replace_en is asserted
+as__ReplacementIdxValidNextCycleeotid: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that replacement_idx_o is valid when replace_en is asserted
+as__ReplacementIdxValidWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that replacement_idx_o is stable and valid in next cycle when replace_en is asserted
+as__ReplacementIdxStableNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that replacement_idx_o is in range when replace_en is asserted
+as__ReplacementIdxInRangeWhenReplaceEn: assert property(|pseudoLRU.replace_en |-> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that replacement_idx_o is valid in next cycle when replace_en is asserted
+as__ReplacementIdxValidNextCycle: assert property(|pseudoLRU.replace_en |=> replacement_idx_o inside {[0:pseudoLRU.ENTRIES-1]});
+// Check that replace_en is one-hot in next cycle
+as__ReplaceEnOneHotNextCycle: assert property(1 |=> $countones(pseudoLRU.replace_en) == 1);
+// Check that replace_en bits correspond to plru_tree_q bits according to pseudoLRU tree decoding
+as__ReplaceEnMatchesPlruTreeQ: assert property(for (int i=0; i<pseudoLRU.ENTRIES; i++) begin automatic logic en = 1'b1; automatic int idx_base, shift; for (int lvl=0; lvl<$clog2(pseudoLRU.ENTRIES); lvl++) begin idx_base = (2**lvl)-1; shift = $clog2(pseudoLRU.ENTRIES)-lvl; if (((i >> (shift-1)) & 1) == 1) en &= pseudoLRU.plru_tree_q[idx_base + (i >> shift)]; else en &= ~pseudoLRU.plru_tree_q[idx_base + (i >> shift)]; end en == pseudoLRU.replace_en[i]; end);
+// Check that on access_hit_i, plru_tree_d updates bits corresponding to access_idx_i according to pseudoLRU update logic
+as__PlruTreeDUpdateOnAccessHit: assert property(access_hit_i && pseudoLRU.access_array == (1 << access_idx_i) |-> for (int lvl=0; lvl<$clog2(pseudoLRU.ENTRIES); lvl++) begin automatic int idx_base = (2**lvl)-1; automatic int shift = $clog2(pseudoLRU.ENTRIES)-lvl; automatic logic expected_bit = ~((access_idx_i >> (shift-1)) & 1'b1); pseudoLRU.plru_tree_d[idx_base + (access_idx_i >> shift)] == expected_bit; end);

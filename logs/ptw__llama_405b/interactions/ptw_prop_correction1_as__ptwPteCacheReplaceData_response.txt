@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if the `ptecache_entry` at the `plru_eviction_idx` index has the same data as the `pte.ppn` in the next cycle after `ptw.full_cache` and `ptw.access_hit` are both true. However, the `plru_eviction_idx` is only updated when the cache is full and a new entry needs to be replaced, which may not happen in the next cycle.
+
+The proposed fix is to check if the `ptecache_entry` at the `plru_eviction_idx` index has the same data as the `pte.ppn` when the cache is full and a new entry is being written to the cache.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheReplaceData: assert property(ptw.full_cache && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[ptw.plru_eviction_idx].data == $past(ptw.pte.ppn));
+```
+
+This assertion checks if the `ptecache_entry` at the `plru_eviction_idx` index has the same data as the `pte.ppn` when the cache is full, a new entry is being written to the cache (`dmem_ptw_comm_i.resp.valid` is true), the new entry is a table (`is_pte_table` is true), and the cache entry is not already present in the cache (`!pte_cache_hit` is true). The `$past` function is used to refer to the value of `pte.ppn` in the previous cycle, when the cache entry was being written.

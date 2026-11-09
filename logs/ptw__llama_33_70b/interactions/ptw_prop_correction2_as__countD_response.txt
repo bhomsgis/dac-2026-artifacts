@@ -1,0 +1,3 @@
+```systemverilog
+as__countD: assert property((ptw.current_state == ptw.S_REQ) |=> (ptw.count_d == $past(ptw.count_q) + 1'b1));
+```

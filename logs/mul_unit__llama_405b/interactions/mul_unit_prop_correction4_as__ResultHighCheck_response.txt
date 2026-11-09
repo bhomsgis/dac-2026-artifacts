@@ -1,0 +1,9 @@
+The current assertion is failing because it is trying to check the result of the multiplication in the same cycle as the input is given, but the multiplication operation takes two cycles to complete. 
+
+The assertion is also not considering the case when the operation is 32-bit or 64-bit.
+
+To fix this, we need to check the result in the next cycle after the input is given, and we need to consider the operation type.
+
+Here is the corrected assertion:
+
+as__ResultHighCheck: assert property((valid_i && !mul_unit.op_32bits_i) |=> (mul_unit.result_high_q == $past(mul_unit.data_rs1_q) * $past(mul_unit.data_rs2_q[mul_unit.WIDTH-1:(mul_unit.WIDTH/2)])));

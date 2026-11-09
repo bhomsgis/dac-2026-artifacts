@@ -1,0 +1,18 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The assertion `as__NoInvalidResultMULHU` checks that when the operation is `MULHU` and the output is valid, the result is equal to the expected result.
+2. **Identifying the issue**: The assertion is failing because it's not considering the pipeline behavior and timing of the `mul_unit` module. The result is being compared with the expected result in the same cycle, without considering the latency of the module.
+3. **Analyzing the module's behavior**: The `mul_unit` module has a latency of 1 or 2 cycles, depending on the operation and configuration. The result is calculated in the `result_2width_def` signal, which is then assigned to the `result_o` output.
+4. **Understanding the role of $past()**: The `$past()` function is used to access the value of a signal in a previous cycle. In this case, it can be used to access the value of the `result_2width_def` signal in the previous cycle, when the operation was `MULHU`.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidResultMULHU: assert property(valid_o && op_i == mul_unit.MULHU |=> result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+```
+
+# Explanation of changes:
+* **Added $past()**: The `$past()` function is used to access the value of the `result_2width_def` signal in the previous cycle, when the operation was `MULHU`.
+* **Changed to next-cycle assertion**: The assertion is changed to a next-cycle assertion (`|=>`) to account for the latency of the module.
+* **Prepended internal signals with 'mul_unit.'**: The internal signals are prepended with 'mul_unit.' to access them correctly.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different inputs and operations, and verifying that the assertion passes or fails as expected. For example, the testbench can be written to test the `MULHU` operation with different inputs and verify that the result is correct.

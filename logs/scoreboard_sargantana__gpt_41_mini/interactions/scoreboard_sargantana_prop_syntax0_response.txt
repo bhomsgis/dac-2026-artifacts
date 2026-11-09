@@ -1,0 +1,44 @@
+// Check that ready_1cycle_o is asserted only when inst_q[0] is zero
+as__Ready1CycleCorrect: assert property((!scoreboard_sargantana.inst_q[0]) |-> ready_1cycle_o);
+// Check that ready_mul_32_o is asserted only when inst_q[1] is zero
+as__ReadyMul32Correct: assert property((!scoreboard_sargantana.inst_q[1]) |-> ready_mul_32_o);
+// Check that ready_mul_64_o is asserted only when inst_q[2] is zero
+as__ReadyMul64Correct: assert property((!scoreboard_sargantana.inst_q[2]) |-> ready_mul_64_o);
+// Check that ready_div_32_o is asserted only when inst_q[17] is zero
+as__ReadyDiv32Correct: assert property((!scoreboard_sargantana.inst_q[17]) |-> ready_div_32_o);
+// Check that div_unit_sel_o is asserted only when free_div_unit[0] is zero
+as__DivUnitSelCorrect: assert property((!scoreboard_sargantana.free_div_unit[0]) |-> div_unit_sel_o);
+// Check that ready_div_unit_o is asserted when either div unit is free
+as__ReadyDivUnitCorrect: assert property(((scoreboard_sargantana.free_div_unit[0] || scoreboard_sargantana.free_div_unit[1])) |-> ready_div_unit_o);
+// Check that free_div_unit[0] is asserted only when ocup_div_unit_q[0] is zero
+as__FreeDivUnit0Correct: assert property((!(|scoreboard_sargantana.ocup_div_unit_q[0])) |-> scoreboard_sargantana.free_div_unit[0]);
+// Check that free_div_unit[1] is asserted only when ocup_div_unit_q[1] is zero
+as__FreeDivUnit1Correct: assert property((!(|scoreboard_sargantana.ocup_div_unit_q[1])) |-> scoreboard_sargantana.free_div_unit[1]);
+// Check that inst_d is inst_q shifted right by 1
+as__InstShiftRight: assert property((scoreboard_sargantana.inst_d == (scoreboard_sargantana.inst_q >> 1)));
+// Check that ocup_div_unit_d[0] is ocup_div_unit_q[0] shifted right by 1
+as__OcupDivUnitShiftRight0: assert property((scoreboard_sargantana.ocup_div_unit_d[0] == (scoreboard_sargantana.ocup_div_unit_q[0] >> 1)));
+// Check that ocup_div_unit_d[1] is ocup_div_unit_q[1] shifted right by 1
+as__OcupDivUnitShiftRight1: assert property((scoreboard_sargantana.ocup_div_unit_d[1] == (scoreboard_sargantana.ocup_div_unit_q[1] >> 1)));
+// Check that set_mul_32_i sets inst_d[0] to 1
+as__SetMul32SetsInstD0: assert property((set_mul_32_i) |-> (scoreboard_sargantana.inst_d[0] == 1'b1));
+// Check that set_mul_64_i sets inst_d[1] to 1
+as__SetMul64SetsInstD1: assert property((set_mul_64_i) |-> (scoreboard_sargantana.inst_d[1] == 1'b1));
+// Check that set_div_32_i sets inst_d[16] and ocup_div_unit_d accordingly
+as__SetDiv32SetsInstD16AndOcup: assert property((set_div_32_i) |-> (scoreboard_sargantana.inst_d[16] == 1'b1) && ((scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h000010000)) || (!scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h000010000))));
+// Check that set_div_64_i sets inst_d[32] and ocup_div_unit_d accordingly
+as__SetDiv64SetsInstD32AndOcup: assert property((set_div_64_i) |-> (scoreboard_sargantana.inst_d[32] == 1'b1) && ((scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h100000000)) || (!scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h100000000))));
+// Check that when not set_div_64_i, inst_d[32] is zero
+as__NoSetDiv64ClearsInstD32: assert property((!set_div_64_i) |-> (scoreboard_sargantana.inst_d[32] == 1'b0));
+// Check that when not reset and not flush, ocup_div_unit_q and inst_q update to ocup_div_unit_d and inst_d respectively
+as__OcupAndInstUpdate: assert property((!rstn_i && !flush_i) |=> (scoreboard_sargantana.ocup_div_unit_q == scoreboard_sargantana.ocup_div_unit_d && scoreboard_sargantana.inst_q == scoreboard_sargantana.inst_d));
+// Check that div_unit_sel_o is the negation of free_div_unit[0]
+as__DivUnitSelNegation: assert property(div_unit_sel_o == !scoreboard_sargantana.free_div_unit[0]);
+// Check that ready_div_unit_o is the OR of free_div_unit[0] and free_div_unit[1]
+as__ReadyDivUnitOrFreeUnits: assert property(ready_div_unit_o == (scoreboard_sargantana.free_div_unit[0] || scoreboard_sargantana.free_div_unit[1]));
+// Check that inst_q shifts right by 1 each cycle when no new instructions are set
+as__InstQShiftRightNoSet: assert property((!set_mul_32_i && !set_mul_64_i && !set_div_32_i && !set_div_64_i) |=> (scoreboard_sargantana.inst_q == $past(scoreboard_sargantana.inst_q) >> 1));
+// Check that ocup_div_unit_q[0] shifts right by 1 each cycle when no new div assigned to unit 0
+as__OcupDivUnitQ0ShiftRightNoSet: assert property((!set_div_32_i && !set_div_64_i && scoreboard_sargantana.free_div_unit[0]) |=> (scoreboard_sargantana.ocup_div_unit_q[0] == $past(scoreboard_sargantana.ocup_div_unit_q[0]) >> 1));
+// Check that ocup_div_unit_q[1] shifts right by 1 each cycle when no new div assigned to unit 1
+as__OcupDivUnitQ1ShiftRightNoSet: assert property((!set_div_32_i && !set_div_64_i && !scoreboard_sargantana.free_div_unit[0]) |=> (scoreboard_sargantana.ocup_div_unit_q[1] == $past(scoreboard_sargantana.ocup_div_unit_q[1]) >> 1));

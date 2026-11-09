@@ -1,0 +1,3 @@
+// The assertion fails because is_req_waiting_d is updated in the combinational block and takes effect in the next cycle as is_req_waiting_q. The original assertion checks is_req_waiting_d immediately after resp.valid in the same cycle, which is not yet updated. The correct check should be on is_req_waiting_q in the next cycle after resp.valid is asserted, reflecting the updated state after clearing the waiting flag.
+
+as__ServingITLBRespValidClearsWaiting: assert property ((ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_tlb_comm_i.resp.valid) |=> (ptw_arb.is_req_waiting_q == 1'b0));

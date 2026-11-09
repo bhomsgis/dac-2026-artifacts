@@ -1,0 +1,9 @@
+The current assertion is failing because it checks if `div_unit.cycles_counter` is equal to 0, and if so, it checks if `div_unit.dividend_quotient_q` remains the same in the next cycle. However, this assertion does not consider the case when `div_unit.valid_i` is high, which can cause `div_unit.dividend_quotient_q` to be updated even when `div_unit.cycles_counter` is 0.
+
+The proposed fix is to add a condition to check if `div_unit.valid_i` is low when `div_unit.cycles_counter` is 0. This ensures that `div_unit.dividend_quotient_q` is not updated when `div_unit.cycles_counter` is 0.
+
+Here is the corrected assertion:
+
+`as__DividendQuotientQNoUpdate: assert property(div_unit.cycles_counter == 6'd0 && !div_unit.valid_i |=> div_unit.dividend_quotient_q == $past(div_unit.dividend_quotient_q));`
+
+This assertion checks if `div_unit.cycles_counter` is 0 and `div_unit.valid_i` is low, and if so, it checks if `div_unit.dividend_quotient_q` remains the same in the next cycle. This ensures that `div_unit.dividend_quotient_q` is not updated when `div_unit.cycles_counter` is 0 and `div_unit.valid_i` is low.

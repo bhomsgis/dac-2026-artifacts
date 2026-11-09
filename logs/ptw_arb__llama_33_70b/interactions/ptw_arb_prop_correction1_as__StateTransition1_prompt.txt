@@ -1,0 +1,165 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a ptw_arb. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the ptw_arb interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of ptw_arb but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+The following assertion has not been proven by JasperGold:
+as__StateTransition1: assert property((ptw_arb.current_state == ptw_arb.IDLE) && (dtlb_ptw_comm_i.req.valid) && (!itlb_ptw_comm_i.req.valid) |=> (ptw_arb.next_state == ptw_arb.SERVING_dTLB));
+Please analyze why this assertion might be failing and provide a corrected version. Follow these steps:
+1. First explain why you think the current assertion is failing
+2. Then explain your proposed fix and why it should work
+3. Finally, provide the corrected assertion
+
+IMPORTANT:
+- Provide ONLY ONE corrected assertion in your response
+- The corrected assertion should be DIFFERENT from the original and previous attempts
+- Keep the same assertion name
+- Make sure to use the correct module prefix for internal signals
+- Consider both 32-bit and 64-bit operation cases
+- Think about pipeline behavior and timing
+
+Here is the RTL:
+module ptw_arb 
+import mmu_pkg::*;
+#(
+)(
+    input logic clk_i,
+    input logic rstn_i,
+
+    // iTLB & dTLB interfaces
+    input tlb_ptw_comm_t itlb_ptw_comm_i, 
+    input tlb_ptw_comm_t dtlb_ptw_comm_i,
+    output ptw_tlb_comm_t ptw_itlb_comm_o, 
+    output ptw_tlb_comm_t ptw_dtlb_comm_o,
+
+    // PTW interface
+    input ptw_tlb_comm_t ptw_tlb_comm_i,
+    output tlb_ptw_comm_t tlb_ptw_comm_o
+);
+
+logic is_req_waiting_d, is_req_waiting_q;
+tlb_ptw_comm_t itlb_req_waiting_d, itlb_req_waiting_q;
+
+typedef enum logic [1:0] {
+    IDLE,
+    SERVING_iTLB,
+    SERVING_dTLB
+} arbptw_state;
+
+arbptw_state current_state, next_state;
+always_ff @(posedge clk_i, negedge rstn_i) begin
+    if (!rstn_i) begin
+        current_state <= IDLE;
+        is_req_waiting_q <= 1'b0;
+        itlb_req_waiting_q <= '0;
+    end
+    else begin
+        current_state <= next_state;
+        is_req_waiting_q <= is_req_waiting_d;
+        itlb_req_waiting_q <= itlb_req_waiting_d;
+    end
+end
+
+always_comb begin
+    is_req_waiting_d = is_req_waiting_q;
+    itlb_req_waiting_d = itlb_req_waiting_q;
+    tlb_ptw_comm_o = '0;
+    next_state = current_state;
+
+    ptw_itlb_comm_o.resp.valid = 1'b0;
+    ptw_itlb_comm_o.resp.error = 1'b0;
+    ptw_itlb_comm_o.resp.pte = '0;
+    ptw_itlb_comm_o.resp.level = '0;
+    ptw_dtlb_comm_o.resp.valid = 1'b0;
+    ptw_dtlb_comm_o.resp.error = 1'b0;
+    ptw_dtlb_comm_o.resp.pte = '0;
+    ptw_dtlb_comm_o.resp.level = '0;
+
+    ptw_itlb_comm_o.ptw_ready = 1'b0;
+    ptw_dtlb_comm_o.ptw_ready = 1'b0;
+
+    ptw_itlb_comm_o.ptw_status = ptw_tlb_comm_i.ptw_status;
+    ptw_dtlb_comm_o.ptw_status = ptw_tlb_comm_i.ptw_status;
+    
+    ptw_itlb_comm_o.invalidate_tlb = ptw_tlb_comm_i.invalidate_tlb;
+    ptw_dtlb_comm_o.invalidate_tlb = ptw_tlb_comm_i.invalidate_tlb;
+
+    case (current_state)
+        IDLE : begin
+            ptw_itlb_comm_o.resp = '0;
+            ptw_dtlb_comm_o.resp = '0;
+            ptw_itlb_comm_o.ptw_ready = 1'b1;
+            ptw_dtlb_comm_o.ptw_ready = 1'b1;
+            if (dtlb_ptw_comm_i.req.valid && itlb_ptw_comm_i.req.valid) begin
+                is_req_waiting_d = 1'b1;
+                itlb_req_waiting_d = itlb_ptw_comm_i;
+                tlb_ptw_comm_o = dtlb_ptw_comm_i;
+                next_state = SERVING_dTLB;
+            end else if (is_req_waiting_q) begin
+                ptw_itlb_comm_o.ptw_ready = 1'b0;
+                ptw_dtlb_comm_o.ptw_ready = 1'b0;
+                next_state = SERVING_iTLB;
+            end else if (dtlb_ptw_comm_i.req.valid) begin
+                tlb_ptw_comm_o = dtlb_ptw_comm_i;
+                next_state = SERVING_dTLB;
+            end else if (itlb_ptw_comm_i.req.valid) begin
+                tlb_ptw_comm_o = itlb_ptw_comm_i;
+                next_state = SERVING_iTLB;
+            end else begin
+                tlb_ptw_comm_o = '0;
+                next_state = IDLE;
+            end
+        end
+        SERVING_iTLB : begin
+            ptw_itlb_comm_o.resp = ptw_tlb_comm_i.resp;
+            ptw_dtlb_comm_o.resp = '0;
+            tlb_ptw_comm_o = (is_req_waiting_q) ? itlb_req_waiting_q : itlb_ptw_comm_i;
+            if (!ptw_tlb_comm_i.resp.valid) begin
+                next_state = SERVING_iTLB;
+            end else begin
+                next_state = IDLE;
+                is_req_waiting_d = 1'b0;
+            end
+        end
+        SERVING_dTLB : begin
+            ptw_itlb_comm_o.resp = '0;
+            ptw_dtlb_comm_o.resp = ptw_tlb_comm_i.resp;
+            tlb_ptw_comm_o = dtlb_ptw_comm_i;
+            if (!ptw_tlb_comm_i.resp.valid) begin
+                next_state = SERVING_dTLB;
+            end else begin
+                next_state = IDLE;
+            end
+        end
+    endcase
+end
+
+endmodule
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'ptw_arb.'

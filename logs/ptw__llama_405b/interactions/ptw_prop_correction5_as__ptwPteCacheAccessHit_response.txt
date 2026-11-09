@@ -1,0 +1,33 @@
+The current assertion is failing because it is trying to check the equality of `ptw.access_hit` and `ptw.pte_cache_hit` in the same cycle. However, `ptw.access_hit` is a signal that is generated in the FSM of the PTW module, and it is not guaranteed to be updated in the same cycle as `ptw.pte_cache_hit`.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the equality of `ptw.access_hit` and `$past(ptw.pte_cache_hit)` in the next cycle. This is because `ptw.access_hit` is updated in the next cycle based on the current value of `ptw.pte_cache_hit`.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit |=> ptw.access_hit == $past(ptw.pte_cache_hit));
+```
+
+However, this assertion is still not correct because `ptw.access_hit` is not a direct function of `ptw.pte_cache_hit`. The correct assertion should be:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit && ptw.current_state == S_REQ |=> ptw.access_hit);
+```
+
+But this assertion was already tried and failed. 
+
+After re-reading the code, I realized that `ptw.access_hit` is set to 1 when `ptw.pte_cache_hit` is 1 and `ptw.current_state` is `S_REQ`. However, `ptw.access_hit` is not set to 0 when `ptw.pte_cache_hit` is 0. Therefore, the correct assertion should be:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.pte_cache_hit && ptw.current_state == S_REQ |=> ptw.access_hit) and (ptw.current_state == S_REQ && !ptw.pte_cache_hit |=> !ptw.access_hit);
+```
+
+However, this is not a single assertion, but two separate assertions.
+
+A single correct assertion could be:
+
+```
+as__ptwPteCacheAccessHit: assert property(ptw.current_state == S_REQ |=> ptw.access_hit == ptw.pte_cache_hit);
+```
+
+This assertion checks that when `ptw.current_state` is `S_REQ`, `ptw.access_hit` is equal to `ptw.pte_cache_hit`.

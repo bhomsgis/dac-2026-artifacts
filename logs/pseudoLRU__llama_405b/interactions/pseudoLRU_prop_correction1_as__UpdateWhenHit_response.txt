@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` when `access_hit_i` is 1. However, this assertion does not consider the case where `access_hit_i` is 1, but the update to `pseudoLRU.plru_tree_d` does not change its value. This can happen when the hit occurs at the same index that would be replaced next.
+
+The proposed fix is to check if `pseudoLRU.plru_tree_d` is not equal to the previous value of `pseudoLRU.plru_tree_q` when `access_hit_i` is 1. This ensures that the assertion only fails when `pseudoLRU.plru_tree_d` is not updated correctly.
+
+Here is the corrected assertion:
+
+as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d != $past(pseudoLRU.plru_tree_q));

@@ -1,0 +1,2 @@
+// Check that when a branch or JALR instruction is valid and taken with a misaligned target address, the exception valid signal is asserted in the next cycle
+as__ExceptionInvalidWhenNoMisalignedAddressConditionNextCycle: assert property (((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && $past(branch_unit.branch_taken))) && ($past(branch_unit.result[1:0]) != 2'b00))) |=> (instruction_o.ex.valid == 1));

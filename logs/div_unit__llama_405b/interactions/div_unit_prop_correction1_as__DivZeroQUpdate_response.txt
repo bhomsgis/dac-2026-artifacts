@@ -1,0 +1,13 @@
+The current assertion is failing because it's not correctly checking the `div_zero_q` update logic. The `div_zero_d` signal is assigned a value based on the `valid_i` signal, but the assertion is not considering this.
+
+The issue lies in the fact that the `div_zero_d` signal is not being updated immediately when `valid_i` is high. Instead, it's being updated in the next cycle, after the `div_zero_d` value has been assigned to `div_zero_q`. This means that the assertion is checking the wrong value of `div_zero_d`.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `div_zero_q` in the next cycle, after the `div_zero_d` value has been assigned to it. We also need to use `$past()` to refer to the value of `data_rs2_i` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__DivZeroQUpdate: assert property(valid_i |=> div_unit.div_zero_q == (~(|$past(data_rs2_i)) || ($past(op_32bits_i) && ~(|$past(data_rs2_i[31:0])))));
+```
+
+This assertion checks that when `valid_i` is high, the `div_zero_q` signal is updated correctly in the next cycle, based on the values of `data_rs2_i` and `op_32bits_i` in the previous cycle.

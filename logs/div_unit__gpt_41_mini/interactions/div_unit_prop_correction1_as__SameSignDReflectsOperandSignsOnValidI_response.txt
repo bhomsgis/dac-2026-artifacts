@@ -1,0 +1,7 @@
+// The assertion fails because same_sign_d is assigned combinationally based on valid_i and inputs, but the assertion checks same_sign_d in the same cycle as valid_i, ignoring that same_sign_d is a combinational signal updated in the same cycle. Also, the original assertion only checks !div_unit.op_32_d but the RTL uses op_32bits_i and op_32_d differently. The assertion should consider both 32-bit and 64-bit cases and use the correct bits of data_rs1_i and data_rs2_i accordingly. Since same_sign_d is combinational and updated when valid_i is high, a same-cycle assertion (|->) is appropriate. The original assertion only checks !div_unit.op_32_d but the RTL uses op_32bits_i and op_32_d differently. The assertion should consider both 32-bit and 64-bit cases and use the correct bits of data_rs1_i and data_rs2_i accordingly. Since same_sign_d is combinational and updated when valid_i is high, a same-cycle assertion (|->) is appropriate.
+
+// Proposed fix: Use valid_i as precondition and check that same_sign_d equals the negation of XOR of the sign bits of operands selected according to op_32bits_i (which is the input signal, not op_32_d which is registered). This matches the combinational assignment in RTL. Use a same-cycle assertion (|->) because same_sign_d is combinational and updated in the same cycle as valid_i.
+
+// Corrected assertion:
+
+as__SameSignDReflectsOperandSignsOnValidI: assert property (valid_i |-> (div_unit.same_sign_d == ((op_32bits_i) ? ~(data_rs2_i[31] ^ data_rs1_i[31]) : ~(data_rs2_i[63] ^ data_rs1_i[63]))));

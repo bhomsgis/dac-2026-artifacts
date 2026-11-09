@@ -1,0 +1,36 @@
+// Check that result_value_o equals the sum of lsport and msport when REG_PATTERN MSB is 0 and ADDR_SUBS is 1
+as__PopcountAddNoRegRegPatternZeroSum: assert property((ADDR_SUBS && (popcount.REG_PATTERN[$clog2(popcount.N_PORTS)-1] == 0)) |-> result_value_o == popcount.lsport + popcount.msport);
+// Check that result_value_o equals the difference of lsport and msport when REG_PATTERN MSB is 0 and ADDR_SUBS is 0
+as__PopcountSubNoRegRegPatternZeroDiff: assert property((!ADDR_SUBS && (popcount.REG_PATTERN[$clog2(popcount.N_PORTS)-1] == 0)) |-> result_value_o == popcount.lsport - popcount.msport);
+// Check that lsport and msport are within valid range 0 to N_PORTS/2
+as__PopcountLsportMsportValidRange: assert property((popcount.lsport >= 0 && popcount.lsport <= popcount.N_PORTS/2) && (popcount.msport >= 0 && popcount.msport <= popcount.N_PORTS/2));
+// Check that result_value_o is within valid range for addition when ADDR_SUBS is 1
+as__PopcountAddResultValueRange: assert property((ADDR_SUBS) |-> (result_value_o >= 0 && result_value_o <= popcount.N_PORTS));
+// Check that result_value_o is within valid range for subtraction when ADDR_SUBS is 0
+as__PopcountSubResultValueRange: assert property((!ADDR_SUBS) |-> (result_value_o >= -popcount.N_PORTS && result_value_o <= popcount.N_PORTS));
+// Check that result_value_o equals sum of lsport and msport in next cycle when ADDR_SUBS is 1
+as__PopcountAddResultValueNextCycle: assert property((ADDR_SUBS) |=> result_value_o == $past(popcount.lsport) + $past(popcount.msport));
+// Check that result_value_o equals difference of lsport and msport in next cycle when ADDR_SUBS is 0
+as__PopcountSubResultValueNextCycle: assert property((!ADDR_SUBS) |=> result_value_o == $past(popcount.lsport) - $past(popcount.msport));
+// Check that popcount.result_value_d equals sum of lsport and msport when ADDR_SUBS is 1
+as__PopcountAddResultValueDCheck: assert property((ADDR_SUBS) |-> popcount.result_value_d == popcount.lsport + popcount.msport);
+// Check that popcount.result_value_d equals difference of lsport and msport when ADDR_SUBS is 0
+as__PopcountSubResultValueDCheck: assert property((!ADDR_SUBS) |-> popcount.result_value_d == popcount.lsport - popcount.msport);
+// Check that when all operands_regs_i bits are zero, lsport and msport are zero
+as__PopcountZeroOperandsLsportMsportZeroCheck: assert property((!(|operands_regs_i)) |-> (popcount.lsport == 0 && popcount.msport == 0));
+// Check that when all bits in lower half operands_regs_i are one, lsport equals half N_PORTS
+as__PopcountLsportAllOnesCheck: assert property((&operands_regs_i[0 +: popcount.N_PORTS/2]) |-> popcount.lsport == popcount.N_PORTS/2);
+// Check that when all bits in upper half operands_regs_i are one, msport equals half N_PORTS
+as__PopcountMsportAllOnesCheck: assert property((&operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]) |-> popcount.msport == popcount.N_PORTS/2);
+// Check that result_value_o equals zero when both halves of operands_regs_i are equal and ADDR_SUBS is 0
+as__PopcountEqualHalvesZeroResult: assert property((!ADDR_SUBS && (operands_regs_i[0 +: popcount.N_PORTS/2] == operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2])) |-> result_value_o == 0);
+// Check that result_value_o is non-negative when ADDR_SUBS is 1
+as__PopcountAddResultNonNegative: assert property((ADDR_SUBS) |-> result_value_o >= 0);
+// Check that result_value_o is less or equal to N_PORTS when ADDR_SUBS is 1
+as__PopcountAddResultMaxValue: assert property((ADDR_SUBS) |-> result_value_o <= popcount.N_PORTS);
+// Check that result_value_o is greater or equal to -N_PORTS when ADDR_SUBS is 0
+as__PopcountSubResultMinValue: assert property((!ADDR_SUBS) |-> result_value_o >= -popcount.N_PORTS);
+// Check that lsport equals countones of lower half operands_regs_i
+as__PopcountLsportCountOnes: assert property(popcount.lsport == $countones(operands_regs_i[0 +: popcount.N_PORTS/2]));
+// Check that msport equals countones of upper half operands_regs_i
+as__PopcountMsportCountOnes: assert property(popcount.msport == $countones(operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]));

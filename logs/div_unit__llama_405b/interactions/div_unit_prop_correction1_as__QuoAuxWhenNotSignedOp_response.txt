@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking the value of `quo_aux` in the same cycle as `signed_op_q` is checked. However, `quo_aux` is assigned a value based on `dividend_quotient_q`, which is a registered signal that is updated in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `quo_aux` in the next cycle, after `dividend_quotient_q` has been updated.
+
+Here is the corrected assertion:
+
+`as__QuoAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q |=> div_unit.quo_aux == $past(div_unit.dividend_quotient_q));`
+
+This assertion checks that if `signed_op_q` is not set, then in the next cycle, `quo_aux` is equal to the previous value of `dividend_quotient_q`.

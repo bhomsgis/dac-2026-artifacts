@@ -1,0 +1,37 @@
+The current assertion is failing because it is checking if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` in the same cycle when `access_hit_i` is 1. However, the update of `pseudoLRU.plru_tree_d` happens in the same cycle, but the update of `pseudoLRU.plru_tree_q` happens in the next cycle.
+
+The proposed fix is to check if `pseudoLRU.plru_tree_q` is not equal to its previous value in the next cycle when `access_hit_i` is 1. This can be achieved by using the `$past` function to get the previous value of `pseudoLRU.plru_tree_q`.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q, 1));`
+
+However, this assertion is the same as Attempt 2, which didn't work. 
+
+A different approach is to check if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` in the next cycle when `access_hit_i` is 1. This can be achieved by using the `$past` function to get the previous value of `pseudoLRU.plru_tree_q` and comparing it with `pseudoLRU.plru_tree_d` in the next cycle.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d != $past(pseudoLRU.plru_tree_q));`
+
+However, this assertion is the same as Attempt 1, which didn't work.
+
+Another approach is to check if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` in the same cycle when `access_hit_i` is 1, considering that `pseudoLRU.plru_tree_d` is a combinatorial signal that is updated in the same cycle.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);`
+
+However, this is the same as the original assertion, which is failing.
+
+Considering the RTL, when `access_hit_i` is 1, `pseudoLRU.plru_tree_d` is updated in the same cycle, but `pseudoLRU.plru_tree_q` is updated in the next cycle. Therefore, the correct assertion should check if `pseudoLRU.plru_tree_d` is not equal to the current value of `pseudoLRU.plru_tree_q` in the same cycle when `access_hit_i` is 1.
+
+Wait, this is the same as the original assertion. 
+
+Let's think about this again. When `access_hit_i` is 1, `pseudoLRU.plru_tree_d` is updated in the same cycle. The update of `pseudoLRU.plru_tree_d` should cause `pseudoLRU.plru_tree_q` to be updated in the next cycle. Therefore, the correct assertion should check if `pseudoLRU.plru_tree_q` will be updated in the next cycle when `access_hit_i` is 1.
+
+Here is the corrected assertion:
+
+`as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q == pseudoLRU.plru_tree_d);`
+
+This assertion checks if `pseudoLRU.plru_tree_q` is equal to `pseudoLRU.plru_tree_d` in the next cycle when `access_hit_i` is 1, which means that `pseudoLRU.plru_tree_q` will be updated in the next cycle.

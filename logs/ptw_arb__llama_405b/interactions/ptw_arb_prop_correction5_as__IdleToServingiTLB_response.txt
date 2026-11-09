@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Analysis:**
+
+The original assertion is failing because it does not consider the case where `dtlb_ptw_comm_i.req.valid` is 1'b1 and `itlb_ptw_comm_i.req.valid` is 1'b1 at the same time. In this case, the arbiter will prioritize the dTLB request and transition to `SERVING_dTLB` instead of `SERVING_iTLB`.
+
+**Proposed Fix:**
+
+To fix this issue, we need to add a condition to check if `dtlb_ptw_comm_i.req.valid` is 1'b0 or if `itlb_ptw_comm_i.req.valid` is 1'b1 and `ptw_arb.is_req_waiting_q` is 1'b1. This will ensure that the arbiter transitions to `SERVING_iTLB` only when there is an pending iTLB request or when there is no dTLB request.
+
+**Corrected Assertion:**
+
+as__IdleToServingiTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && ptw_arb.is_req_waiting_q == 1'b1 && (ptw_arb.itlb_req_waiting_q != '0 || (itlb_ptw_comm_i.req.valid && !dtlb_ptw_comm_i.req.valid && !ptw_arb.is_req_waiting_d)) |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB);

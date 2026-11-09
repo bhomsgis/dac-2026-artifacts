@@ -1,0 +1,2 @@
+// Check that if a request is waiting (is_req_waiting_q), then the current_state is SERVING_iTLB in the next cycle
+as__ReqWaitingLeadsToServingITLB: assert property (($past(ptw_arb.is_req_waiting_q)) |=> (ptw_arb.current_state == ptw_arb.SERVING_iTLB));

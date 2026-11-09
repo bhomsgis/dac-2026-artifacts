@@ -1,0 +1,6 @@
+The current assertion `as__Rmd8: assert property(!div_unit.div_zero_q && !div_unit.signed_op_q |-> div_unit.rmd_aux == div_unit.remanent_q);` might be failing because it does not consider the case when `op_32_q` is high. In this case, `rmd_aux` is assigned a value based on `rmd` and `op_32_q`, which may not be equal to `remanent_q`. 
+
+A proposed fix is to consider the value of `op_32_q` in the assertion. However, since the assertion should be as high-level as possible, we should avoid repeating implementation details. 
+
+A corrected assertion would be: 
+as__Rmd8: assert property(!div_unit.div_zero_q && !div_unit.signed_op_q |-> div_unit.rmd_aux == (div_unit.op_32_q ? {32{div_unit.remanent_q[31]} , div_unit.remanent_q[31:0]} : div_unit.remanent_q));

@@ -1,0 +1,7 @@
+1. The original assertion fails because it checks the signal ptw.access_hit in the same cycle as the precondition (ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit) is false. However, ptw.access_hit is a registered signal updated on the clock edge, so its value reflects the previous cycle's conditions. Therefore, the assertion incorrectly expects ptw.access_hit to be 0 in the same cycle when the precondition is false, which may not hold due to pipeline timing.
+
+2. The fix is to use a next-cycle assertion (|=>) so that when the precondition (ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit) is false in the current cycle, the postcondition checks that ptw.access_hit is 0 in the next cycle. This aligns with the registered nature of ptw.access_hit and the pipeline behavior, ensuring the assertion checks the updated value of ptw.access_hit after the clock edge.
+
+3. Corrected assertion:
+
+as__AccessHitClearOtherwise: assert property((!(ptw.current_state == ptw.S_REQ && ptw.pte_cache_hit)) |=> (ptw.access_hit == 1'b0));

@@ -1,0 +1,6 @@
+// The original assertion likely fails because the transition to S_ERROR depends on dmem_ptw_comm_i.resp.valid and invalid_pte being true in the same cycle, but the next_state update occurs combinationally after these signals are observed. The assertion uses a next-cycle implication (|=>) which expects next_state updated in the next cycle, but next_state is combinationally assigned in the same cycle as dmem_ptw_comm_i.resp.valid and invalid_pte. Therefore, a same-cycle assertion (|->) is more appropriate to check that when in S_WAIT and resp.valid and invalid_pte are true, next_state is immediately S_ERROR.
+
+// The fix is to change the implication from next-cycle (|=>) to same-cycle (|->) to reflect the combinational next_state assignment based on current inputs and state.
+
+// Corrected assertion:
+as__WaitStateInvalidPteNextError: assert property((ptw.current_state == ptw.S_WAIT && ptw.dmem_ptw_comm_i.resp.valid && ptw.invalid_pte) |-> (ptw.next_state == ptw.S_ERROR));

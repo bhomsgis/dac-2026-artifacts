@@ -1,0 +1,1 @@
+as__SameSign: assert property(valid_i && data_rs1_i[WIDTH-1] == data_rs2_i[WIDTH-1] |-> div_unit.same_sign_d == 1'b1);

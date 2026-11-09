@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Analysis:**
+The current assertion is failing because it only checks the case when `sew_i` is `2'b10`, but the `tmp_remanent[1]` assignment is also dependent on the `WIDTH` parameter, which can be either 32 or 64. When `WIDTH` is 64, the `tmp_remanent[1]` assignment will be different, even when `sew_i` is `2'b10`. Therefore, the assertion needs to consider both cases.
+
+**Proposed Fix:**
+To fix the assertion, we need to add a condition to check the `WIDTH` parameter and adjust the expected value of `tmp_remanent[1]` accordingly. We can use the `CONFIG32` parameter to determine the value of `WIDTH`.
+
+**Corrected Assertion:**
+```
+as__SimdDivSEW32: assert property(sew_i == 2'b10 |-> (div_4bits.CONFIG32 ? div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[31]} : div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[63]}));
+```
+This assertion checks the value of `tmp_remanent[1]` based on both the `sew_i` and `CONFIG32` parameters, ensuring that it covers both 32-bit and 64-bit operation cases.

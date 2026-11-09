@@ -1,0 +1,67 @@
+```systemverilog
+// Corrected assertions for module alu with proper clocking and hierarchical references
+
+// Assuming 'clk' is the clock signal for synchronous assertions, declare it or bind it accordingly in your testbench or environment.
+
+// Example clock declaration for assertions (if needed):
+// logic clk;
+// always #5 clk = ~clk; // 100MHz clock for simulation
+
+// Corrected assertions with @(posedge clk) and proper hierarchical references to alu
+
+as__ValidOutputMatchesValidInput: assert property (@(posedge clk) alu.valid_i |-> alu.valid_o);
+
+as__AddOperationResult: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.ADD && CONFIG32 == 1'b1) |-> alu.result_o == alu.data_rs1_i + alu.data_rs2_i));
+
+as__SubOperationResult: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SUB && CONFIG32 == 1'b1) |-> alu.result_o == alu.data_rs1_i - alu.data_rs2_i));
+
+as__XorOperationResult: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.XOR) |-> alu.result_o == (alu.data_rs1_i ^ alu.data_rs2_i)));
+
+as__OrOperationResult: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.OR) |-> alu.result_o == (alu.data_rs1_i | alu.data_rs2_i)));
+
+as__AndOperationResult: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.AND) |-> alu.result_o == (alu.data_rs1_i & alu.data_rs2_i)));
+
+as__SraOperationSignedShift: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SRA && CONFIG32 == 1'b1) |-> alu.result_o == ($signed(alu.data_rs1_i) >>> alu.data_rs2_i[5:0])));
+
+as__SrlOperationLogicalShiftRight: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SRL && CONFIG32 == 1'b1) |-> alu.result_o == (alu.data_rs1_i >> alu.data_rs2_i[5:0])));
+
+as__SllOperationLogicalShiftLeft: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SLL && CONFIG32 == 1'b1) |-> alu.result_o == (alu.data_rs1_i << alu.data_rs2_i[5:0])));
+
+as__SltOperationUnsigned: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SLT && alu.op_unsigned_i && CONFIG32 == 1'b1) |-> alu.result_o == {{(WIDTH-1){1'b0}}, alu.data_rs1_i < alu.data_rs2_i}));
+
+as__SltOperationSigned: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SLT && !alu.op_unsigned_i && CONFIG32 == 1'b1) |-> alu.result_o == {{(WIDTH-1){1'b0}}, $signed(alu.data_rs1_i) < $signed(alu.data_rs2_i)}));
+
+as__DefaultOperationResultZero: assert property (@(posedge clk) ((alu.valid_i && (alu.op_i >= alu.ALU_OPS)) |-> alu.result_o == {WIDTH{1'b0}}));
+
+as__AddOperationWordSizeSignExtend: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.ADD && CONFIG32 == 1'b0 && alu.op_size_i == alu.WORD) |-> ((alu.result_o[31:0] == alu.data_rs1_i[31:0] + alu.data_rs2_i[31:0]) && (&alu.result_o[63:32] == alu.result_o[31]))));
+
+as__AddOperationNonWordSize: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.ADD && CONFIG32 == 1'b0 && alu.op_size_i != alu.WORD) |-> alu.result_o == alu.data_rs1_i + alu.data_rs2_i));
+
+as__SubOperationWordSizeSignExtend: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SUB && CONFIG32 == 1'b0 && alu.op_size_i == alu.WORD) |-> ((alu.result_o[31:0] == alu.data_rs1_i[31:0] - alu.data_rs2_i[31:0]) && (&alu.result_o[63:32] == alu.result_o[31]))));
+
+as__SubOperationNonWordSize: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SUB && CONFIG32 == 1'b0 && alu.op_size_i != alu.WORD) |-> alu.result_o == alu.data_rs1_i - alu.data_rs2_i));
+
+as__SraOperationWordSizeSignExtend: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SRA && CONFIG32 == 1'b0 && alu.op_size_i == alu.WORD) |-> ((alu.result_o[31:0] == $signed(alu.data_rs1_i[31:0]) >>> alu.data_rs2_i[4:0]) && (&alu.result_o[63:32] == alu.result_o[31]))));
+
+as__SraOperationNonWordSize: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SRA && CONFIG32 == 1'b0 && alu.op_size_i != alu.WORD) |-> alu.result_o == ($signed(alu.data_rs1_i) >>> alu.data_rs2_i[5:0])));
+
+as__SrlOperationWordSizeSignExtend: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SRL && CONFIG32 == 1'b0 && alu.op_size_i == alu.WORD) |-> ((alu.result_o[31:0] == alu.data_rs1_i[31:0] >> alu.data_rs2_i[4:0]) && (&alu.result_o[63:32] == alu.result_o[31]))));
+
+as__SrlOperationNonWordSize: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SRL && CONFIG32 == 1'b0 && alu.op_size_i != alu.WORD) |-> alu.result_o == (alu.data_rs1_i >> alu.data_rs2_i[5:0])));
+
+as__SllOperationWordSizeSignExtend: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SLL && CONFIG32 == 1'b0 && alu.op_size_i == alu.WORD) |-> ((alu.result_o[31:0] == alu.data_rs1_i[31:0] << alu.data_rs2_i[4:0]) && (&alu.result_o[63:32] == alu.result_o[31]))));
+
+as__SllOperationNonWordSize: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SLL && CONFIG32 == 1'b0 && alu.op_size_i != alu.WORD) |-> alu.result_o == (alu.data_rs1_i << alu.data_rs2_i[5:0])));
+
+as__XorOperationNonConfig32: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.XOR && CONFIG32 == 1'b0) |-> alu.result_o == (alu.data_rs1_i ^ alu.data_rs2_i)));
+
+as__OrOperationNonConfig32: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.OR && CONFIG32 == 1'b0) |-> alu.result_o == (alu.data_rs1_i | alu.data_rs2_i)));
+
+as__AndOperationNonConfig32: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.AND && CONFIG32 == 1'b0) |-> alu.result_o == (alu.data_rs1_i & alu.data_rs2_i)));
+
+as__SltOperationUnsignedNonConfig32: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SLT && alu.op_unsigned_i && CONFIG32 == 1'b0) |-> alu.result_o == {{(WIDTH-1){1'b0}}, alu.data_rs1_i < alu.data_rs2_i}));
+
+as__SltOperationSignedNonConfig32: assert property (@(posedge clk) ((alu.valid_i && alu.op_i == alu.SLT && !alu.op_unsigned_i && CONFIG32 == 1'b0) |-> alu.result_o == {{(WIDTH-1){1'b0}}, $signed(alu.data_rs1_i) < $signed(alu.data_rs2_i)}));
+
+as__DefaultOperationResultZeroNonConfig32: assert property (@(posedge clk) ((alu.valid_i && (alu.op_i >= alu.ALU_OPS) && CONFIG32 == 1'b0) |-> alu.result_o == {WIDTH{1'b0}}));
+```

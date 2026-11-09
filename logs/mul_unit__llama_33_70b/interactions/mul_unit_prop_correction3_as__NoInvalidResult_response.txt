@@ -1,0 +1,1 @@
+as__NoInvalidResult: assert property(!(valid_o && !(|mul_unit.result_o) && !(&mul_unit.result_o) && !(mul_unit.result_o == {WIDTH{1'bx}})));

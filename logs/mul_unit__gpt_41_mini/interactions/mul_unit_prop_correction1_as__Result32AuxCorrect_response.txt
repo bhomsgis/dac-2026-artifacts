@@ -1,0 +1,6 @@
+// The original assertion likely fails because it compares result_32_aux directly to result_low_d[WIDTH-1:0] in the same cycle, but result_32_aux is assigned combinationally from neg_q and result_low_d, while neg_q and result_low_d are registered signals updated in different pipeline stages. The timing between neg_q and result_low_d is not aligned, causing mismatches. Also, the assertion does not consider the pipeline latency and the fact that neg_q is a register updated on the clock edge, so the comparison should be done in the next cycle using $past() on the inputs to reflect the correct timing.
+
+// The fix is to use a next-cycle assertion (|=>) to check that when valid_q[0] is asserted (indicating the first pipeline stage valid), the registered neg_q and result_low_d signals correspond correctly to result_32_aux in the next cycle. We use $past() on neg_q and result_low_d to refer to their values at the time of the precondition. This aligns the timing and ensures the assertion checks the correct relationship between these signals.
+
+// Corrected assertion:
+as__Result32AuxCorrect: assert property (mul_unit.valid_q[0] |=> (mul_unit.neg_q == 1'b1 ? (mul_unit.result_32_aux == (~$past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]) + mul_unit.ONE)) : (mul_unit.result_32_aux == $past(mul_unit.result_low_d[mul_unit.WIDTH-1:0]))));

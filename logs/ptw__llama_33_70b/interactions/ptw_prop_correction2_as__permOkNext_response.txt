@@ -1,0 +1,3 @@
+```systemverilog
+as__permOkNext: assert property(ptw.perm_ok |=> ((ptw.prv_req[0] && ($past(ptw.is_pte_sx) || $past(ptw.is_pte_ux) || $past(ptw.is_pte_sr) || $past(ptw.is_pte_ur))) || (!$past(ptw.prv_req[0]) && ($past(ptw.is_pte_ux) || $past(ptw.is_pte_uw) || $past(ptw.is_pte_ur) || $past(ptw.is_pte_ur)))));
+```

@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion uses a same-cycle implication (|->) to check that when valid_i and div_unit.op_32_d are true, div_unit.same_sign_d equals the XOR-negation of the sign bits of data_rs2_i and data_rs1_i. However, div_unit.same_sign_d is a registered signal updated on the clock edge, and valid_i and op_32bits_i are inputs sampled to div_unit.same_sign_d in the next cycle. Therefore, the assertion is checking combinational signals against a registered signal in the same cycle, causing mismatch and failure.
+
+2. Proposed fix:  
+Use a next-cycle implication (|=>) to relate the inputs valid_i and op_32bits_i in the current cycle to the registered signal div_unit.same_sign_q in the next cycle. Also, use $past() to refer to the input signals at the time of the precondition. This aligns with the pipeline behavior where same_sign_q is updated on the clock edge after valid_i and op_32bits_i are sampled. The assertion should cover both 32-bit and 64-bit cases, using the correct sign bit depending on op_32bits_i.
+
+3. Corrected assertion:  
+as__SameSignDReflectsOperandSigns32: assert property (valid_i |=> (div_unit.same_sign_q == (~($past(div_unit.op_32bits_i) ? ($past(data_rs2_i)[31] ^ $past(data_rs1_i)[31]) : ($past(data_rs2_i)[63] ^ $past(data_rs1_i)[63])))));

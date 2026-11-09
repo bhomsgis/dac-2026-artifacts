@@ -1,0 +1,8 @@
+The current assertion `as__NoInvalidResult32: assert property(!(valid_o && op_i == mul_unit.MUL && !op_32bits_i && result_o != mul_unit.result_2width_def[WIDTH-1:0]));` might be failing because it does not consider the pipeline behavior and timing of the `mul_unit` module. Specifically, it does not account for the fact that `result_o` is assigned in the next cycle after `op_i` and `op_32bits_i` are evaluated.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to reason about the behavior occurring in the next cycle. We also need to use `$past()` to refer to the value of `op_i` and `op_32bits_i` in the previous cycle.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidResult32: assert property(!(valid_o && $past(op_i) == mul_unit.MUL && !$past(op_32bits_i) && result_o != $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));
+```

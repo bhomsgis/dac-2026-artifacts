@@ -1,0 +1,37 @@
+The current assertion is failing because it's checking if `div_unit.first_dividend_q` is equal to `data_rs1_i` in the next cycle after `valid_i` is asserted. However, this is not accurate because `div_unit.first_dividend_q` is updated with the value of `data_rs1_i` only when `valid_i` is asserted and the unit is not busy.
+
+The proposed fix is to check if `div_unit.first_dividend_q` is equal to the value of `data_rs1_i` when `valid_i` is asserted and the unit is not busy. This can be achieved by adding a condition to check if the unit is not busy (`!div_unit.busy_o`) in the precondition of the assertion.
+
+Here is the corrected assertion:
+
+`as__FirstDividendQUpdate: assert property(valid_i && !div_unit.busy_o |=> div_unit.first_dividend_q == $past(data_rs1_i));`
+
+However, this is still not accurate because it's using `$past(data_rs1_i)` which is not necessary in this case. The correct assertion should be:
+
+`as__FirstDividendQUpdate: assert property(valid_i && !div_unit.busy_o |=> div_unit.first_dividend_q == data_rs1_i);`
+
+But this is still one of the previous attempts, so it's not the correct answer.
+
+After re-reading the RTL code, I realized that the `first_dividend_q` is updated with the value of `data_rs1_i` when `valid_i` is asserted, regardless of the busy status of the unit. Therefore, the correct assertion should be:
+
+`as__FirstDividendQUpdate: assert property(valid_i |=> div_unit.first_dividend_q == data_rs1_i);`
+
+However, this is the original assertion which is failing, so we need to think about the timing of the signals. The `first_dividend_q` is updated in the next cycle after `valid_i` is asserted, so we need to use `$past(valid_i)` to check if `valid_i` was asserted in the previous cycle.
+
+Here is the corrected assertion:
+
+`as__FirstDividendQUpdate: assert property(div_unit.valid_q |-> div_unit.first_dividend_q == $past(data_rs1_i));`
+
+No, this is not correct, because we can't use `$past(data_rs1_i)` in the same cycle assertion.
+
+After re-reading the RTL code again, I realized that the `first_dividend_q` is updated with the value of `data_rs1_i` when `valid_i` is asserted, and the `valid_q` is updated with the value of `valid_i` in the same cycle. Therefore, the correct assertion should be:
+
+`as__FirstDividendQUpdate: assert property(div_unit.valid_q |-> div_unit.first_dividend_q == data_rs1_i);`
+
+No, this is not correct, because the `data_rs1_i` is not guaranteed to be the same in the next cycle.
+
+The correct assertion is:
+
+`as__FirstDividendQUpdate: assert property(div_unit.valid_q |-> div_unit.first_dividend_q == div_unit.first_dividend_d);`
+
+This assertion checks if `div_unit.first_dividend_q` is equal to `div_unit.first_dividend_d` when `div_unit.valid_q` is asserted. The `div_unit.first_dividend_d` is the value that `div_unit.first_dividend_q` will be updated with in the next cycle, so this assertion is checking if the update is correct.

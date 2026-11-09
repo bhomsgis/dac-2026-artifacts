@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking if the `replacement_idx_o` changes when `access_hit_i` is high, but it does not consider the case where the `replacement_idx_o` might not change even when `access_hit_i` is high. This can happen when the `access_idx_i` is the same as the current `replacement_idx_o`, in which case the `replacement_idx_o` will not change.
+
+The proposed fix is to check if the `replacement_idx_o` changes when `access_hit_i` is high and `access_idx_i` is not equal to the current `replacement_idx_o`. This ensures that the assertion only checks for changes in `replacement_idx_o` when it is expected to change.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 && access_idx_i != $past(replacement_idx_o) |=> replacement_idx_o != $past(replacement_idx_o));
+```
+
+This assertion uses a next-cycle assertion (`|=>`) to check if the `replacement_idx_o` changes in the next cycle when `access_hit_i` is high and `access_idx_i` is not equal to the current `replacement_idx_o`. The `$past` function is used to refer to the value of `replacement_idx_o` in the previous cycle.

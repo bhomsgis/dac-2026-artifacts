@@ -1,0 +1,153 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a mul_unit. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the mul_unit interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of mul_unit but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+We want to increase the assertion set for this RTL module called mul_unit
+Here are the current correct assertions:
+as__ValidOutputMatchesInputValid: assert property(valid_i |=> mul_unit.valid_q[0]);
+as__Op32BitsSetOnlyForMul: assert property((op_i == 0) |-> op_32bits_i);
+as__NegDMatchesSignXor: assert property((op_i == 0 || op_i == 1 || op_i == 2) |-> mul_unit.neg_d == !mul_unit.same_sign);
+as__DataRs1DCorrectForMul: assert property((op_i == 0) |-> mul_unit.data_rs1_d == (((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i));
+as__DataRs2DCorrectForMul: assert property((op_i == 0) |-> mul_unit.data_rs2_d == (((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? (~data_rs2_i + mul_unit.ONE) : data_rs2_i));
+as__DataRs1DCorrectForMulH: assert property((op_i == 1) |-> mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)]) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i));
+as__DataRs2DCorrectForMulH: assert property((op_i == 1) |-> mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)]) ? (~data_rs2_i + mul_unit.ONE) : data_rs2_i));
+as__DataRs1DCorrectForMulHSU: assert property((op_i == 2) |-> mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)]) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i));
+as__DataRs2DCorrectForMulHSU: assert property((op_i == 2) |-> mul_unit.data_rs2_d == data_rs2_i);
+as__DataRs1DCorrectForMulHU: assert property((op_i == 3) |-> mul_unit.data_rs1_d == data_rs1_i);
+as__DataRs2DCorrectForMulHU: assert property((op_i == 3) |-> mul_unit.data_rs2_d == data_rs2_i);
+as__NegDCorrectForMulHSU: assert property((op_i == 2) |-> mul_unit.neg_d == data_rs1_i[(mul_unit.WIDTH-1)]);
+as__NegDZeroForMulHU: assert property((op_i == 3) |-> mul_unit.neg_d == 1'b0);
+as__ValidQ0ClearedOnFlushOrInvalid: assert property((flush_i[0] || !valid_i) |-> !mul_unit.valid_q[0]);
+as__ValidQ0SetOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.valid_q[0]);
+as__OpQUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.op_q == op_i);
+as__Op32BitsQUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)));
+as__NegQUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.neg_q == mul_unit.neg_d);
+as__DataRs1QUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.data_rs1_q == mul_unit.data_rs1_d);
+as__DataRs2QUpdatedOnValid: assert property((valid_i && !flush_i[0]) |-> mul_unit.data_rs2_q == mul_unit.data_rs2_d);
+as__ResultLowDIsPartialProductLow: assert property(mul_unit.result_low_d == mul_unit.data_rs1_q * mul_unit.data_rs2_q[(mul_unit.WIDTH/2)-1:0]);
+as__ResultHighDIsPartialProductHigh: assert property(mul_unit.result_high_d == mul_unit.data_rs1_q * mul_unit.data_rs2_q[mul_unit.WIDTH-1:(mul_unit.WIDTH/2)]);
+as__Result32AuxCorrect: assert property(mul_unit.neg_q ? (mul_unit.result_32_aux == (~mul_unit.result_low_d[mul_unit.WIDTH-1:0] + mul_unit.ONE)) : (mul_unit.result_32_aux == mul_unit.result_low_d[mul_unit.WIDTH-1:0]));
+as__Result32SignExtendedCorrect: assert property(mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]});
+as__ValidQ1ClearedOnFlushOrInvalidQ0: assert property((flush_i[1] || !mul_unit.valid_q[0]) |-> !mul_unit.valid_q[1]);
+as__ValidQ1SetOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |-> mul_unit.valid_q[1]);
+as__OpQFinalUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.op_q_final == $past(mul_unit.op_q));
+as__Op32BitsQFinalUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.op_32bits_q_final == $past(mul_unit.op_32bits_q));
+as__NegQFinalUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.neg_q_final == $past(mul_unit.neg_q));
+as__Result32QUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.result_32_q == $past(mul_unit.result_32));
+as__ResultLowQUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.result_low_q == $past(mul_unit.result_low_d));
+as__ResultHighQUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !flush_i[1]) |=> mul_unit.result_high_q == $past(mul_unit.result_high_d));
+as__Result2WidthSumCorrect: assert property(mul_unit.result_2width == {{(mul_unit.WIDTH/2){1'b0}}, mul_unit.result_low_q} + {mul_unit.result_high_q, {(mul_unit.WIDTH/2){1'b0}}});
+as__Result2WidthDefCorrect: assert property(mul_unit.result_2width_def == (mul_unit.neg_q_final ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE) : mul_unit.result_2width));
+as__ResultSelectedCorrectly: assert property((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) |-> mul_unit.result == mul_unit.result_32_q);
+as__ResultSelectedCorrectlyMulLow: assert property((mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]);
+as__ResultSelectedCorrectlyMulHigh: assert property((mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+as__ValidOAndResultOMatchRegister32bitGen: assert property(mul_unit.REG_32 |-> (valid_o == mul_unit.valid_q[1] && result_o == mul_unit.result));
+as__ValidOAndResultOMatchOutput32bitGen: assert property(mul_unit.CONFIG32 |-> (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result));
+as__ValidOAndResultOMatchNoRegister32bitGen: assert property((!mul_unit.REG_32 && !mul_unit.CONFIG32) |-> ((mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result_32) : (valid_o == (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final) && result_o == mul_unit.result)));
+as__ResultSelectionCorrect: assert property(((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) || (mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) || (mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32))) |-> ((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? (mul_unit.result == mul_unit.result_32_q) : (mul_unit.op_q_final == 0 ? (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) : (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]))));
+as__ValidOResultOMatchConfig: assert property((mul_unit.REG_32 || mul_unit.CONFIG32 || (!mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> ((mul_unit.REG_32) ? (valid_o == mul_unit.valid_q[1] && result_o == mul_unit.result) : ((mul_unit.CONFIG32) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result) : ((mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result_32) : (valid_o == (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final) && result_o == mul_unit.result)))));
+as__DataRs1Rs2DCorrectForMul: assert property((op_i == 0) |-> mul_unit.data_rs1_d == (((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i) && mul_unit.data_rs2_d == (((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? (~data_rs2_i + mul_unit.ONE) : data_rs2_i));
+as__DataRs1Rs2DCorrectForMulH: assert property((op_i == 1) |-> mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)]) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i) && mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)]) ? (~data_rs2_i + mul_unit.ONE) : data_rs2_i));
+as__DataRs1Rs2DCorrectForMulHSU: assert property((op_i == 2) |-> mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)]) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i) && mul_unit.data_rs2_d == data_rs2_i);
+as__DataRs1Rs2DCorrectForMulHU: assert property((op_i == 3) |-> mul_unit.data_rs1_d == data_rs1_i && mul_unit.data_rs2_d == data_rs2_i);
+as__RegistersUpdateOnValidAndNoFlush0: assert property((valid_i && !flush_i[0]) |-> (mul_unit.op_q == op_i && mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)) && mul_unit.neg_q == mul_unit.neg_d && mul_unit.data_rs1_q == mul_unit.data_rs1_d && mul_unit.data_rs2_q == mul_unit.data_rs2_d));
+as__ValidQ1SetOnlyIfValidQ0AndNoFlush: assert property((mul_unit.valid_q[1]) |-> (mul_unit.valid_q[0] && !flush_i[1]));
+as__NegDCorrectForMul: assert property((op_i == 0) |-> mul_unit.neg_d == !mul_unit.same_sign);
+as__NegDCorrectForMulH: assert property((op_i == 1) |-> mul_unit.neg_d == !mul_unit.same_sign);
+as__Result32AuxCorrectForMulH: assert property((mul_unit.op_q_final == 1) |=> mul_unit.result_32_aux == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0]));
+as__Result32AuxCorrectForMulHSU: assert property((mul_unit.op_q_final == 2) |=> mul_unit.result_32_aux == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0]));
+as__Result32AuxCorrectForMulHU: assert property((mul_unit.op_q_final == 3) |=> mul_unit.result_32_aux == mul_unit.result_low_q[mul_unit.WIDTH-1:0]);
+as__Result32SignExtendedCorrectForHighOps: assert property(((mul_unit.op_q_final == 1) || (mul_unit.op_q_final == 2) || (mul_unit.op_q_final == 3)) |=> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]});
+as__Result32AuxCorrectForMul: assert property((mul_unit.op_q == 0) |=> mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0]));
+as__Result32SignExtendedCorrectForMul: assert property((mul_unit.op_q == 0) |=> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]});
+as__Result2WidthDefNegationCorrect: assert property(mul_unit.valid_q[1] |=> mul_unit.result_2width_def == (mul_unit.neg_q_final ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE) : mul_unit.result_2width));
+as__Result2WidthSumCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> mul_unit.result_2width == {{(mul_unit.WIDTH/2){1'b0}}, mul_unit.result_low_q} + {mul_unit.result_high_q, {(mul_unit.WIDTH/2){1'b0}}});
+as__SecondStageRegistersUpdateOnValidQ0NoFlush: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> (mul_unit.op_q_final == $past(mul_unit.op_q) && mul_unit.op_32bits_q_final == $past(mul_unit.op_32bits_q) && mul_unit.neg_q_final == $past(mul_unit.neg_q) && mul_unit.result_32_q == $past(mul_unit.result_32) && mul_unit.result_low_q == $past(mul_unit.result_low_d) && mul_unit.result_high_q == $past(mul_unit.result_high_d)));
+as__ResultSelectionCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> ((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? (mul_unit.result == mul_unit.result_32_q) : (mul_unit.op_q_final == 0 ? (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) : (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]))));
+as__ValidOSetCorrectly: assert property(mul_unit.valid_o |-> ((mul_unit.REG_32) ? mul_unit.valid_q[1] : ((mul_unit.CONFIG32) ? mul_unit.valid_q[0] : ((mul_unit.op_32bits_q[0]) ? mul_unit.valid_q[0] : (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final)))));
+as__Result32AuxNegationCorrectForHighOps: assert property(((mul_unit.op_q_final == 1) || (mul_unit.op_q_final == 2) || (mul_unit.op_q_final == 3)) |=> (mul_unit.result_32_aux == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));
+as__Result32AuxNegationCorrectForMul: assert property((mul_unit.op_q == 0) |=> (mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));
+as__Result32SignExtensionCorrect: assert property(((mul_unit.op_q_final == 0) || (mul_unit.op_q_final == 1) || (mul_unit.op_q_final == 2) || (mul_unit.op_q_final == 3)) |=> (mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]}));
+as__Result2WidthDefNegationCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> (mul_unit.result_2width_def == (mul_unit.neg_q_final ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE) : mul_unit.result_2width)));
+as__Result2WidthSumCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> (mul_unit.result_2width == {{(mul_unit.WIDTH/2){1'b0}}, mul_unit.result_low_q} + {mul_unit.result_high_q, {(mul_unit.WIDTH/2){1'b0}}}));
+as__DataRs1Rs2DCorrectForMul: assert property((op_i == 0) |-> (mul_unit.data_rs1_d == (((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i) && mul_unit.data_rs2_d == (((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? (~data_rs2_i + mul_unit.ONE) : data_rs2_i)));
+as__DataRs1Rs2DCorrectForMulH: assert property((op_i == 1) |-> (mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)]) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i) && mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)]) ? (~data_rs2_i + mul_unit.ONE) : data_rs2_i)));
+as__DataRs1Rs2DCorrectForMulHSU: assert property((op_i == 2) |-> (mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)]) ? (~data_rs1_i + mul_unit.ONE) : data_rs1_i) && mul_unit.data_rs2_d == data_rs2_i));
+as__DataRs1Rs2DCorrectForMulHU: assert property((op_i == 3) |-> (mul_unit.data_rs1_d == data_rs1_i && mul_unit.data_rs2_d == data_rs2_i));
+as__NegQCorrectForMulHSU: assert property((mul_unit.op_q == 2) |-> mul_unit.neg_q == mul_unit.data_rs1_i[(mul_unit.WIDTH-1)]);
+as__NegQZeroForMulHU: assert property((mul_unit.op_q == 3) |-> mul_unit.neg_q == 1'b0);
+as__ValidQ0ClearedOnFlushOrInvalid: assert property((mul_unit.flush_i[0] || !valid_i) |-> !mul_unit.valid_q[0]);
+as__ValidQ0SetOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.valid_q[0]);
+as__OpQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.op_q == op_i);
+as__Op32BitsQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)));
+as__NegQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.neg_q == mul_unit.neg_d);
+as__DataRs1QUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.data_rs1_q == mul_unit.data_rs1_d);
+as__DataRs2QUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.data_rs2_q == mul_unit.data_rs2_d);
+as__ValidQ1ClearedOnFlushOrInvalidQ0: assert property((mul_unit.flush_i[1] || !mul_unit.valid_q[0]) |-> !mul_unit.valid_q[1]);
+as__ValidQ1SetOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |-> mul_unit.valid_q[1]);
+as__OpQFinalUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.op_q_final == $past(mul_unit.op_q));
+as__Op32BitsQFinalUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.op_32bits_q_final == $past(mul_unit.op_32bits_q));
+as__NegQFinalUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.neg_q_final == $past(mul_unit.neg_q));
+as__Result32QUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.result_32_q == $past(mul_unit.result_32));
+as__ResultLowQUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.result_low_q == $past(mul_unit.result_low_d));
+as__ResultHighQUpdatedOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.result_high_q == $past(mul_unit.result_high_d));
+as__ValidQ1SetOnlyIfValidQ0AndNoFlush: assert property((mul_unit.valid_q[1]) |-> (mul_unit.valid_q[0] && !mul_unit.flush_i[1]));
+as__RegistersUpdateOnValidAndNoFlush0: assert property((valid_i && !mul_unit.flush_i[0]) |-> (mul_unit.op_q == op_i && mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)) && mul_unit.neg_q == mul_unit.neg_d && mul_unit.data_rs1_q == mul_unit.data_rs1_d && mul_unit.data_rs2_q == mul_unit.data_rs2_d));
+as__OpQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.op_q == {mul_unit.MUL_OPS_BITS{1'b0}});
+as__Op32BitsQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.op_32bits_q == 1'b0);
+as__NegQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.neg_q == 1'b0);
+as__Result32AuxNegationCorrectOnValidQ1: assert property(((mul_unit.op_q_final == 0) || (mul_unit.op_q_final == 1) || (mul_unit.op_q_final == 2) || (mul_unit.op_q_final == 3)) && mul_unit.valid_q[1] |=> (mul_unit.result_32_aux == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));
+as__Result32SignExtendedCorrectOnValidQ1: assert property(mul_unit.valid_q[1] |=> mul_unit.result_32 == {{{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]}});
+as__ResultMatchesResult32QOnValidQ1For32BitReg: assert property((mul_unit.valid_q[1] && mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) |-> mul_unit.result == mul_unit.result_32_q);
+as__ResultMatchesLowPartOnValidQ1ForMul: assert property((mul_unit.valid_q[1] && mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]);
+as__ResultMatchesHighPartOnValidQ1ForNonMul: assert property((mul_unit.valid_q[1] && mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+as__ValidOMatchesValidQ1WhenReg32: assert property(mul_unit.REG_32 |-> valid_o == mul_unit.valid_q[1]);
+as__ResultOMatchesResultWhenReg32: assert property(mul_unit.REG_32 |-> result_o == mul_unit.result);
+as__ValidOMatchesValidQ0WhenConfig32: assert property(mul_unit.CONFIG32 |-> valid_o == mul_unit.valid_q[0]);
+as__ResultOMatchesResultWhenConfig32: assert property(mul_unit.CONFIG32 |-> result_o == mul_unit.result);
+as__Result32AuxCorrectForMulH: assert property((op_i == 1) |-> mul_unit.result_32_aux == (mul_unit.neg_d ? (~mul_unit.result_low_d[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[mul_unit.WIDTH-1:0]));
+as__Result32AuxCorrectForMulHSU: assert property((op_i == 2) |-> mul_unit.result_32_aux == (mul_unit.neg_d ? (~mul_unit.result_low_d[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[mul_unit.WIDTH-1:0]));
+as__Result32AuxCorrectForMulHU: assert property((op_i == 3) |-> mul_unit.result_32_aux == mul_unit.result_low_d[mul_unit.WIDTH-1:0]);
+as__NegQCorrectForMulAndMulH: assert property(((mul_unit.op_q == 0) || (mul_unit.op_q == 1)) |-> mul_unit.neg_q == mul_unit.neg_d);
+as__Result32AuxCorrectForMulAndMulH: assert property(((mul_unit.op_q == 0) || (mul_unit.op_q == 1)) |-> mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_d[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[mul_unit.WIDTH-1:0]));
+as__Result32AuxCorrectForMulHSUQ: assert property((mul_unit.op_q == 2) |-> mul_unit.result_32_aux == (mul_unit.neg_q ? (~mul_unit.result_low_d[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_d[mul_unit.WIDTH-1:0]));
+as__Result32AuxCorrectForMulHUQ: assert property((mul_unit.op_q == 3) |-> mul_unit.result_32_aux == mul_unit.result_low_d[mul_unit.WIDTH-1:0]);
+as__Result32SignExtendedCorrectForAllOpsQ: assert property(((mul_unit.op_q == 0) || (mul_unit.op_q == 1) || (mul_unit.op_q == 2) || (mul_unit.op_q == 3)) |-> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]});
+as__Result32AuxNegationCorrectOnValidQ1AllOps: assert property(((mul_unit.op_q_final == 0) || (mul_unit.op_q_final == 1) || (mul_unit.op_q_final == 2) || (mul_unit.op_q_final == 3)) && mul_unit.valid_q[1] |=> mul_unit.result_32_aux == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0]));
+as__Result32SignExtendedCorrectOnValidQ1AllOps: assert property(mul_unit.valid_q[1] |=> mul_unit.result_32 == {{(mul_unit.WIDTH-32){mul_unit.result_32_aux[31]}},mul_unit.result_32_aux[31:0]});
+as__ValidOSetCorrectlyGeneral: assert property(valid_o |-> ((mul_unit.REG_32) ? mul_unit.valid_q[1] : ((mul_unit.CONFIG32) ? mul_unit.valid_q[0] : ((mul_unit.op_32bits_q[0]) ? mul_unit.valid_q[0] : (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final)))));
+as__ResultOMatchesResultGeneral: assert property((mul_unit.REG_32 || mul_unit.CONFIG32) |-> result_o == mul_unit.result);
+as__ResultOMatchesResult32WhenNoReg32NoConfig32: assert property((!mul_unit.REG_32 && !mul_unit.CONFIG32 && mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) |-> result_o == mul_unit.result_32);
+as__ResultOMatchesResultWhenNoReg32NoConfig32ValidQ1: assert property((!mul_unit.REG_32 && !mul_unit.CONFIG32 && mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final) |-> result_o == mul_unit.result);
+
+Here is the RTL:
+[Internal RTL for mul_unit.sv omitted from this release.]
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'mul_unit.'

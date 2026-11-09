@@ -1,0 +1,6 @@
+// The original assertion fails because div_zero_q is a registered signal updated on the clock edge after valid_i is asserted, so div_zero_q reflects div_zero_d from the previous cycle, not the current cycle. The assertion uses a next-cycle implication (|=>) but compares div_zero_q directly to div_zero_d without considering that div_zero_d is combinational and valid_i is a wire. The assertion should check that div_zero_q in the next cycle equals div_zero_d in the current cycle, using $past(div_zero_d) on the postcondition side.
+
+// The fix is to assert that when valid_i is asserted, in the next cycle div_zero_q equals the div_zero_d from the current cycle (which is $past(div_zero_d) in the postcondition). This respects the pipeline timing and register update behavior.
+
+// Corrected assertion:
+as__DivZeroQSetOnValidI: assert property (valid_i |=> (div_unit.div_zero_q == $past(div_unit.div_zero_d)));

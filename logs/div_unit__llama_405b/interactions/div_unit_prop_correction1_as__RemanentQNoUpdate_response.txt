@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking if `remanent_q` remains the same when `cycles_counter` is 0, which is not the correct behavior. When `cycles_counter` is 0, it means the division operation is not in progress, and `remanent_q` can change when a new operation is started.
+
+The correct behavior is that `remanent_q` should remain the same when `cycles_counter` is not 0, because the division operation is in progress and `remanent_q` is being updated internally.
+
+Here is the corrected assertion:
+
+```
+as__RemanentQNoUpdate: assert property(div_unit.cycles_counter != 6'd0 |=> div_unit.remanent_q == $past(div_unit.remanent_q));
+```
+
+This assertion checks that when `cycles_counter` is not 0, `remanent_q` remains the same in the next cycle.

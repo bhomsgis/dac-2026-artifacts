@@ -1,0 +1,6 @@
+// The original assertion fails because the transition from S_WAIT to S_DONE depends on dmem_ptw_comm_i.resp.valid being true and is_pte_leaf being true in the same cycle, but the next_state update happens combinationally after these signals are evaluated. The assertion uses a next-cycle implication (|=>) which expects next_state to be updated in the next clock cycle, but next_state is combinational and updated in the same cycle as resp.valid and is_pte_leaf. Therefore, a same-cycle implication (|->) is more appropriate here to check that when in S_WAIT and resp.valid and is_pte_leaf are true, next_state is immediately S_DONE.
+
+// The fix is to change the implication from next-cycle (|=>) to same-cycle (|->) so that the assertion checks the combinational next_state value in the same cycle as the precondition signals. This matches the RTL behavior where next_state is combinationally assigned based on current_state and resp.valid signals.
+
+// Corrected assertion:
+as__WaitStatePteLeafNextDone: assert property ((ptw.current_state == ptw.S_WAIT && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_leaf) |-> (ptw.next_state == ptw.S_DONE));

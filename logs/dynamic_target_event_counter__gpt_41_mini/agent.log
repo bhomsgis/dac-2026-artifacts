@@ -1,0 +1,1771 @@
+(myenv) [agent]$ python3.12 agent.py --rtl-source dynamic_target_event_counter.sv --llm gpt-4.1-mini
+Assertions:
+as__CounterIncrementDecrement: assert property((|event_triggers_i) |=> INCR_DECR_COUNT ? (counter_q + COUNT_BSIZE'(increment_table[$countones(event_triggers_i)])) == counter_d : (counter_q - COUNT_BSIZE'(increment_table[$countones(event_triggers_i)])) == counter_d);
+as__CounterHoldNoEvent: assert property((!|event_triggers_i) |=> counter_d == counter_q);
+as__CounterUpdateNextCycle: assert property(reset_count_i |=> counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+as__CounterUpdateOnEventNoReset: assert property((!reset_count_i) |=> counter_q == counter_d);
+as__TargetRegUpdateOnResetCount: assert property(reset_count_i |=> target_reg_q == target_value_i);
+as__TargetRegHoldNoResetCount: assert property((!reset_count_i) |=> target_reg_q == target_reg_q);
+as__CurrentCountOutputConfigOne: assert property(CURRENT_COUNT_PCONF == 1 |-> current_count_o == counter_q);
+as__CurrentCountOutputConfigZero: assert property(CURRENT_COUNT_PCONF == 0 |-> current_count_o == target_reg_q);
+as__CurrentCountOutputConfigOther: assert property((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+as__TargetReachedOpenLimit: assert property(OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (counter_q > target_reg_q));
+as__TargetReachedClosedLimit: assert property(OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (counter_q >= target_reg_q));
+======================================================================
+STARTING INITIAL PROPERTY SET SYNTAX CORRECTION
+======================================================================
+
+Starting fix_missing_module_prefixes...
+Processing 11 assertions
+Parsing RTL source...
+Found assertion name: as__CounterIncrementDecrement
+Found assertion name: as__CounterHoldNoEvent
+Found assertion name: as__CounterUpdateNextCycle
+Found assertion name: as__CounterUpdateOnEventNoReset
+Found assertion name: as__TargetRegUpdateOnResetCount
+Found assertion name: as__TargetRegHoldNoResetCount
+Found assertion name: as__CurrentCountOutputConfigOne
+Found assertion name: as__CurrentCountOutputConfigZero
+Found assertion name: as__CurrentCountOutputConfigOther
+Found assertion name: as__TargetReachedOpenLimit
+Found assertion name: as__TargetReachedClosedLimit
+Starting RTL line processing...
+Processing RTL line 0/269
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found multi-line parameter: CURRENT_COUNT_PCONF
+Found localparam definition
+Found localparam definition
+Processing RTL line 100/269
+Processing RTL line 200/269
+Found 8 interface signals
+Found 0 enum values
+Found 0 localparam values
+Found 1 parameter values
+Found 11 assertion names to exclude
+Interface signals (in order of appearance):
+  - clk_i
+  - rstn_i
+  - event_triggers_i
+  - reset_count_i
+  - rst_cntr_val_i
+  - target_value_i
+  - target_reached_o
+  - current_count_o
+
+Enum values:
+
+Localparam values:
+
+Parameter values:
+  - CURRENT_COUNT_PCONF
+
+Assertion names to exclude:
+  - as__TargetReachedOpenLimit
+  - as__CounterUpdateOnEventNoReset
+  - as__CurrentCountOutputConfigOne
+  - as__TargetRegHoldNoResetCount
+  - as__CounterIncrementDecrement
+  - as__CurrentCountOutputConfigZero
+  - as__CounterHoldNoEvent
+  - as__CounterUpdateNextCycle
+  - as__CurrentCountOutputConfigOther
+  - as__TargetRegUpdateOnResetCount
+  - as__TargetReachedClosedLimit
+
+Processing assertions...
+Processing assertion 0/11
+internal_signals: ['counter_q', 'counter_d']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal counter_q
+Found new internal signal: counter_q
+fixing signal counter_d
+Found new internal signal: counter_d
+internal_signals: ['counter_d', 'counter_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal counter_d
+fixing signal counter_q
+internal_signals: ['counter_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal counter_q
+internal_signals: ['counter_q', 'counter_d']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal counter_q
+fixing signal counter_d
+internal_signals: ['target_reg_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal target_reg_q
+Found new internal signal: target_reg_q
+internal_signals: ['target_reg_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal target_reg_q
+internal_signals: ['counter_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal counter_q
+internal_signals: ['target_reg_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal target_reg_q
+internal_signals: ['counter_q', 'target_reg_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal counter_q
+fixing signal target_reg_q
+Processing assertion 10/11
+internal_signals: ['counter_q', 'target_reg_q']
+enum_occurrences: []
+localparam_occurrences: []
+param_occurrences: []
+fixing signal counter_q
+fixing signal target_reg_q
+
+Completed processing. Fixed 18 occurrences of 3 unique signals/values
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+as__CounterIncrementDecrement: assert property((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + COUNT_BSIZE'(increment_table[$countones(event_triggers_i)])) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - COUNT_BSIZE'(increment_table[$countones(event_triggers_i)])) == dynamic_target_event_counter.counter_d);
+
+as__CounterHoldNoEvent: assert property((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+as__CounterUpdateNextCycle: assert property(reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+
+as__CounterUpdateOnEventNoReset: assert property((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+as__TargetRegUpdateOnResetCount: assert property(reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+as__TargetRegHoldNoResetCount: assert property((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+
+as__CurrentCountOutputConfigOne: assert property(CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+
+as__CurrentCountOutputConfigZero: assert property(CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+
+as__CurrentCountOutputConfigOther: assert property((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+
+as__TargetReachedOpenLimit: assert property(OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+
+as__TargetReachedClosedLimit: assert property(OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+Correcting assertion syntax...
+Stored property file version for initial stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_initial.sv
+
+Iteration 1
+Running JasperGold...
+[ERROR (VERI-1128)] dynamic_target_event_counter_prop.sv(47): 'increment_table' is not declared
+
+Assertions contain syntax errors
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 3951
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 508
+Total output tokens: 0
+Final response length: 2058
+LLM response:
+[
+`as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);`,
+
+`as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);`,
+
+`as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);`,
+
+`as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);`,
+
+`as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);`,
+
+`as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);`,
+
+`as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);`,
+
+`as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);`,
+
+`as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);`,
+
+`as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);`,
+
+`as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);`
+]
+Stored LLM interaction for syntax stage iteration 0
+
+Found 11 assertions in response:
+Assertion 1: as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);
+Assertion 2: as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);
+Assertion 3: as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);
+Assertion 4: as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);
+Assertion 5: as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);
+Assertion 6: as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);
+Assertion 7: as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);
+Assertion 8: as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);
+Assertion 9: as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);
+Assertion 10: as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);
+Assertion 11: as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);
+
+as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);
+
+as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);
+
+as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);
+
+as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);
+
+as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);
+
+as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);
+
+as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);
+
+as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Property file contents after update:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);
+
+as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);
+
+as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);
+
+as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);
+
+as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);
+
+as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);
+
+as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);
+
+as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);
+
+as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);
+
+endmodule
+
+Assertion as__CounterIncrementDecrement is not proven
+Saved iteration information
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);
+
+as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);
+
+as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);
+
+as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);
+
+as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);
+
+as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);
+
+as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);
+
+as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);
+
+as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Iteration 2
+Running JasperGold...
+Assertions compiled succesfuly
+Stored property file version for after_syntax stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_after_syntax.sv
+======================================================================
+STARTING SET EXTENSION
+======================================================================
+dynamic_target_event_counter_prop.sv
+Files in SVA directory:
+Syntax iterations before extension: 1
+Stored property file version for after_syntax stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_after_syntax.sv
+
+
+Initial correct assertions for extension iteration 0:
+as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);
+as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);
+as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);
+as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);
+as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);
+as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);
+as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);
+as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);
+as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);
+as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);
+as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);
+
+
+
+
+Requesting LLM for new assertions...
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4606
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 900
+Total output tokens: 0
+Final response length: 3994
+Stored LLM interaction for extension stage iteration 1
+
+Found 14 assertions in response:
+Assertion 1: as__FullEventTriggersIncrementDecrement: assert property ((&event_triggers_i) |=> INCR_DECR_COUNT ? dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS) : dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS));
+Assertion 2: as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+Assertion 3: as__TargetReachedOpenLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+Assertion 4: as__TargetReachedClosedLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+Assertion 5: as__TargetRegUpdateOnlyOnResetCount: assert property ((reset_count_i) |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+Assertion 6: as__TargetRegHoldWhenNoResetCount: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+Assertion 7: as__CounterQUpdateToCounterDNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+Assertion 8: as__CounterQResetValueOnResetCountExtResetZero: assert property ((reset_count_i && EXT_COUNT_RESET == 0) |=> dynamic_target_event_counter.counter_q == RST_COUNTER_VAL);
+Assertion 9: as__CounterQResetValueOnResetCountExtResetOne: assert property ((reset_count_i && EXT_COUNT_RESET == 1) |=> dynamic_target_event_counter.counter_q == rst_cntr_val_i);
+Assertion 10: as__CurrentCountOutputIsCounterQ: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+Assertion 11: as__CurrentCountOutputIsTargetRegQ: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+Assertion 12: as__CurrentCountOutputIsZeroForOtherConfig: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+Assertion 13: as__CounterDIncrementCorrectness: assert property ((INCR_DECR_COUNT == 1 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+Assertion 14: as__CounterDDecrementCorrectness: assert property ((INCR_DECR_COUNT == 0 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+as__FullEventTriggersIncrementDecrement: assert property ((&event_triggers_i) |=> INCR_DECR_COUNT ? dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS) : dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS));
+
+as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+as__TargetReachedOpenLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+
+as__TargetReachedClosedLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+
+as__TargetRegUpdateOnlyOnResetCount: assert property ((reset_count_i) |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+as__TargetRegHoldWhenNoResetCount: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+
+as__CounterQUpdateToCounterDNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+as__CounterQResetValueOnResetCountExtResetZero: assert property ((reset_count_i && EXT_COUNT_RESET == 0) |=> dynamic_target_event_counter.counter_q == RST_COUNTER_VAL);
+
+as__CounterQResetValueOnResetCountExtResetOne: assert property ((reset_count_i && EXT_COUNT_RESET == 1) |=> dynamic_target_event_counter.counter_q == rst_cntr_val_i);
+
+as__CurrentCountOutputIsCounterQ: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+
+as__CurrentCountOutputIsTargetRegQ: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+
+as__CurrentCountOutputIsZeroForOtherConfig: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+
+as__CounterDIncrementCorrectness: assert property ((INCR_DECR_COUNT == 1 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+
+as__CounterDDecrementCorrectness: assert property ((INCR_DECR_COUNT == 0 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Pre-checking for duplicate assertions before syntax correction...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__FullEventTriggersIncrementDecrement: assert property ((&event_triggers_i) |=> INCR_DECR_COUNT ? dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS) : dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS));
+REMOVED irrelevant clock clauses as__FullEventTriggersIncrementDecrement:assertproperty((&event_triggers_i)->##1INCR_DECR_COUNT?dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS):dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS));
+After removing @/disable clauses: as__FullEventTriggersIncrementDecrement:assertproperty((&event_triggers_i)->##1INCR_DECR_COUNT?dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS):dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS));
+TOKENS LIST: ['(', '&event_triggers_i)', '->', 'INCR_DECR_COUNT', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS):__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS)']
+POSTCONDITION: ['INCR_DECR_COUNT', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS):__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS)']
+
+Property 1: as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__NoEventTriggersCounterHold:assertproperty(!(|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__NoEventTriggersCounterHold:assertproperty(!(|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['!', '(', '|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+Error parsing property: can only concatenate str (not "list") to str
+
+Property 2: as__TargetReachedOpenLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedOpenLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedOpenLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b1', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+
+Property 3: as__TargetReachedClosedLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedClosedLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedClosedLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b0', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+
+Property 4: as__TargetRegUpdateOnlyOnResetCount: assert property ((reset_count_i) |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+REMOVED irrelevant clock clauses as__TargetRegUpdateOnlyOnResetCount:assertproperty((reset_count_i)->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+After removing @/disable clauses: as__TargetRegUpdateOnlyOnResetCount:assertproperty((reset_count_i)->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+TOKENS LIST: ['(', 'reset_count_i)', '->', 'dynamic_target_event_counter.target_reg_q==target_value_i']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==target_value_i']
+
+Property 5: as__TargetRegHoldWhenNoResetCount: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__TargetRegHoldWhenNoResetCount:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__TargetRegHoldWhenNoResetCount:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+
+Property 6: as__CounterQUpdateToCounterDNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+REMOVED irrelevant clock clauses as__CounterQUpdateToCounterDNoReset:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+After removing @/disable clauses: as__CounterQUpdateToCounterDNoReset:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+
+Property 7: as__CounterQResetValueOnResetCountExtResetZero: assert property ((reset_count_i && EXT_COUNT_RESET == 0) |=> dynamic_target_event_counter.counter_q == RST_COUNTER_VAL);
+REMOVED irrelevant clock clauses as__CounterQResetValueOnResetCountExtResetZero:assertproperty((reset_count_i&EXT_COUNT_RESET==0)->##1dynamic_target_event_counter.counter_q==RST_COUNTER_VAL);
+After removing @/disable clauses: as__CounterQResetValueOnResetCountExtResetZero:assertproperty((reset_count_i&EXT_COUNT_RESET==0)->##1dynamic_target_event_counter.counter_q==RST_COUNTER_VAL);
+TOKENS LIST: ['(reset_count_i&EXT_COUNT_RESET==0)', '->', 'dynamic_target_event_counter.counter_q==RST_COUNTER_VAL']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==RST_COUNTER_VAL']
+
+Property 8: as__CounterQResetValueOnResetCountExtResetOne: assert property ((reset_count_i && EXT_COUNT_RESET == 1) |=> dynamic_target_event_counter.counter_q == rst_cntr_val_i);
+REMOVED irrelevant clock clauses as__CounterQResetValueOnResetCountExtResetOne:assertproperty((reset_count_i&EXT_COUNT_RESET==1)->##1dynamic_target_event_counter.counter_q==rst_cntr_val_i);
+After removing @/disable clauses: as__CounterQResetValueOnResetCountExtResetOne:assertproperty((reset_count_i&EXT_COUNT_RESET==1)->##1dynamic_target_event_counter.counter_q==rst_cntr_val_i);
+TOKENS LIST: ['(reset_count_i&EXT_COUNT_RESET==1)', '->', 'dynamic_target_event_counter.counter_q==rst_cntr_val_i']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==rst_cntr_val_i']
+
+Property 9: as__CurrentCountOutputIsCounterQ: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputIsCounterQ:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__CurrentCountOutputIsCounterQ:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==1->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 10: as__CurrentCountOutputIsTargetRegQ: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputIsTargetRegQ:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__CurrentCountOutputIsTargetRegQ:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==0->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 11: as__CurrentCountOutputIsZeroForOtherConfig: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+REMOVED irrelevant clock clauses as__CurrentCountOutputIsZeroForOtherConfig:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+After removing @/disable clauses: as__CurrentCountOutputIsZeroForOtherConfig:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+TOKENS LIST: ['(CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)', '->', 'current_count_o', '==']
+POSTCONDITION: ['current_count_o', '==']
+
+Property 12: as__CounterDIncrementCorrectness: assert property ((INCR_DECR_COUNT == 1 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+REMOVED irrelevant clock clauses as__CounterDIncrementCorrectness:assertproperty((INCR_DECR_COUNT==1&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+After removing @/disable clauses: as__CounterDIncrementCorrectness:assertproperty((INCR_DECR_COUNT==1&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+TOKENS LIST: ['(INCR_DECR_COUNT==1&|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+
+Property 13: as__CounterDDecrementCorrectness: assert property ((INCR_DECR_COUNT == 0 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+REMOVED irrelevant clock clauses as__CounterDDecrementCorrectness:assertproperty((INCR_DECR_COUNT==0&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+After removing @/disable clauses: as__CounterDDecrementCorrectness:assertproperty((INCR_DECR_COUNT==0&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+TOKENS LIST: ['(INCR_DECR_COUNT==0&|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+SVA String dictionary: 13
+Delay dictionary: 13
+Postcondition dictionary: 13
+Clauses dictionary: 13
+Results dictionary: 0
+Found 14 potential unique assertions before syntax correction
+Found 0 duplicate assertions that were filtered out
+
+=== NEW ASSERTIONS IDENTIFIED (Before Syntax Correction) ===
+New Assertion 1: as__FullEventTriggersIncrementDecrement: assert property ((&event_triggers_i) |=> INCR_DECR_COUNT ? dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS) : dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS));
+New Assertion 2: as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+New Assertion 3: as__TargetReachedOpenLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+New Assertion 4: as__TargetReachedClosedLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+New Assertion 5: as__TargetRegUpdateOnlyOnResetCount: assert property ((reset_count_i) |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+New Assertion 6: as__TargetRegHoldWhenNoResetCount: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+New Assertion 7: as__CounterQUpdateToCounterDNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+New Assertion 8: as__CounterQResetValueOnResetCountExtResetZero: assert property ((reset_count_i && EXT_COUNT_RESET == 0) |=> dynamic_target_event_counter.counter_q == RST_COUNTER_VAL);
+New Assertion 9: as__CounterQResetValueOnResetCountExtResetOne: assert property ((reset_count_i && EXT_COUNT_RESET == 1) |=> dynamic_target_event_counter.counter_q == rst_cntr_val_i);
+New Assertion 10: as__CurrentCountOutputIsCounterQ: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+New Assertion 11: as__CurrentCountOutputIsTargetRegQ: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+New Assertion 12: as__CurrentCountOutputIsZeroForOtherConfig: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+New Assertion 13: as__CounterDIncrementCorrectness: assert property ((INCR_DECR_COUNT == 1 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+New Assertion 14: as__CounterDDecrementCorrectness: assert property ((INCR_DECR_COUNT == 0 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+
+Starting fix_missing_module_prefixes...
+Processing 14 assertions
+Parsing RTL source...
+Found assertion name: as__FullEventTriggersIncrementDecrement
+Found assertion name: as__NoEventTriggersCounterHold
+Found assertion name: as__TargetReachedOpenLimitConsistency
+Found assertion name: as__TargetReachedClosedLimitConsistency
+Found assertion name: as__TargetRegUpdateOnlyOnResetCount
+Found assertion name: as__TargetRegHoldWhenNoResetCount
+Found assertion name: as__CounterQUpdateToCounterDNoReset
+Found assertion name: as__CounterQResetValueOnResetCountExtResetZero
+Found assertion name: as__CounterQResetValueOnResetCountExtResetOne
+Found assertion name: as__CurrentCountOutputIsCounterQ
+Found assertion name: as__CurrentCountOutputIsTargetRegQ
+Found assertion name: as__CurrentCountOutputIsZeroForOtherConfig
+Found assertion name: as__CounterDIncrementCorrectness
+Found assertion name: as__CounterDDecrementCorrectness
+Starting RTL line processing...
+Processing RTL line 0/269
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found multi-line parameter: CURRENT_COUNT_PCONF
+Found localparam definition
+Found localparam definition
+Processing RTL line 100/269
+Processing RTL line 200/269
+Found 8 interface signals
+Found 0 enum values
+Found 0 localparam values
+Found 1 parameter values
+Found 14 assertion names to exclude
+Interface signals (in order of appearance):
+  - clk_i
+  - rstn_i
+  - event_triggers_i
+  - reset_count_i
+  - rst_cntr_val_i
+  - target_value_i
+  - target_reached_o
+  - current_count_o
+
+Enum values:
+
+Localparam values:
+
+Parameter values:
+  - CURRENT_COUNT_PCONF
+
+Assertion names to exclude:
+  - as__TargetReachedClosedLimitConsistency
+  - as__CounterQUpdateToCounterDNoReset
+  - as__CurrentCountOutputIsZeroForOtherConfig
+  - as__NoEventTriggersCounterHold
+  - as__CurrentCountOutputIsCounterQ
+  - as__TargetRegUpdateOnlyOnResetCount
+  - as__CounterQResetValueOnResetCountExtResetZero
+  - as__FullEventTriggersIncrementDecrement
+  - as__CurrentCountOutputIsTargetRegQ
+  - as__CounterQResetValueOnResetCountExtResetOne
+  - as__CounterDIncrementCorrectness
+  - as__CounterDDecrementCorrectness
+  - as__TargetReachedOpenLimitConsistency
+  - as__TargetRegHoldWhenNoResetCount
+
+Processing assertions...
+Processing assertion 0/14
+Processing assertion 10/14
+
+Completed processing. Fixed 0 occurrences of 0 unique signals/values
+No missing module prefixes found
+Correcting assertion syntax...
+Stored property file version for initial stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_initial.sv
+
+Iteration 2
+Running JasperGold...
+Assertions compiled succesfuly
+Stored property file version for after_syntax stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_after_syntax.sv
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__FullEventTriggersIncrementDecrement: assert property ((&event_triggers_i) |=> INCR_DECR_COUNT ? dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS) : dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS));
+REMOVED irrelevant clock clauses as__FullEventTriggersIncrementDecrement:assertproperty((&event_triggers_i)->##1INCR_DECR_COUNT?dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS):dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS));
+After removing @/disable clauses: as__FullEventTriggersIncrementDecrement:assertproperty((&event_triggers_i)->##1INCR_DECR_COUNT?dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS):dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS));
+TOKENS LIST: ['(', '&event_triggers_i)', '->', 'INCR_DECR_COUNT', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS):__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS)']
+POSTCONDITION: ['INCR_DECR_COUNT', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS):__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS)']
+
+Property 1: as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__NoEventTriggersCounterHold:assertproperty(!(|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__NoEventTriggersCounterHold:assertproperty(!(|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['!', '(', '|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+Error parsing property: can only concatenate str (not "list") to str
+
+Property 2: as__TargetReachedOpenLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedOpenLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedOpenLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b1', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+
+Property 3: as__TargetReachedClosedLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedClosedLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedClosedLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b0', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+
+Property 4: as__TargetRegUpdateOnlyOnResetCount: assert property ((reset_count_i) |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+REMOVED irrelevant clock clauses as__TargetRegUpdateOnlyOnResetCount:assertproperty((reset_count_i)->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+After removing @/disable clauses: as__TargetRegUpdateOnlyOnResetCount:assertproperty((reset_count_i)->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+TOKENS LIST: ['(', 'reset_count_i)', '->', 'dynamic_target_event_counter.target_reg_q==target_value_i']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==target_value_i']
+
+Property 5: as__TargetRegHoldWhenNoResetCount: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__TargetRegHoldWhenNoResetCount:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__TargetRegHoldWhenNoResetCount:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+
+Property 6: as__CounterQUpdateToCounterDNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+REMOVED irrelevant clock clauses as__CounterQUpdateToCounterDNoReset:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+After removing @/disable clauses: as__CounterQUpdateToCounterDNoReset:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+
+Property 7: as__CounterQResetValueOnResetCountExtResetZero: assert property ((reset_count_i && EXT_COUNT_RESET == 0) |=> dynamic_target_event_counter.counter_q == RST_COUNTER_VAL);
+REMOVED irrelevant clock clauses as__CounterQResetValueOnResetCountExtResetZero:assertproperty((reset_count_i&EXT_COUNT_RESET==0)->##1dynamic_target_event_counter.counter_q==RST_COUNTER_VAL);
+After removing @/disable clauses: as__CounterQResetValueOnResetCountExtResetZero:assertproperty((reset_count_i&EXT_COUNT_RESET==0)->##1dynamic_target_event_counter.counter_q==RST_COUNTER_VAL);
+TOKENS LIST: ['(reset_count_i&EXT_COUNT_RESET==0)', '->', 'dynamic_target_event_counter.counter_q==RST_COUNTER_VAL']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==RST_COUNTER_VAL']
+
+Property 8: as__CounterQResetValueOnResetCountExtResetOne: assert property ((reset_count_i && EXT_COUNT_RESET == 1) |=> dynamic_target_event_counter.counter_q == rst_cntr_val_i);
+REMOVED irrelevant clock clauses as__CounterQResetValueOnResetCountExtResetOne:assertproperty((reset_count_i&EXT_COUNT_RESET==1)->##1dynamic_target_event_counter.counter_q==rst_cntr_val_i);
+After removing @/disable clauses: as__CounterQResetValueOnResetCountExtResetOne:assertproperty((reset_count_i&EXT_COUNT_RESET==1)->##1dynamic_target_event_counter.counter_q==rst_cntr_val_i);
+TOKENS LIST: ['(reset_count_i&EXT_COUNT_RESET==1)', '->', 'dynamic_target_event_counter.counter_q==rst_cntr_val_i']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==rst_cntr_val_i']
+
+Property 9: as__CurrentCountOutputIsCounterQ: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputIsCounterQ:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__CurrentCountOutputIsCounterQ:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==1->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 10: as__CurrentCountOutputIsTargetRegQ: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputIsTargetRegQ:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__CurrentCountOutputIsTargetRegQ:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==0->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 11: as__CurrentCountOutputIsZeroForOtherConfig: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+REMOVED irrelevant clock clauses as__CurrentCountOutputIsZeroForOtherConfig:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+After removing @/disable clauses: as__CurrentCountOutputIsZeroForOtherConfig:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+TOKENS LIST: ['(CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)', '->', 'current_count_o', '==']
+POSTCONDITION: ['current_count_o', '==']
+
+Property 12: as__CounterDIncrementCorrectness: assert property ((INCR_DECR_COUNT == 1 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+REMOVED irrelevant clock clauses as__CounterDIncrementCorrectness:assertproperty((INCR_DECR_COUNT==1&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+After removing @/disable clauses: as__CounterDIncrementCorrectness:assertproperty((INCR_DECR_COUNT==1&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+TOKENS LIST: ['(INCR_DECR_COUNT==1&|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+
+Property 13: as__CounterDDecrementCorrectness: assert property ((INCR_DECR_COUNT == 0 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+REMOVED irrelevant clock clauses as__CounterDDecrementCorrectness:assertproperty((INCR_DECR_COUNT==0&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+After removing @/disable clauses: as__CounterDDecrementCorrectness:assertproperty((INCR_DECR_COUNT==0&|event_triggers_i)->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+TOKENS LIST: ['(INCR_DECR_COUNT==0&|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+SVA String dictionary: 13
+Delay dictionary: 13
+Postcondition dictionary: 13
+Clauses dictionary: 13
+Results dictionary: 0
+
+=== FILTERED DUPLICATE ASSERTIONS (After Syntax Correction) ===
+Duplicate 1: as__FullEventTriggersIncrementDecrement: assert property ((&event_triggers_i) |=> INCR_DECR_COUNT ? dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS) : dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * PPARLL_EVNTS));
+Duplicate 2: as__TargetReachedOpenLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+Duplicate 3: as__TargetReachedClosedLimitConsistency: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+Duplicate 4: as__TargetRegUpdateOnlyOnResetCount: assert property ((reset_count_i) |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+Duplicate 5: as__TargetRegHoldWhenNoResetCount: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+Duplicate 6: as__CounterQUpdateToCounterDNoReset: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+Duplicate 7: as__CounterQResetValueOnResetCountExtResetZero: assert property ((reset_count_i && EXT_COUNT_RESET == 0) |=> dynamic_target_event_counter.counter_q == RST_COUNTER_VAL);
+Duplicate 8: as__CounterQResetValueOnResetCountExtResetOne: assert property ((reset_count_i && EXT_COUNT_RESET == 1) |=> dynamic_target_event_counter.counter_q == rst_cntr_val_i);
+Duplicate 9: as__CurrentCountOutputIsCounterQ: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+Duplicate 10: as__CurrentCountOutputIsTargetRegQ: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+Duplicate 11: as__CurrentCountOutputIsZeroForOtherConfig: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+Duplicate 12: as__CounterDIncrementCorrectness: assert property ((INCR_DECR_COUNT == 1 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+Duplicate 13: as__CounterDDecrementCorrectness: assert property ((INCR_DECR_COUNT == 0 && |event_triggers_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i)));
+======================================================================
+
+=== NEW ASSERTIONS ADDED (After Syntax Correction) ===
+Added Assertion 1: as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+======================================================================
+Found 1 syntactically correct new properties
+
+Note: Pre-check found 14 potential unique assertions, but only 1 survived syntax correction
+13 potentially unique assertions were lost during syntax correction
+1 NEW PROPERTIES added to the set
+--------------------------------------- FINISHED EXTENSION LOOP ITERATION ---------------------------------------
+
+
+Initial correct assertions for extension iteration 0:
+as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);
+as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);
+as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);
+as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);
+as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);
+as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);
+as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);
+as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);
+as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);
+as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);
+as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);
+as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+
+
+
+Requesting LLM for new assertions...
+
+Debug: Model configuration:
+Model: gpt-4.1-mini
+Temperature: 0.2
+Top_p: 0.7
+Max tokens: 32768
+Debug: Estimated input tokens: 4645
+
+Debug: Calling API...
+Debug: API call completed
+
+Debug: Response summary:
+Total chunks processed: 657
+Total output tokens: 0
+Final response length: 2942
+Stored LLM interaction for extension stage iteration 1
+
+Found 11 assertions in response:
+Assertion 1: as__TargetReachedOpenLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+Assertion 2: as__TargetReachedClosedLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+Assertion 3: as__TargetRegUpdateOnResetCountNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+Assertion 4: as__TargetRegHoldNoResetCountNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+Assertion 5: as__CounterUpdateOnEventNoResetNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+Assertion 6: as__CounterUpdateNextCycleResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+Assertion 7: as__CounterHoldNoEventNextCycle: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+Assertion 8: as__CounterIncrementDecrementNextCycle: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+Assertion 9: as__CurrentCountOutputConfigOneSameCycle: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+Assertion 10: as__CurrentCountOutputConfigZeroSameCycle: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+Assertion 11: as__CurrentCountOutputConfigOtherSameCycle: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+as__TargetReachedOpenLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+
+as__TargetReachedClosedLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+
+as__TargetRegUpdateOnResetCountNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+
+as__TargetRegHoldNoResetCountNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+
+as__CounterUpdateOnEventNoResetNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+
+as__CounterUpdateNextCycleResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+
+as__CounterHoldNoEventNextCycle: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+as__CounterIncrementDecrementNextCycle: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+
+as__CurrentCountOutputConfigOneSameCycle: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+
+as__CurrentCountOutputConfigZeroSameCycle: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+
+as__CurrentCountOutputConfigOtherSameCycle: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+
+Pre-checking for duplicate assertions before syntax correction...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__TargetReachedOpenLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedOpenLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedOpenLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b1', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+
+Property 1: as__TargetReachedClosedLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedClosedLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedClosedLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b0', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+
+Property 2: as__TargetRegUpdateOnResetCountNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+REMOVED irrelevant clock clauses as__TargetRegUpdateOnResetCountNextCycle:assertproperty(reset_count_i->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+After removing @/disable clauses: as__TargetRegUpdateOnResetCountNextCycle:assertproperty(reset_count_i->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+TOKENS LIST: ['reset_count_i', '->', 'dynamic_target_event_counter.target_reg_q==target_value_i']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==target_value_i']
+
+Property 3: as__TargetRegHoldNoResetCountNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__TargetRegHoldNoResetCountNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__TargetRegHoldNoResetCountNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+
+Property 4: as__CounterUpdateOnEventNoResetNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+REMOVED irrelevant clock clauses as__CounterUpdateOnEventNoResetNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+After removing @/disable clauses: as__CounterUpdateOnEventNoResetNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+
+Property 5: as__CounterUpdateNextCycleResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+REMOVED irrelevant clock clauses as__CounterUpdateNextCycleResetCount:assertproperty(reset_count_i->##1dynamic_target_event_counter.counter_q==(EXT_COUNT_RESET?rst_cntr_val_i:RST_COUNTER_VAL));
+After removing @/disable clauses: as__CounterUpdateNextCycleResetCount:assertproperty(reset_count_i->##1dynamic_target_event_counter.counter_q==(EXT_COUNT_RESET?rst_cntr_val_i:RST_COUNTER_VAL));
+TOKENS LIST: ['reset_count_i', '->', 'dynamic_target_event_counter.counter_q', '==', '(', 'EXT_COUNT_RESET', 'rst_cntr_val_i:RST_COUNTER_VAL)']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q', '==', '(', 'EXT_COUNT_RESET', 'rst_cntr_val_i:RST_COUNTER_VAL)']
+
+Property 6: as__CounterHoldNoEventNextCycle: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__CounterHoldNoEventNextCycle:assertproperty((!|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__CounterHoldNoEventNextCycle:assertproperty((!|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['(', '!', '|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+
+Property 7: as__CounterIncrementDecrementNextCycle: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+REMOVED irrelevant clock clauses as__CounterIncrementDecrementNextCycle:assertproperty((|event_triggers_i)->##1INCR_DECR_COUNT?(dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d:(dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d);
+After removing @/disable clauses: as__CounterIncrementDecrementNextCycle:assertproperty((|event_triggers_i)->##1INCR_DECR_COUNT?(dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d:(dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d);
+TOKENS LIST: ['(', '|event_triggers_i)', '->', 'INCR_DECR_COUNT', '(', 'dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_1__']
+POSTCONDITION: ['INCR_DECR_COUNT', '(', 'dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_1__']
+
+Property 8: as__CurrentCountOutputConfigOneSameCycle: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputConfigOneSameCycle:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__CurrentCountOutputConfigOneSameCycle:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==1->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 9: as__CurrentCountOutputConfigZeroSameCycle: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputConfigZeroSameCycle:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__CurrentCountOutputConfigZeroSameCycle:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==0->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 10: as__CurrentCountOutputConfigOtherSameCycle: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+REMOVED irrelevant clock clauses as__CurrentCountOutputConfigOtherSameCycle:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+After removing @/disable clauses: as__CurrentCountOutputConfigOtherSameCycle:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+TOKENS LIST: ['(CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)', '->', 'current_count_o', '==']
+POSTCONDITION: ['current_count_o', '==']
+SVA String dictionary: 16
+Delay dictionary: 16
+Postcondition dictionary: 16
+Clauses dictionary: 16
+Results dictionary: 0
+Found 3 potential unique assertions before syntax correction
+Found 8 duplicate assertions that were filtered out
+
+=== FILTERED DUPLICATE ASSERTIONS (Before Syntax Correction) ===
+Duplicate 1: as__TargetReachedOpenLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+Duplicate 2: as__TargetReachedClosedLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+Duplicate 3: as__TargetRegUpdateOnResetCountNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+Duplicate 4: as__TargetRegHoldNoResetCountNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+Duplicate 5: as__CounterUpdateOnEventNoResetNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+Duplicate 6: as__CurrentCountOutputConfigOneSameCycle: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+Duplicate 7: as__CurrentCountOutputConfigZeroSameCycle: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+Duplicate 8: as__CurrentCountOutputConfigOtherSameCycle: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+======================================================================
+
+=== NEW ASSERTIONS IDENTIFIED (Before Syntax Correction) ===
+New Assertion 1: as__CounterUpdateNextCycleResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+New Assertion 2: as__CounterHoldNoEventNextCycle: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+New Assertion 3: as__CounterIncrementDecrementNextCycle: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+======================================================================
+
+Preprocessing: Fixing missing module prefixes on internal signals...
+
+Starting fix_missing_module_prefixes...
+Processing 11 assertions
+Parsing RTL source...
+Found assertion name: as__TargetReachedOpenLimitCorrect
+Found assertion name: as__TargetReachedClosedLimitCorrect
+Found assertion name: as__TargetRegUpdateOnResetCountNextCycle
+Found assertion name: as__TargetRegHoldNoResetCountNextCycle
+Found assertion name: as__CounterUpdateOnEventNoResetNextCycle
+Found assertion name: as__CounterUpdateNextCycleResetCount
+Found assertion name: as__CounterHoldNoEventNextCycle
+Found assertion name: as__CounterIncrementDecrementNextCycle
+Found assertion name: as__CurrentCountOutputConfigOneSameCycle
+Found assertion name: as__CurrentCountOutputConfigZeroSameCycle
+Found assertion name: as__CurrentCountOutputConfigOtherSameCycle
+Starting RTL line processing...
+Processing RTL line 0/269
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found parameter definition
+Found multi-line parameter: CURRENT_COUNT_PCONF
+Found localparam definition
+Found localparam definition
+Processing RTL line 100/269
+Processing RTL line 200/269
+Found 8 interface signals
+Found 0 enum values
+Found 0 localparam values
+Found 1 parameter values
+Found 11 assertion names to exclude
+Interface signals (in order of appearance):
+  - clk_i
+  - rstn_i
+  - event_triggers_i
+  - reset_count_i
+  - rst_cntr_val_i
+  - target_value_i
+  - target_reached_o
+  - current_count_o
+
+Enum values:
+
+Localparam values:
+
+Parameter values:
+  - CURRENT_COUNT_PCONF
+
+Assertion names to exclude:
+  - as__CounterUpdateNextCycleResetCount
+  - as__TargetRegUpdateOnResetCountNextCycle
+  - as__CurrentCountOutputConfigOtherSameCycle
+  - as__TargetReachedOpenLimitCorrect
+  - as__TargetReachedClosedLimitCorrect
+  - as__CounterHoldNoEventNextCycle
+  - as__CurrentCountOutputConfigZeroSameCycle
+  - as__TargetRegHoldNoResetCountNextCycle
+  - as__CurrentCountOutputConfigOneSameCycle
+  - as__CounterIncrementDecrementNextCycle
+  - as__CounterUpdateOnEventNoResetNextCycle
+
+Processing assertions...
+Processing assertion 0/11
+Processing assertion 10/11
+
+Completed processing. Fixed 0 occurrences of 0 unique signals/values
+No missing module prefixes found
+Correcting assertion syntax...
+Stored property file version for initial stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_initial.sv
+
+Iteration 2
+Running JasperGold...
+Assertions compiled succesfuly
+Stored property file version for after_syntax stage at ft_dynamic_target_event_counter/sva/versions/dynamic_target_event_counter_prop_after_syntax.sv
+
+
+Back to extension loop...
+================================== PROCESSING PROPERTIES ==================================
+
+
+Property 0: as__TargetReachedOpenLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedOpenLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedOpenLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b1->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b1', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+
+Property 1: as__TargetReachedClosedLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+REMOVED irrelevant clock clauses as__TargetReachedClosedLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+After removing @/disable clauses: as__TargetReachedClosedLimitCorrect:assertproperty(OPEN_CLLOSE_LIMIT==1'b0->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+TOKENS LIST: ['OPEN_CLLOSE_LIMIT==1', 'b0', '->', 'target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+POSTCONDITION: ['target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+
+Property 2: as__TargetRegUpdateOnResetCountNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+REMOVED irrelevant clock clauses as__TargetRegUpdateOnResetCountNextCycle:assertproperty(reset_count_i->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+After removing @/disable clauses: as__TargetRegUpdateOnResetCountNextCycle:assertproperty(reset_count_i->##1dynamic_target_event_counter.target_reg_q==target_value_i);
+TOKENS LIST: ['reset_count_i', '->', 'dynamic_target_event_counter.target_reg_q==target_value_i']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==target_value_i']
+
+Property 3: as__TargetRegHoldNoResetCountNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__TargetRegHoldNoResetCountNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__TargetRegHoldNoResetCountNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+POSTCONDITION: ['dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+
+Property 4: as__CounterUpdateOnEventNoResetNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+REMOVED irrelevant clock clauses as__CounterUpdateOnEventNoResetNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+After removing @/disable clauses: as__CounterUpdateOnEventNoResetNextCycle:assertproperty((!reset_count_i)->##1dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+TOKENS LIST: ['(', '!', 'reset_count_i)', '->', 'dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+
+Property 5: as__CounterUpdateNextCycleResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+REMOVED irrelevant clock clauses as__CounterUpdateNextCycleResetCount:assertproperty(reset_count_i->##1dynamic_target_event_counter.counter_q==(EXT_COUNT_RESET?rst_cntr_val_i:RST_COUNTER_VAL));
+After removing @/disable clauses: as__CounterUpdateNextCycleResetCount:assertproperty(reset_count_i->##1dynamic_target_event_counter.counter_q==(EXT_COUNT_RESET?rst_cntr_val_i:RST_COUNTER_VAL));
+TOKENS LIST: ['reset_count_i', '->', 'dynamic_target_event_counter.counter_q', '==', '(', 'EXT_COUNT_RESET', 'rst_cntr_val_i:RST_COUNTER_VAL)']
+POSTCONDITION: ['dynamic_target_event_counter.counter_q', '==', '(', 'EXT_COUNT_RESET', 'rst_cntr_val_i:RST_COUNTER_VAL)']
+
+Property 6: as__CounterHoldNoEventNextCycle: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__CounterHoldNoEventNextCycle:assertproperty((!|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__CounterHoldNoEventNextCycle:assertproperty((!|event_triggers_i)->##1dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['(', '!', '|event_triggers_i)', '->', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+POSTCONDITION: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+
+Property 7: as__CounterIncrementDecrementNextCycle: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+REMOVED irrelevant clock clauses as__CounterIncrementDecrementNextCycle:assertproperty((|event_triggers_i)->##1INCR_DECR_COUNT?(dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d:(dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d);
+After removing @/disable clauses: as__CounterIncrementDecrementNextCycle:assertproperty((|event_triggers_i)->##1INCR_DECR_COUNT?(dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d:(dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d);
+TOKENS LIST: ['(', '|event_triggers_i)', '->', 'INCR_DECR_COUNT', '(', 'dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_1__']
+POSTCONDITION: ['INCR_DECR_COUNT', '(', 'dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_1__']
+
+Property 8: as__CurrentCountOutputConfigOneSameCycle: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputConfigOneSameCycle:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+After removing @/disable clauses: as__CurrentCountOutputConfigOneSameCycle:assertproperty(CURRENT_COUNT_PCONF==1->current_count_o==dynamic_target_event_counter.counter_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==1->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 9: as__CurrentCountOutputConfigZeroSameCycle: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+REMOVED irrelevant clock clauses as__CurrentCountOutputConfigZeroSameCycle:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+After removing @/disable clauses: as__CurrentCountOutputConfigZeroSameCycle:assertproperty(CURRENT_COUNT_PCONF==0->current_count_o==dynamic_target_event_counter.target_reg_q);
+TOKENS LIST: ['CURRENT_COUNT_PCONF==0->__PRESERVED_EXPR_0__']
+POSTCONDITION: []
+
+Property 10: as__CurrentCountOutputConfigOtherSameCycle: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+REMOVED irrelevant clock clauses as__CurrentCountOutputConfigOtherSameCycle:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+After removing @/disable clauses: as__CurrentCountOutputConfigOtherSameCycle:assertproperty((CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)->current_count_o=='0);
+TOKENS LIST: ['(CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0)', '->', 'current_count_o', '==']
+POSTCONDITION: ['current_count_o', '==']
+SVA String dictionary: 16
+Delay dictionary: 16
+Postcondition dictionary: 16
+Clauses dictionary: 16
+Results dictionary: 0
+
+=== FILTERED DUPLICATE ASSERTIONS (After Syntax Correction) ===
+Duplicate 1: as__TargetReachedOpenLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+Duplicate 2: as__TargetReachedClosedLimitCorrect: assert property (OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+Duplicate 3: as__TargetRegUpdateOnResetCountNextCycle: assert property (reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+Duplicate 4: as__TargetRegHoldNoResetCountNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+Duplicate 5: as__CounterUpdateOnEventNoResetNextCycle: assert property ((!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d);
+Duplicate 6: as__CounterUpdateNextCycleResetCount: assert property (reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL));
+Duplicate 7: as__CounterHoldNoEventNextCycle: assert property ((!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+Duplicate 8: as__CounterIncrementDecrementNextCycle: assert property ((|event_triggers_i) |=> INCR_DECR_COUNT ? (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d);
+Duplicate 9: as__CurrentCountOutputConfigOneSameCycle: assert property (CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+Duplicate 10: as__CurrentCountOutputConfigZeroSameCycle: assert property (CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+Duplicate 11: as__CurrentCountOutputConfigOtherSameCycle: assert property ((CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+======================================================================
+No new properties found after syntax correction
+
+Note: Pre-check found 3 potential unique assertions, but only 0 survived syntax correction
+3 potentially unique assertions were lost during syntax correction
+0 NEW PROPERTIES added to the set
+
+Updating property file with complete set of assertions...
+
+Writing to property file:
+module dynamic_target_event_counter_prop
+ #(
+		parameter ASSERT_INPUTS = 0,
+		parameter                           COUNT_BSIZE     = 8,            //! Count Bit Size: Size of the Counter in Bits.
+		parameter                           PPARLL_EVNTS    = 5,            //! Possible Parallel Events: Number of events that can happen in parallel, this will determine the size of event_triggers_i.
+		parameter                           BASE_INCREMENT  = 1,            //! Base value for each increment, if more that one event happens in parallel the increment is proportional to the number of events, so that increment = (Number of parallel events)*(Base increment).
+		parameter logic                     INCR_DECR_COUNT = 1'b1,         //! If HIGH(1'b1):, configures the counter to increment with each event trigger, if LOW(1'b0):, counter decrements each event trigger.
+		parameter logic                     EXT_COUNT_RESET = 1'b0,         //! If HIGH(1'b1):, configures the counter to synchronously update with `reset_count_i` event trigger, if LOW(1'b0):, counter gets set to `RST_COUNTER_VAL` each event trigger.
+		parameter logic [COUNT_BSIZE-1:0]   RST_COUNTER_VAL = 0,            //! Value of the counter at reset, this value will set in the counter with a `reset_count_i` or a `rstn_i` signal.
+		parameter logic                   OPEN_CLLOSE_LIMIT = 1'b1,         //! If HIGH(1'b1) (Open Limit) the target_reached_o port will be set when the counter is strictly greater(>) than the target. If LOW(1'b0) the target_reached_o will be set when the counter is equal or greater(>=) than the target.
+		parameter int                   CURRENT_COUNT_PCONF = 1             //! Current count port configuration, If equal to 1'b1 then the `current_count_o` port reports the current value of the counter, if 1'b0 then the current_count_o port reports the last loaded target value, else the port will be always cero
+)(
+		input  logic                     clk_i,                 //! System Clock.
+		input  logic                     rstn_i,                //! Asynchronous reset active low.
+		
+		input  logic [PPARLL_EVNTS-1:0]  event_triggers_i,      //! Group of bits that trigger and increment to the counter, each bit can generate what is consider an event (bit set during 1 cycle), and the increments is given by BASE_INCREMENT times number of parallel events.
+		
+		input  logic [0:0]               reset_count_i,         //! Synchronous reset of the counter with the `RST_COUNTER_VAL` parameter/`rst_cntr_val_i` input and reload the target value with the value of target_value_i.
+		input  logic [COUNT_BSIZE-1:0]   rst_cntr_val_i,        //! Counter will preset this value when reset_count_i is set.
+		input  logic [COUNT_BSIZE-1:0]   target_value_i,        //! Target to load when reset.
+		
+		input  logic [0:0]               target_reached_o,      //! Set when target value is reached by the counter  //output
+		input  logic [COUNT_BSIZE-1:0]   current_count_o        //! Current count value. //output
+	);
+
+//==============================================================================
+// Local Parameters
+//==============================================================================
+
+genvar j;
+default clocking cb @(posedge clk_i);
+endclocking
+default disable iff (!rst_cntr_val_i);
+
+// Re-defined wires 
+
+// Symbolics and Handshake signals
+
+//==============================================================================
+// Modeling
+//==============================================================================
+
+
+//====DESIGNER-ADDED-SVA====//
+
+
+as__CounterIncrementDecrement: assert property ( 
+    (|event_triggers_i) |=> 
+    INCR_DECR_COUNT ? 
+        (dynamic_target_event_counter.counter_q + (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d : 
+        (dynamic_target_event_counter.counter_q - (COUNT_BSIZE)'(BASE_INCREMENT * $countones(event_triggers_i))) == dynamic_target_event_counter.counter_d
+);
+
+as__CounterHoldNoEvent: assert property (
+    (!|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q
+);
+
+as__CounterUpdateNextCycle: assert property (
+    reset_count_i |=> dynamic_target_event_counter.counter_q == (EXT_COUNT_RESET ? rst_cntr_val_i : RST_COUNTER_VAL)
+);
+
+as__CounterUpdateOnEventNoReset: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.counter_q == dynamic_target_event_counter.counter_d
+);
+
+as__TargetRegUpdateOnResetCount: assert property (
+    reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i
+);
+
+as__TargetRegHoldNoResetCount: assert property (
+    (!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOne: assert property (
+    CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q
+);
+
+as__CurrentCountOutputConfigZero: assert property (
+    CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q
+);
+
+as__CurrentCountOutputConfigOther: assert property (
+    (CURRENT_COUNT_PCONF != 1 && CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0
+);
+
+as__TargetReachedOpenLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q)
+);
+
+as__TargetReachedClosedLimit: assert property (
+    OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q)
+);
+
+as__NoEventTriggersCounterHold: assert property (!(|event_triggers_i) |=> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+
+endmodule
+
+New assertions written to dynamic_target_event_counter_prop.sv
+Property file now contains 12 total assertions
+[1]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedOpenLimitCorrect                                  proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedOpenLimitCorrect
+[3]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedClosedLimitCorrect                                proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetReachedClosedLimitCorrect
+[6]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCountNextCycle                           cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegUpdateOnResetCountNextCycle
+[9]   dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegHoldNoResetCountNextCycle                             proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__TargetRegHoldNoResetCountNextCycle
+[12]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoResetNextCycle                           cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateOnEventNoResetNextCycle
+[15]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateNextCycleResetCount                               proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterUpdateNextCycleResetCount
+[18]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEventNextCycle                                    cex
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterHoldNoEventNextCycle
+[21]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterIncrementDecrementNextCycle                             proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CounterIncrementDecrementNextCycle
+[24]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOneSameCycle                           proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOneSameCycle
+[26]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigZeroSameCycle                          proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigZeroSameCycle
+[29]  dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOtherSameCycle                         proven
+dynamic_target_event_counter.u_dynamic_target_event_counter_sva.as__CurrentCountOutputConfigOtherSameCycle
+
+
+Name - SVA String Pairs
+Name: as__FullEventTriggersIncrementDecrement || Clauses: as__FullEventTriggersIncrementDecrement:assertproperty((&event_triggers_i)|=>INCR_DECR_COUNT?dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS):dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*PPARLL_EVNTS));
+Name: as__TargetReachedOpenLimitConsistency || Clauses: as__TargetReachedOpenLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b1|->target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q));
+Name: as__TargetReachedClosedLimitConsistency || Clauses: as__TargetReachedClosedLimitConsistency:assertproperty(OPEN_CLLOSE_LIMIT==1'b0|->target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q));
+Name: as__TargetRegUpdateOnlyOnResetCount || Clauses: as__TargetRegUpdateOnlyOnResetCount:assertproperty((reset_count_i)|=>dynamic_target_event_counter.target_reg_q==target_value_i);
+Name: as__TargetRegHoldWhenNoResetCount || Clauses: as__TargetRegHoldWhenNoResetCount:assertproperty((!reset_count_i)|=>dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q);
+Name: as__CounterQUpdateToCounterDNoReset || Clauses: as__CounterQUpdateToCounterDNoReset:assertproperty((!reset_count_i)|=>dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d);
+Name: as__CounterQResetValueOnResetCountExtResetZero || Clauses: as__CounterQResetValueOnResetCountExtResetZero:assertproperty((reset_count_i&&EXT_COUNT_RESET==0)|=>dynamic_target_event_counter.counter_q==RST_COUNTER_VAL);
+Name: as__CounterQResetValueOnResetCountExtResetOne || Clauses: as__CounterQResetValueOnResetCountExtResetOne:assertproperty((reset_count_i&&EXT_COUNT_RESET==1)|=>dynamic_target_event_counter.counter_q==rst_cntr_val_i);
+Name: as__CurrentCountOutputIsCounterQ || Clauses: as__CurrentCountOutputIsCounterQ:assertproperty(CURRENT_COUNT_PCONF==1|->current_count_o==dynamic_target_event_counter.counter_q);
+Name: as__CurrentCountOutputIsTargetRegQ || Clauses: as__CurrentCountOutputIsTargetRegQ:assertproperty(CURRENT_COUNT_PCONF==0|->current_count_o==dynamic_target_event_counter.target_reg_q);
+Name: as__CurrentCountOutputIsZeroForOtherConfig || Clauses: as__CurrentCountOutputIsZeroForOtherConfig:assertproperty((CURRENT_COUNT_PCONF!=1&&CURRENT_COUNT_PCONF!=0)|->current_count_o=='0);
+Name: as__CounterDIncrementCorrectness || Clauses: as__CounterDIncrementCorrectness:assertproperty((INCR_DECR_COUNT==1&&|event_triggers_i)|->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+Name: as__CounterDDecrementCorrectness || Clauses: as__CounterDDecrementCorrectness:assertproperty((INCR_DECR_COUNT==0&&|event_triggers_i)|->dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)));
+Name: as__CounterUpdateNextCycleResetCount || Clauses: as__CounterUpdateNextCycleResetCount:assertproperty(reset_count_i|=>dynamic_target_event_counter.counter_q==(EXT_COUNT_RESET?rst_cntr_val_i:RST_COUNTER_VAL));
+Name: as__CounterHoldNoEventNextCycle || Clauses: as__CounterHoldNoEventNextCycle:assertproperty((!|event_triggers_i)|=>dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q);
+Name: as__CounterIncrementDecrementNextCycle || Clauses: as__CounterIncrementDecrementNextCycle:assertproperty((|event_triggers_i)|=>INCR_DECR_COUNT?(dynamic_target_event_counter.counter_q+(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d:(dynamic_target_event_counter.counter_q-(COUNT_BSIZE)'(BASE_INCREMENT*$countones(event_triggers_i)))==dynamic_target_event_counter.counter_d);
+
+
+Name - Delay Pairs
+Name: as__FullEventTriggersIncrementDecrement || Delay: 1
+Name: as__TargetReachedOpenLimitConsistency || Delay: 0
+Name: as__TargetReachedClosedLimitConsistency || Delay: 0
+Name: as__TargetRegUpdateOnlyOnResetCount || Delay: 1
+Name: as__TargetRegHoldWhenNoResetCount || Delay: 1
+Name: as__CounterQUpdateToCounterDNoReset || Delay: 1
+Name: as__CounterQResetValueOnResetCountExtResetZero || Delay: 1
+Name: as__CounterQResetValueOnResetCountExtResetOne || Delay: 1
+Name: as__CurrentCountOutputIsCounterQ || Delay: 0
+Name: as__CurrentCountOutputIsTargetRegQ || Delay: 0
+Name: as__CurrentCountOutputIsZeroForOtherConfig || Delay: 0
+Name: as__CounterDIncrementCorrectness || Delay: 0
+Name: as__CounterDDecrementCorrectness || Delay: 0
+Name: as__CounterUpdateNextCycleResetCount || Delay: 1
+Name: as__CounterHoldNoEventNextCycle || Delay: 1
+Name: as__CounterIncrementDecrementNextCycle || Delay: 1
+
+
+Name - Postcondition Pairs
+Name: as__FullEventTriggersIncrementDecrement || Clauses: ['INCR_DECR_COUNT', 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS):__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*PPARLL_EVNTS)']
+Name: as__TargetReachedOpenLimitConsistency || Clauses: ['target_reached_o==(dynamic_target_event_counter.counter_q>dynamic_target_event_counter.target_reg_q)']
+Name: as__TargetReachedClosedLimitConsistency || Clauses: ['target_reached_o==(dynamic_target_event_counter.counter_q>=dynamic_target_event_counter.target_reg_q)']
+Name: as__TargetRegUpdateOnlyOnResetCount || Clauses: ['dynamic_target_event_counter.target_reg_q==target_value_i']
+Name: as__TargetRegHoldWhenNoResetCount || Clauses: ['dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']
+Name: as__CounterQUpdateToCounterDNoReset || Clauses: ['dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']
+Name: as__CounterQResetValueOnResetCountExtResetZero || Clauses: ['dynamic_target_event_counter.counter_q==RST_COUNTER_VAL']
+Name: as__CounterQResetValueOnResetCountExtResetOne || Clauses: ['dynamic_target_event_counter.counter_q==rst_cntr_val_i']
+Name: as__CurrentCountOutputIsCounterQ || Clauses: []
+Name: as__CurrentCountOutputIsTargetRegQ || Clauses: []
+Name: as__CurrentCountOutputIsZeroForOtherConfig || Clauses: ['current_count_o', '==']
+Name: as__CounterDIncrementCorrectness || Clauses: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+Name: as__CounterDDecrementCorrectness || Clauses: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$countones(event_triggers_i)', ')']
+Name: as__CounterUpdateNextCycleResetCount || Clauses: ['dynamic_target_event_counter.counter_q', '==', '(', 'EXT_COUNT_RESET', 'rst_cntr_val_i:RST_COUNTER_VAL)']
+Name: as__CounterHoldNoEventNextCycle || Clauses: ['dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']
+Name: as__CounterIncrementDecrementNextCycle || Clauses: ['INCR_DECR_COUNT', '(', 'dynamic_target_event_counter.counter_q', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_0__', '(', 'COUNT_BSIZE)', '(', 'BASE_INCREMENT*', '$__PRESERVED_EXPR_1__']
+
+
+Name - Clause Pairs
+Name: as__FullEventTriggersIncrementDecrement || Clauses: [[['REDUCTION', '&', 'event_triggers_i)']]]
+Name: as__TargetReachedOpenLimitConsistency || Clauses: [['OPEN_CLLOSE_LIMIT==1']]
+Name: as__TargetReachedClosedLimitConsistency || Clauses: [['OPEN_CLLOSE_LIMIT==1']]
+Name: as__TargetRegUpdateOnlyOnResetCount || Clauses: [['!reset_count_i', 'dynamic_target_event_counter.target_reg_q==target_value_i']]
+Name: as__TargetRegHoldWhenNoResetCount || Clauses: [['reset_count_i', 'dynamic_target_event_counter.target_reg_q==dynamic_target_event_counter.target_reg_q']]
+Name: as__CounterQUpdateToCounterDNoReset || Clauses: [['reset_count_i', 'dynamic_target_event_counter.counter_q==dynamic_target_event_counter.counter_d']]
+Name: as__CounterQResetValueOnResetCountExtResetZero || Clauses: [['!(reset_count_i&EXT_COUNT_RESET==0', 'dynamic_target_event_counter.counter_q==RST_COUNTER_VAL']]
+Name: as__CounterQResetValueOnResetCountExtResetOne || Clauses: [['!(reset_count_i&EXT_COUNT_RESET==1', 'dynamic_target_event_counter.counter_q==rst_cntr_val_i']]
+Name: as__CurrentCountOutputIsCounterQ || Clauses: [['CURRENT_COUNT_PCONF==1->__PRESERVED_EXPR_0__']]
+Name: as__CurrentCountOutputIsTargetRegQ || Clauses: [['CURRENT_COUNT_PCONF==0->__PRESERVED_EXPR_0__']]
+Name: as__CurrentCountOutputIsZeroForOtherConfig || Clauses: [['(CURRENT_COUNT_PCONF!=1&CURRENT_COUNT_PCONF!=0']]
+Name: as__CounterDIncrementCorrectness || Clauses: [['(INCR_DECR_COUNT==1&|event_triggers_i']]
+Name: as__CounterDDecrementCorrectness || Clauses: [['(INCR_DECR_COUNT==0&|event_triggers_i']]
+Name: as__CounterUpdateNextCycleResetCount || Clauses: [['reset_count_i']]
+Name: as__CounterHoldNoEventNextCycle || Clauses: [[['REDUCTION', '|', 'event_triggers_i)'], 'dynamic_target_event_counter.counter_d==dynamic_target_event_counter.counter_q']]
+Name: as__CounterIncrementDecrementNextCycle || Clauses: [[['REDUCTION', '|', 'event_triggers_i)']]]
+
+
+Name - Proof Result Pairs
+Name: as__TargetReachedOpenLimitCorrect || Proof Result: proven
+Name: as__TargetReachedClosedLimitCorrect || Proof Result: proven
+Name: as__TargetRegUpdateOnResetCountNextCycle || Proof Result: cex
+Name: as__TargetRegHoldNoResetCountNextCycle || Proof Result: proven
+Name: as__CounterUpdateOnEventNoResetNextCycle || Proof Result: cex
+Name: as__CounterUpdateNextCycleResetCount || Proof Result: proven
+Name: as__CounterHoldNoEventNextCycle || Proof Result: cex
+Name: as__CounterIncrementDecrementNextCycle || Proof Result: proven
+Name: as__CurrentCountOutputConfigOneSameCycle || Proof Result: proven
+Name: as__CurrentCountOutputConfigZeroSameCycle || Proof Result: proven
+Name: as__CurrentCountOutputConfigOtherSameCycle || Proof Result: proven
+======================================================================
+FINISHED SET EXTENSION
+======================================================================
+======================================================================
+STARTING UNPROVEN ASSERTION FIXING
+======================================================================
+======================================================================
+FINISHED UNPROVEN ASSERTION FIXING
+======================================================================
+Starting GUI initialization...
+Tkinter imported successfully
+ttk imported successfully
+ScrolledText imported successfully
+Warning: Matplotlib or related packages not available: No module named 'matplotlib'
+GUI will be launched without coverage plot
+Main window created
+Notebook created
+Frames created
+Tabs added to notebook
+Assertions list frame created
+Canvas and scrollbar created
+Listbox frame configured
+Details frame configured
+Text widgets created
+Statistics frame created
+Starting to populate assertions list...
+Added 12 assertions to the list
+GUI setup completed, starting main loop...
+GUI closed
+

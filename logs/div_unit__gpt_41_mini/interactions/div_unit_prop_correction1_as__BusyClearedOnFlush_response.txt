@@ -1,0 +1,6 @@
+// The assertion as__BusyClearedOnFlush is failing because busy_o depends on cycles_counter, which is cleared to zero only in the next cycle after flush_i is asserted. The original assertion checks busy_o in the same cycle as flush_i, but busy_o remains high in that cycle because cycles_counter is decremented or cleared only on the clock edge. Therefore, the assertion should check busy_o in the next cycle after flush_i is asserted, i.e., use a next-cycle assertion (|=>) and check that busy_o is zero in that next cycle.
+
+// The fix is to change the assertion to a next-cycle assertion that on flush_i being high in the current cycle, busy_o is zero in the next cycle. This matches the synchronous behavior of flush_i clearing the pipeline registers and cycles_counter on the next clock edge, which updates busy_o.
+
+// Corrected assertion:
+as__BusyClearedOnFlush: assert property (flush_i |=> !div_unit.busy_o);

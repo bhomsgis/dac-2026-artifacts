@@ -1,0 +1,1 @@
+as__SameSign2: assert property(valid_i |=> div_unit.same_sign_q == $past((~($past(data_rs2_i)[WIDTH-1] ^ $past(data_rs1_i)[WIDTH-1]))));

@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if `access_hit_i` is high whenever `pseudoLRU.access_array` is high. However, `pseudoLRU.access_array` is a vector where only one bit is set to 1 at a time, and this bit corresponds to the index of the accessed entry. The assertion should check if `access_hit_i` is high whenever the bit in `pseudoLRU.access_array` corresponding to `access_idx_i` is high.
+
+The proposed fix is to modify the assertion to check the specific bit in `pseudoLRU.access_array` that corresponds to `access_idx_i`. This can be done by using the `access_idx_i` as an index to `pseudoLRU.access_array`.
+
+Here is the corrected assertion:
+
+as__AccessArraySetImpliesAccessHit: assert property(pseudoLRU.access_array[access_idx_i] |-> access_hit_i == 1'b1);

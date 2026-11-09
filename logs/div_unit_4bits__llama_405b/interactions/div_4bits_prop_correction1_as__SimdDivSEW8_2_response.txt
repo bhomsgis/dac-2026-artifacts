@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Analysis:**
+The current assertion is failing because it is trying to check the value of `div_4bits.tmp_remanent[0]` in the same cycle as `sew_i == 2'b00`. However, the value of `div_4bits.tmp_remanent[0]` is assigned in a combinatorial block that depends on the value of `div_4bits.tmp_remanent_sub[1]` and `div_4bits.tmp_dividend_quotient[1]`, which are also assigned in the same combinatorial block. This means that the value of `div_4bits.tmp_remanent[0]` is not yet stable when the assertion is evaluated.
+
+**Proposed Fix:**
+To fix this issue, we need to use a next-cycle assertion (`|=>`) to check the value of `div_4bits.tmp_remanent[0]` in the next cycle, after the combinatorial block has finished assigning the values.
+
+**Corrected Assertion:**
+```
+as__SimdDivSEW8_2: assert property(sew_i == 2'b00 |=> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][7]});
+```
+Note that we use `$past()` is not needed in this case, as we are not referring to the value of a wire in the previous cycle. We are simply checking the value of a register (`div_4bits.tmp_remanent[0]`) in the next cycle.

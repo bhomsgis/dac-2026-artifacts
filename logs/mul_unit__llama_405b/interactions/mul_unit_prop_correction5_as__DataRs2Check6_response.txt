@@ -1,0 +1,54 @@
+The current assertion is failing because it is trying to check the value of `data_rs2_d` in the same cycle as the inputs `valid_i` and `op_i` are being checked. However, `data_rs2_d` is a combinational signal that is assigned a value based on the inputs `data_rs2_i` and `op_32bits_i`, and this assignment happens after the inputs have been checked.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will allow the assertion to check the value of `data_rs2_d` in the next cycle, after it has been assigned a value based on the inputs.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check6: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.data_rs2_q == (($past(data_rs2_i[(mul_unit.WIDTH-1)]) & !$past(op_32bits_i)) | ($past(data_rs2_i[31]) & $past(op_32bits_i)) ? ~$past(data_rs2_i) + mul_unit.ONE : $past(data_rs2_i)));
+```
+
+However, this assertion is still not correct because it is using `$past(data_rs2_i)` and `$past(op_32bits_i)` in the postcondition, which is not necessary. The correct assertion should be:
+
+```
+as__DataRs2Check6: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.data_rs2_q == ((mul_unit.data_rs2_q[(mul_unit.WIDTH-1)] & !mul_unit.op_32bits_q) | (mul_unit.data_rs2_q[31] & mul_unit.op_32bits_q) ? ~mul_unit.data_rs2_q + mul_unit.ONE : mul_unit.data_rs2_q));
+```
+
+But this assertion is also incorrect because it is using `mul_unit.data_rs2_q` in the postcondition, which is not necessary. The correct assertion should be:
+
+```
+as__DataRs2Check6: assert property((valid_i && (op_i == 2'b01)) |=> (mul_unit.data_rs2_q == ((mul_unit.data_rs2_d[(mul_unit.WIDTH-1)] & !mul_unit.op_32bits_q) | (mul_unit.data_rs2_d[31] & mul_unit.op_32bits_q) ? ~mul_unit.data_rs2_d + mul_unit.ONE : mul_unit.data_rs2_d));
+```
+
+However, this is still not the best way to write this assertion. A better way would be to check the value of `data_rs2_d` directly, without using `$past()` or `mul_unit.data_rs2_q`. Here is the corrected assertion:
+
+```
+as__DataRs2Check6: assert property((valid_i && (op_i == 2'b01)) |-> (mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+```
+
+Wait, this is the original assertion. The issue is not with the timing of the assertion, but with the values being compared. The original assertion is correct, but it's not working because of the values being compared. 
+
+After re-reading the code, I realized that the issue is with the signal `data_rs2_d`. It's not being assigned the correct value. The correct value should be assigned in the `always_comb` block. 
+
+The correct assertion is:
+
+```
+as__DataRs2Check6: assert property((valid_i && (op_i == 2'b01)) |-> (mul_unit.data_rs2_d == ((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+```
+
+And the correct code should be:
+
+```
+always_comb begin
+    case(op_i)
+        MUL : begin    // Multiply word, Low part, Signed - MUL , MULW
+            data_rs1_d = ((data_rs1_i[(WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ?
+                                 ~data_rs1_i + ONE : data_rs1_i;
+            data_rs2_d = ((data_rs2_i[(WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ?
+                                 ~data_rs2_i + ONE : data_rs2_i;
+            neg_d = !same_sign;
+        end
+...
+```
+
+I hope this clears up any confusion.

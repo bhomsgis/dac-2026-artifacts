@@ -1,0 +1,5 @@
+// The original assertion fails because it does not consider the case when dmem_ptw_comm_i.resp.nack is asserted, which causes the FSM to leave S_WAIT. Also, the assertion uses ptw.next_state directly without considering that next_state is combinational and updated every cycle. The assertion should allow staying in S_WAIT only when resp.valid is false and resp.nack is false, otherwise next_state can change.
+// The fix is to add the condition that resp.nack is false in the precondition and to explicitly require that next_state remains S_WAIT only when both resp.valid and resp.nack are false. This matches the FSM behavior where on nack or valid response, the state changes.
+// Corrected assertion:
+
+as__WaitStateRespNotValidStayWait: assert property ((ptw.current_state == ptw.S_WAIT && !ptw.dmem_ptw_comm_i.resp.valid && !ptw.dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_WAIT));

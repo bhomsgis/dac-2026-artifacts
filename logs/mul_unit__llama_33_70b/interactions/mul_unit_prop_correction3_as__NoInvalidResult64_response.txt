@@ -1,0 +1,4 @@
+```systemverilog
+// Check that result_o is not invalid when valid_o is high and operation is not MUL and 32-bit operation is not enabled
+as__NoInvalidResult64: assert property(!(valid_o && op_i != mul_unit.MUL && !op_32bits_i && result_o != mul_unit.result_2width_def[WIDTH-1:0] && $past(op_i) != mul_unit.MUL));
+```

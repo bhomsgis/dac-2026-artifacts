@@ -1,0 +1,37 @@
+The current assertion is failing because it's checking if `div_unit.op_32_q` is equal to `op_32bits_i` in the next cycle after `valid_i` is asserted. However, `div_unit.op_32_q` is updated in the same cycle as `valid_i`, not in the next cycle.
+
+The proposed fix is to use a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`), since we want to check the value of `div_unit.op_32_q` in the same cycle as `valid_i`.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |-> div_unit.op_32_q == op_32bits_i);`
+
+However, this was already tried in Attempt 1 and it didn't work. Let's analyze further.
+
+The issue might be that `div_unit.op_32_q` is not updated immediately when `valid_i` is asserted. It's updated only when `valid_i` is asserted and `flush_i` is not asserted. So, we need to add a condition to check if `flush_i` is not asserted.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i && !flush_i |-> div_unit.op_32_q == op_32bits_i);`
+
+However, this was already tried in Attempt 4 and it didn't work. Let's analyze further.
+
+The issue might be that we are not considering the case where `valid_i` is asserted, but `div_unit.valid_q` is not asserted yet. In this case, `div_unit.op_32_q` will not be updated yet.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |-> div_unit.op_32_q == op_32bits_i || !div_unit.valid_q);`
+
+However, this was already tried in Attempt 3 and it didn't work. Let's analyze further.
+
+The issue might be that we are not considering the pipeline behavior correctly. When `valid_i` is asserted, `div_unit.op_32_q` will be updated in the next cycle, but only if `div_unit.valid_q` is asserted in the next cycle.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |=> div_unit.op_32_q == $past(op_32bits_i) || !div_unit.valid_q);`
+
+However, this is not the same as Attempt 2, because we added a condition to check if `div_unit.valid_q` is asserted.
+
+But we can simplify it further:
+
+`as__Op32QUpdate: assert property(valid_i |=> div_unit.valid_q -> div_unit.op_32_q == $past(op_32bits_i));`

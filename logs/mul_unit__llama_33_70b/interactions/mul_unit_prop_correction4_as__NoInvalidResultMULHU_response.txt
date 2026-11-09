@@ -1,0 +1,8 @@
+The current assertion `as__NoInvalidResultMULHU: assert property(!(valid_o && op_i == mul_unit.MULHU && result_o != mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]));` is failing because it is comparing the result of the current operation (`result_o`) with the result of the `MULHU` operation stored in `result_2width_def`. However, `result_o` is assigned based on the operation type and the `op_32bits_q_final` signal, which may not always correspond to the `MULHU` operation.
+
+To fix this, we need to ensure that we are comparing the result of the `MULHU` operation with the expected result when the `MULHU` operation is being performed. We can do this by using a next-cycle assertion (`|=>`) to check the result of the `MULHU` operation in the next cycle, when the `op_q_final` signal is `MULHU`.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidResultMULHU: assert property(valid_o && op_i == mul_unit.MULHU |=> result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+```

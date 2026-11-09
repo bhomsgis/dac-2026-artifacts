@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when valid_i is low and cycles_counter is not zero, cycles_counter decreases by 1 in the next cycle
+as__CyclesCounter2: assert property(!valid_i && div_unit.cycles_counter != 6'd0 |=> div_unit.cycles_counter == $past(div_unit.cycles_counter) - (div_unit.cycles_counter == 6'd1 ? 6'd0 : 6'd1));
+```

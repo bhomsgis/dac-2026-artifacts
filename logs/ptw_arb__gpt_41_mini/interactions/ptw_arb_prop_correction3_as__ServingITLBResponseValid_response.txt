@@ -1,0 +1,2 @@
+// Check that when serving iTLB and ptw_tlb_comm_i.resp.valid is asserted, next_state transitions to IDLE and is_req_waiting_d is cleared
+as__ServingITLBResponseValid: assert property ((ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_arb.ptw_tlb_comm_i.resp.valid) |=> (ptw_arb.next_state == ptw_arb.IDLE && $past(ptw_arb.is_req_waiting_q) == 1'b1 && ptw_arb.is_req_waiting_d == 1'b0));

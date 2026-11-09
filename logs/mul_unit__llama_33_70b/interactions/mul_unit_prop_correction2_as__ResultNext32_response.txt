@@ -1,0 +1,17 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` checks if the result of a multiplication operation is correctly assigned to `result_o` when the operation is a 64-bit multiplication (`op_i == mul_unit.MUL` and `!op_32bits_i`).
+2. **Identifying the issue**: The assertion might be failing because it does not consider the pipeline behavior and timing of the `mul_unit` module. Specifically, it does not account for the fact that the `result_o` is assigned in the next cycle after the operation is performed.
+3. **Analyzing the RTL**: The RTL code shows that the `result_o` is assigned in the next cycle after the operation is performed, using the `result_2width_def` signal. However, the assertion does not use the `$past` function to refer to the value of `result_2width_def` in the previous cycle.
+
+# Fixed solution:
+```systemverilog
+as__ResultNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTH-1:0]);
+```
+
+# Explanation of changes:
+* **Added `$past` function**: The `$past` function is used to refer to the value of `result_2width_def` in the previous cycle, which is the cycle when the operation was performed.
+* **Used `mul_unit` prefix**: The `mul_unit` prefix is used to refer to the internal signals of the `mul_unit` module, as required.
+
+# Tests and example uses:
+* The corrected assertion can be tested by simulating the `mul_unit` module with different input scenarios, including 64-bit multiplication operations.
+* The assertion can be verified by checking the waveform of the `result_o` signal and comparing it with the expected value.

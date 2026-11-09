@@ -1,0 +1,19 @@
+I believe the current assertion is failing because it's not considering the pipeline behavior of the `mul_unit` module. The `result_o` signal is assigned in the same cycle as the `valid_i` and `op_i` signals, but it's not guaranteed to be valid in the same cycle. The `result_o` signal is only guaranteed to be valid after the multiplication operation has completed, which takes one or two cycles depending on the configuration.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the `result_o` signal in the next cycle after the `valid_i` and `op_i` signals are asserted. We also need to use `$past()` to refer to the values of `valid_i` and `op_i` in the previous cycle.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck2: assert property((valid_i && (op_i == mul_unit.MUL)) |=> (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]));
+```
+
+However, this assertion is still not correct because it's not considering the case where `op_32bits_i` is asserted. In this case, the `result_o` signal is assigned to `result_32_q` instead of `result_2width_def`. To fix this, we need to add a conditional statement to the assertion to check the value of `op_32bits_i`.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck2: assert property((valid_i && (op_i == mul_unit.MUL)) |=> ((mul_unit.op_32bits_q_final) ? (result_o == mul_unit.result_32_q) : (result_o == mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));
+```
+
+This assertion checks the value of `result_o` in the next cycle after `valid_i` and `op_i` are asserted. If `op_32bits_i` is asserted, it checks that `result_o` is equal to `result_32_q`. Otherwise, it checks that `result_o` is equal to `result_2width_def`.

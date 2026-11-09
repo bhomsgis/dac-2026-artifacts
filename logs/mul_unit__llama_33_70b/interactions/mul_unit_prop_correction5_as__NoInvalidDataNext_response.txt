@@ -1,0 +1,8 @@
+The current assertion `as__NoInvalidDataNext: assert property(valid_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));` might be failing because it does not consider the pipeline behavior and timing of the `mul_unit`. The assertion checks if `valid_o` is high and either `data_rs1_i` or `data_rs2_i` is unknown (`{WIDTH{1'bx}}`) in the next cycle after `valid_i` is high. However, this does not account for the fact that `data_rs1_i` and `data_rs2_i` are registered and their values are updated in the next cycle.
+
+To fix this, we need to consider the registered values of `data_rs1_i` and `data_rs2_i`, which are `mul_unit.data_rs1_q` and `mul_unit.data_rs2_q`, respectively. We should also use `$past` to refer to the value of `data_rs1_i` and `data_rs2_i` in the previous cycle.
+
+Here is the corrected assertion:
+```systemverilog
+as__NoInvalidDataNext: assert property(valid_i |=> !(valid_o && ($past(data_rs1_i) == {WIDTH{1'bx}} || $past(data_rs2_i) == {WIDTH{1'bx}})));
+```

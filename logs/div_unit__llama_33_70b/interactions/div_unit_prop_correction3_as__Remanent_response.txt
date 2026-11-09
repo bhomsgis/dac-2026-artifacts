@@ -1,0 +1,3 @@
+```systemverilog
+as__Remanent: assert property(!valid_i |=> div_unit.remanent_q == $past(div_unit.remanent_out) && div_unit.cycles_counter == $past(div_unit.cycles_counter) - 6'd1);
+```

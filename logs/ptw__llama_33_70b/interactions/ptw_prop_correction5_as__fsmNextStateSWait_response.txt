@@ -1,0 +1,20 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__fsmNextStateSWait` checks the next state of the finite state machine (FSM) when it is currently in the `S_WAIT` state. The assertion expects the next state to be either `S_ERROR`, `S_DONE`, or `S_WAIT`.
+2. **Analyzing the FSM**: The FSM has several states, including `S_READY`, `S_REQ`, `S_WAIT`, `S_DONE`, and `S_ERROR`. The transitions between these states are based on various conditions, such as the validity of the page table entry (PTE), the type of PTE (table or leaf), and the response from the memory.
+3. **Identifying the issue**: The assertion might be failing because it does not consider all possible conditions that can occur when the FSM is in the `S_WAIT` state. For example, if the memory response is not valid or if the PTE is invalid, the FSM might transition to a different state than what the assertion expects.
+4. **Considering pipeline behavior and timing**: The FSM's behavior is pipelined, meaning that the current state and the next state are evaluated in different clock cycles. The assertion should take this into account when checking the next state.
+
+# Fixed solution:
+```systemverilog
+as__fsmNextStateSWait: assert property((ptw.current_state == ptw.S_WAIT) |=> ((dmem_ptw_comm_i.resp.valid && !invalid_pte && is_pte_table && (ptw.count_q < $unsigned(LEVELS-1))) |=> (ptw.next_state == ptw.S_REQ)) && ((dmem_ptw_comm_i.resp.valid && !invalid_pte && is_pte_leaf) |=> (ptw.next_state == ptw.S_DONE)) && ((dmem_ptw_comm_i.resp.valid && invalid_pte) |=> (ptw.next_state == ptw.S_ERROR)) && ((dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_REQ)) && (!dmem_ptw_comm_i.resp.valid |=> (ptw.next_state == ptw.S_WAIT)));
+```
+
+# Explanation of changes:
+* **Added conditions for PTE validity and type**: The assertion now checks the validity and type of the PTE when the memory response is valid.
+* **Added condition for memory response validity**: The assertion now checks if the memory response is valid before evaluating the next state.
+* **Added condition for PTE cache hit**: The assertion does not need to consider the PTE cache hit condition explicitly, as it is already handled by the FSM's logic.
+* **Used next-cycle assertion**: The assertion uses a next-cycle assertion (`|=>`) to check the next state of the FSM, taking into account the pipelined behavior.
+* **Used $past() function**: The assertion does not need to use the `$past()` function, as it is not referencing any signals that are updated in the same clock cycle.
+
+# Tests and example uses:
+The corrected assertion can be tested by simulating the FSM with various input scenarios, including valid and invalid PTEs, table and leaf PTEs, and memory responses with and without errors. The assertion should pass for all valid scenarios and fail for invalid scenarios.

@@ -1,0 +1,3 @@
+// The assertion is failing because it uses a same-cycle implication (|->) with op_q and neg_q, both registered signals, but neg_q is assigned combinationally from data_rs1_i in the same cycle as op_q is registered. The assertion does not consider the pipeline delay and the op_32bits_q signal, which affects the sign bit used for neg_q. Also, neg_q is registered and updated in the next cycle, so the assertion should use a next-cycle implication (|=>) and refer to the previous cycle's inputs using $past() for correct timing and operand width selection.
+
+as__NegQCorrectForMulHSU: assert property((mul_unit.op_q == 2 && mul_unit.valid_q[0]) |=> mul_unit.neg_q == ( $past(mul_unit.op_32bits_q) ? $past(mul_unit.data_rs1_i[31]) : $past(mul_unit.data_rs1_i[mul_unit.WIDTH-1]) ));

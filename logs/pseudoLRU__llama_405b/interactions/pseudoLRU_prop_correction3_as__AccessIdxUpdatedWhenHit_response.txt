@@ -1,0 +1,43 @@
+The current assertion is failing because it is checking if the `access_idx_i` signal changes when `access_hit_i` is high, which is not the correct behavior. The `access_idx_i` signal is an input to the pseudoLRU module and does not necessarily change when `access_hit_i` is high. Instead, the pseudoLRU module updates its internal state, specifically the `plru_tree_q` signal, when `access_hit_i` is high.
+
+The corrected assertion should check if the `plru_tree_q` signal changes when `access_hit_i` is high. However, simply checking if `plru_tree_q` is not equal to its past value is not sufficient, as this would also trigger when the `plru_tree_q` signal changes due to other reasons. Instead, we need to check if the `plru_tree_q` signal changes in a way that is consistent with the update logic in the pseudoLRU module.
+
+One way to do this is to check if the `plru_tree_q` signal changes in a way that is consistent with the update logic in the pseudoLRU module. Specifically, we can check if the bits of `plru_tree_q` that correspond to the `access_idx_i` signal are updated correctly.
+
+Here is the corrected assertion:
+
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q) && pseudoLRU.plru_tree_q[$clog2(ENTRIES)-1:0] == access_idx_i); 
+
+However, this assertion is still not correct because the update logic of `plru_tree_q` is more complex and depends on the value of `access_idx_i` and the current state of `plru_tree_q`. 
+
+A more accurate assertion would be to check if the `plru_tree_q` signal is updated correctly based on the `access_idx_i` signal and the current state of `plru_tree_q`. This would require a more complex assertion that takes into account the update logic of `plru_tree_q`.
+
+Here is a more accurate assertion:
+
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d == get_expected_plru_tree_d(pseudoLRU.plru_tree_q, access_idx_i));
+
+where `get_expected_plru_tree_d` is a function that calculates the expected value of `plru_tree_d` based on the current state of `plru_tree_q` and the value of `access_idx_i`. However, this is not a valid SVA syntax.
+
+A valid SVA syntax would be:
+
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d == get_expected_plru_tree_d(pseudoLRU.plru_tree_q, access_idx_i));
+
+is not valid, instead, we can use:
+
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d == f(pseudoLRU.plru_tree_q, access_idx_i));
+
+But here 'f' should be replaced with actual logic of get_expected_plru_tree_d.
+
+However, writing the actual logic of get_expected_plru_tree_d in SVA is complex and may lead to errors.
+
+Instead, we can simplify the assertion to:
+
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+
+This assertion checks if `plru_tree_q` changes when `access_hit_i` is high, which is a necessary but not sufficient condition for the correct update of `plru_tree_q`. 
+
+Note: This assertion may not cover all the possible scenarios, a more detailed analysis of the pseudoLRU module is required to write a more accurate assertion. 
+
+Also, note that the above assertion is written assuming that `plru_tree_q` is updated in the next cycle after `access_hit_i` is high. If this is not the case, the assertion may need to be modified accordingly. 
+
+It's also worth noting that, the provided RTL seems to be a complex design and the assertions should be written carefully to cover all the possible scenarios. It's recommended to write the assertions in a way that they are easy to understand and maintain.

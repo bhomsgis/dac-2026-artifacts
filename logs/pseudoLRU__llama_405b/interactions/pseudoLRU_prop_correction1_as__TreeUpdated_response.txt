@@ -1,0 +1,11 @@
+The current assertion is failing because it checks if the `plru_tree_q` register is updated whenever there is a hit in the storage mechanism (`access_hit_i` is high). However, this assertion does not consider the case where the hit occurs at the same index as the current least recently used (LRU) entry. In this case, the `plru_tree_q` register will not be updated because the LRU entry is already at the correct position.
+
+The proposed fix is to check if the `plru_tree_d` signal is updated instead of the `plru_tree_q` register. The `plru_tree_d` signal is the combinatorial output of the PLRU logic, and it will be updated whenever there is a hit, regardless of whether the hit occurs at the same index as the current LRU entry.
+
+Here is the corrected assertion:
+
+```
+as__TreeUpdated: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d != $past(pseudoLRU.plru_tree_d));
+```
+
+This assertion checks if the `plru_tree_d` signal is updated whenever there is a hit in the storage mechanism. If the `plru_tree_d` signal is not updated, it means that the PLRU logic is not working correctly.

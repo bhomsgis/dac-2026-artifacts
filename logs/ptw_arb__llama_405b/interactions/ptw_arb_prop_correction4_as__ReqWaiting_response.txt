@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking the value of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q` is high. However, `itlb_req_waiting_q` is a registered signal that is updated in the next cycle.
+
+The issue is that the assertion is using a same-cycle assertion (`|->`) to check the value of `itlb_req_waiting_q`, which is a registered signal. This means that the value of `itlb_req_waiting_q` has not yet been updated when the assertion is checked.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `itlb_req_waiting_q` in the next cycle, after it has been updated.
+
+Here is the corrected assertion:
+
+`as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 |=> ptw_arb.itlb_req_waiting_q == $past(itlb_ptw_comm_i, 1));`
+
+This assertion checks that when `is_req_waiting_q` is high, the value of `itlb_req_waiting_q` in the next cycle is equal to the value of `itlb_ptw_comm_i` in the current cycle. The `$past` function is used to refer to the value of `itlb_ptw_comm_i` in the current cycle, rather than its value in the next cycle.

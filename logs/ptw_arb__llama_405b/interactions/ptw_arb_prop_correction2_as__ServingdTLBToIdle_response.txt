@@ -1,0 +1,14 @@
+The current assertion is failing because it does not consider the case where there is a pending iTLB request waiting to be served. When the dTLB request is completed (ptw_tlb_comm_i.resp.valid == 1'b1), the next state will be SERVING_iTLB if there is a pending iTLB request (ptw_arb.is_req_waiting_q == 1'b1), not IDLE.
+
+Proposed fix:
+The assertion should check the value of ptw_arb.is_req_waiting_q to determine the next state. If ptw_arb.is_req_waiting_q is 1'b1, the next state should be SERVING_iTLB. Otherwise, the next state should be IDLE.
+
+However, this was already tried in Attempt 1, and it didn't work. Let's analyze the RTL code again. In the SERVING_dTLB state, when ptw_tlb_comm_i.resp.valid is 1'b1, the next state is always IDLE, regardless of the value of ptw_arb.is_req_waiting_q. But in the IDLE state, if ptw_arb.is_req_waiting_q is 1'b1, the next state will be SERVING_iTLB.
+
+Corrected assertion:
+as__ServingdTLBToIdle: assert property(ptw_arb.current_state == ptw_arb.SERVING_dTLB && ptw_tlb_comm_i.resp.valid == 1'b1 |=> ptw_arb.next_state == (ptw_arb.current_state == ptw_arb.SERVING_dTLB ? ptw_arb.IDLE : ptw_arb.SERVING_iTLB)); 
+
+Wait, that doesn't make sense. The issue here is that we are trying to check the value of ptw_arb.is_req_waiting_q in the next cycle, but we are using a next-cycle assertion (|=>) and referencing ptw_arb.is_req_waiting_q directly, which will give us the value of ptw_arb.is_req_waiting_q in the next cycle, not in the current cycle. We should use $past() to get the value of ptw_arb.is_req_waiting_q in the current cycle.
+
+Corrected assertion:
+as__ServingdTLBToIdle: assert property(ptw_arb.current_state == ptw_arb.SERVING_dTLB && ptw_tlb_comm_i.resp.valid == 1'b1 |=> ptw_arb.next_state == ($past(ptw_arb.is_req_waiting_q) == 1'b1 ? ptw_arb.SERVING_iTLB : ptw_arb.IDLE));

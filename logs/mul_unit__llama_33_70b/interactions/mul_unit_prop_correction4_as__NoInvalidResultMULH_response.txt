@@ -1,0 +1,11 @@
+The current assertion `as__NoInvalidResultMULH: assert property(!(valid_o && op_i == mul_unit.MULH && result_o != mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]));` might be failing because it's not considering the pipeline behavior and timing of the `mul_unit` module. 
+
+The `result_o` is assigned in the output logic, which depends on the `op_q_final` and `op_32bits_q_final` signals. These signals are updated in the next cycle after the operation is performed. 
+
+The assertion should be checking the `result_o` against the `result_2width_def` signal in the next cycle, considering the operation type and the pipeline behavior.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__NoInvalidResultMULH: assert property(valid_o && op_i == mul_unit.MULH |=> result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]));
+```

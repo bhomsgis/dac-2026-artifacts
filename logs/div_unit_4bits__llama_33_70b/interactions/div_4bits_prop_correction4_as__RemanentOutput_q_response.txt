@@ -1,0 +1,6 @@
+The current assertion `as__RemanentOutput_q: assert property((div_4bits.remanent_o_q == $past(div_4bits.tmp_remanent_sub[0])) |=> (div_4bits.remanent_o_q == $past(div_4bits.tmp_remanent_sub[0])));` is likely failing because it is comparing the current value of `remanent_o_q` with the past value of `tmp_remanent_sub[0]`, and then asserting that the next value of `remanent_o_q` is equal to the past value of `tmp_remanent_sub[0]`. This assertion does not accurately capture the relationship between `remanent_o_q` and `tmp_remanent_sub[0]`.
+
+A corrected version of the assertion would be: 
+`as__RemanentOutput_q: assert property((div_4bits.remanent_o == $past(div_4bits.tmp_remanent_sub[0])) |=> (div_4bits.remanent_o_q == $past(div_4bits.remanent_o)));` 
+
+This assertion checks that the current value of `remanent_o` is equal to the past value of `tmp_remanent_sub[0]`, and then asserts that the next value of `remanent_o_q` is equal to the past value of `remanent_o`. This accurately captures the relationship between `remanent_o_q` and `tmp_remanent_sub[0]`, considering the pipeline behavior and timing of the design.

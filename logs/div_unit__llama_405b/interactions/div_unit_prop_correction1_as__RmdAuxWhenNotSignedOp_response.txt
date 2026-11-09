@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking if `rmd_aux` is equal to `remanent_q` when `signed_op_q` is not set. However, the RTL code shows that `rmd_aux` is not always equal to `remanent_q` even when `signed_op_q` is not set. Specifically, when `div_zero_q` is set, `rmd_aux` is equal to `first_dividend_q`, not `remanent_q`.
+
+To fix this assertion, we need to add a condition to check if `div_zero_q` is not set. We can do this by adding a conjunction to the precondition:
+
+```
+as__RmdAuxWhenNotSignedOp: assert property(!div_unit.signed_op_q && !div_unit.div_zero_q |-> div_unit.rmd_aux == div_unit.remanent_q);
+```
+
+This assertion checks if `rmd_aux` is equal to `remanent_q` when `signed_op_q` is not set and `div_zero_q` is not set. This should fix the failure and provide a more accurate check for the behavior of `rmd_aux`.

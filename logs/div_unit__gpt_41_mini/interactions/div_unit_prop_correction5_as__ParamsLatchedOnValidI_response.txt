@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion fails because it expects the latched parameters (op_q, op_32_q, signed_op_q) to match the current inputs (op_i, op_32bits_i, !op_unsigned_i) in the same cycle that valid_i is asserted. However, these parameters are registered signals (_q) updated on the clock edge, so their updated values reflecting the inputs at valid_i will only be available in the next cycle. Therefore, the assertion should check these registered signals one cycle after valid_i is asserted, using a next-cycle implication (|=>) and referencing the inputs with $past() in the postcondition.
+
+2. Proposed fix:  
+Use a next-cycle assertion with valid_i as precondition and check that the registered signals (div_unit.op_q, div_unit.op_32_q, div_unit.signed_op_q) equal the inputs sampled at the cycle of valid_i (using $past()). This matches the RTL behavior where the parameters are latched on the clock edge when valid_i is high.
+
+3. Corrected assertion:  
+as__ParamsLatchedOnValidI: assert property (valid_i |=> (div_unit.op_q == $past(op_i) && div_unit.op_32_q == $past(op_32bits_i) && div_unit.signed_op_q == !$past(op_unsigned_i)));

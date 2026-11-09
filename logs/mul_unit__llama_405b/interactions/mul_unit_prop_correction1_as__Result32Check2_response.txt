@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking the result of a 32-bit multiplication in the same cycle as the input is provided, but the result is actually registered and available only in the next cycle.
+
+The assertion is trying to check if the result of a 32-bit multiplication is correctly sign-extended to 64 bits. However, the result of the multiplication is stored in the `result_32_q` register, which is updated only in the next cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the result in the next cycle. We also need to use `$past()` to refer to the value of `result_32_aux` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__Result32Check2: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (mul_unit.result_32_q == {{(mul_unit.WIDTH-32){$past(mul_unit.result_32_aux[31])}},$past(mul_unit.result_32_aux[31:0])}));
+```

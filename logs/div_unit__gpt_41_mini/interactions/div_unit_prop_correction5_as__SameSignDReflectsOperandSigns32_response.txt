@@ -1,0 +1,5 @@
+// The assertion fails because same_sign_d is combinationally assigned in the cycle valid_i is high, but same_sign_q updates only in the next cycle. The original assertion checks same_sign_d in the same cycle as valid_i, which is not stable or registered. The assertion should check same_sign_q in the next cycle after valid_i is asserted, reflecting the registered value.
+// The fix is to use a next-cycle assertion (|=>) with valid_i as precondition and check same_sign_q in the next cycle. Also, since op_32bits_i is a wire, use $past(op_32bits_i) in the postcondition to select the correct bit for sign comparison. This matches pipeline timing and signal updates.
+// Corrected assertion:
+
+as__SameSignDReflectsOperandSigns32: assert property (valid_i |=> (div_unit.same_sign_q == (~(($past(div_unit.op_32bits_i) ? (data_rs2_i[31] ^ data_rs1_i[31]) : (data_rs2_i[63] ^ data_rs1_i[63]))))));

@@ -1,0 +1,6 @@
+The current assertion `as__PLRUTreeDecodeUpdateHit: assert property(access_hit_i |-> pseudoLRU.access_array != $past(pseudoLRU.access_array));` is failing because it is checking if `access_array` is not equal to its past value when `access_hit_i` is true. However, `access_array` is a wire that is updated in the same cycle based on `access_idx_i`, and its value does not depend on the past value of `access_hit_i`. 
+
+The proposed fix is to check if `pseudoLRU.plru_tree_d` is not equal to `pseudoLRU.plru_tree_q` when `access_hit_i` is true, because `plru_tree_d` is updated based on `access_array` and `access_hit_i`, and its value is assigned to `plru_tree_q` in the next cycle. 
+
+Here is the corrected assertion:
+as__PLRUTreeDecodeUpdateHit: assert property(access_hit_i |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);

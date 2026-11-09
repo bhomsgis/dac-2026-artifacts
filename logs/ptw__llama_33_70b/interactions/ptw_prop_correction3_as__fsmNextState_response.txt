@@ -1,0 +1,1 @@
+as__fsmNextState: assert property((ptw.current_state == ptw.S_READY) |=> (ptw.next_state_q == ptw.S_REQ || (ptw.next_state_q == ptw.S_READY && !$past(tlb_ptw_comm.req.valid))));

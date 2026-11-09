@@ -1,0 +1,13 @@
+The current assertion is failing because it's checking if `ptw_arb.current_state` is `IDLE` and `ptw_arb.is_req_waiting_q` is `1'b1` in the current cycle, and then expecting `ptw_arb.next_state` to be `SERVING_iTLB` in the next cycle. However, the RTL code shows that when `ptw_arb.current_state` is `IDLE` and `ptw_arb.is_req_waiting_q` is `1'b1`, `ptw_arb.next_state` is set to `SERVING_iTLB` only if there is no valid request from `dtlb_ptw_comm_i`.
+
+The issue is that the assertion is not considering the priority of the requests. If there is a valid request from `dtlb_ptw_comm_i`, `ptw_arb.next_state` will be set to `SERVING_dTLB` instead of `SERVING_iTLB`.
+
+To fix this, we need to add a condition to check if there is no valid request from `dtlb_ptw_comm_i`. We can do this by checking if `dtlb_ptw_comm_i.req.valid` is `1'b0`.
+
+Here is the corrected assertion:
+
+```
+as__IdleToServingiTLB: assert property(ptw_arb.current_state == ptw_arb.IDLE && ptw_arb.is_req_waiting_q == 1'b1 && dtlb_ptw_comm_i.req.valid == 1'b0 |=> ptw_arb.next_state == ptw_arb.SERVING_iTLB);
+```
+
+This assertion checks if `ptw_arb.current_state` is `IDLE`, `ptw_arb.is_req_waiting_q` is `1'b1`, and `dtlb_ptw_comm_i.req.valid` is `1'b0` in the current cycle, and then expects `ptw_arb.next_state` to be `SERVING_iTLB` in the next cycle.

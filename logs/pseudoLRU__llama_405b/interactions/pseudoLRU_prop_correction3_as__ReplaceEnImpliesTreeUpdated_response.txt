@@ -1,0 +1,27 @@
+The current assertion is failing because it is checking if the `plru_tree_q` register is updated in the same cycle when `replace_en` is high. However, the `plru_tree_q` register is updated in the next cycle, not in the same cycle.
+
+The issue is that the assertion is using a same-cycle assertion (`|->`) to check the update of a register (`plru_tree_q`) that is updated in the next cycle. This is incorrect because the new value of `plru_tree_q` is not available in the same cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the update of `plru_tree_q`. This will ensure that the assertion checks the new value of `plru_tree_q` in the next cycle, after it has been updated.
+
+Here is the corrected assertion:
+
+`as__ReplaceEnImpliesTreeUpdated: assert property (pseudoLRU.replace_en |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));`
+
+However, this is the same as Attempt 1, which did not work. The issue is that `replace_en` is a vector of bits, and the assertion is checking if any of the bits are high. When any of the bits are high, the assertion is checking if the entire `plru_tree_q` register has changed, which may not be the case.
+
+A more accurate assertion would be to check if the `plru_tree_q` register has changed in the next cycle when any of the `replace_en` bits are high. This can be done by using the `|` operator to check if any of the bits of `replace_en` are high, and then using the `|=>` operator to check the update of `plru_tree_q` in the next cycle.
+
+Here is the corrected assertion:
+
+`as__ReplaceEnImpliesTreeUpdated: assert property ((|pseudoLRU.replace_en) |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));`
+
+However, this is the same as Attempt 2, which did not work. The issue is that this assertion is still checking if the entire `plru_tree_q` register has changed, which may not be the case.
+
+A more accurate assertion would be to check if the `plru_tree_q` register has changed in the next cycle when any of the `replace_en` bits are high, and also to check if the change is only in the bits that correspond to the `replace_en` bits that are high.
+
+Here is the corrected assertion:
+
+`as__ReplaceEnImpliesTreeUpdated: assert property ((|pseudoLRU.replace_en) |=> (pseudoLRU.plru_tree_q & pseudoLRU.replace_en) != ($past(pseudoLRU.plru_tree_q) & pseudoLRU.replace_en));`
+
+This assertion checks if the bits of `plru_tree_q` that correspond to the `replace_en` bits that are high have changed in the next cycle. This is a more accurate check of the update of `plru_tree_q` when any of the `replace_en` bits are high.

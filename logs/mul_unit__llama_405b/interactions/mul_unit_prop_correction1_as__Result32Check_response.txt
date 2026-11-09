@@ -1,0 +1,13 @@
+The assertion `as__Result32Check` is failing because it's checking the result of a 32-bit multiplication operation in the same cycle as the input is provided, but the result of the multiplication is only available in the next cycle.
+
+The issue is that the result of the multiplication is stored in the `result_32_q` register, which is updated in the next cycle. Therefore, when the assertion checks the result in the same cycle, it's checking the previous result, not the current one.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the result in the next cycle, after the `result_32_q` register has been updated.
+
+Here is the corrected assertion:
+
+```
+as__Result32Check: assert property((valid_i && op_32bits_i && (op_i == mul_unit.MUL)) |=> (result_o == mul_unit.result_32_q));
+```
+
+This assertion checks that if the input is valid, the operation is a 32-bit multiplication, and the operation is MUL, then in the next cycle, the result output is equal to the result stored in the `result_32_q` register.

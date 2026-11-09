@@ -1,0 +1,9 @@
+1. Explanation of failure:
+The original assertion fails because it uses a same-cycle implication (|=>) with valid_i as precondition and checks the registered signals remanent_q, dividend_quotient_q, and divisor_q in the same cycle. However, these _q signals are updated on the clock edge after valid_i is asserted, so their updated values appear in the next cycle, not the current cycle. Also, the assertion compares dividend_quotient_q and divisor_q to the combinational signals dividend_d and divisor_d in the same cycle, but these _d signals are combinational and reflect inputs in the current cycle, while the _q registers update on the next clock edge. Therefore, the assertion should use a next-cycle implication (|=>) with valid_i as precondition and check the _q signals in the next cycle, comparing them to the _d signals from the previous cycle using $past().
+
+2. Proposed fix:
+Use a next-cycle assertion (|=>) with valid_i as precondition, and in the postcondition check that remanent_q is zero and dividend_quotient_q and divisor_q equal the previous cycle's dividend_d and divisor_d respectively, using $past() to refer to those combinational signals from the cycle when valid_i was asserted. This matches the RTL behavior where the registers update on the clock edge following valid_i, and the combinational signals dividend_d and divisor_d are stable in that cycle.
+
+3. Corrected assertion:
+
+as__RegsResetOnValidI: assert property (valid_i |=> (div_unit.remanent_q == {div_unit.WIDTH{1'b0}} && div_unit.dividend_quotient_q == $past(div_unit.dividend_d) && div_unit.divisor_q == $past(div_unit.divisor_d)));

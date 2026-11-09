@@ -1,0 +1,3 @@
+```systemverilog
+as__Quo8: assert property(!div_unit.div_zero_q && !div_unit.signed_op_q && div_unit.cycles_counter == 6'd1 |-> div_unit.quo_aux == div_unit.dividend_quotient_q);
+```

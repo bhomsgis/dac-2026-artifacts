@@ -1,0 +1,19 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultNextMUL` checks if the result of a multiplication operation is correct when the operation is valid and the operation type is MUL. It also considers the case when the operation is 32-bit.
+2. **Identifying the issue**: The assertion is not proven by JasperGold, which means there might be a problem with the assertion itself or the design. After analyzing the code, it seems that the issue lies in the fact that the assertion is not considering the pipeline behavior and timing of the design.
+3. **Pipeline behavior and timing**: The design has a pipeline with two stages. The first stage calculates the result of the multiplication, and the second stage selects the correct word from the result. The assertion should consider this pipeline behavior and timing.
+
+# Fixed solution:
+```systemverilog
+as__ResultNextMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == ($past(mul_unit.neg_q_final) ? (~$past(mul_unit.result_2width_def[WIDTH-1:0]) + $past(mul_unit.ONE)) : $past(mul_unit.result_2width_def[WIDTH-1:0])));
+```
+
+# Explanation of changes:
+*   **Using $past()**: The `$past()` function is used to refer to the value of a signal in the previous cycle. This is necessary because the result of the multiplication is calculated in the previous cycle and is available in the current cycle.
+*   **Using mul\_unit.neg\_q\_final**: The `neg_q_final` signal is used instead of `neg_q` because it is the final value of the `neg_q` signal after the pipeline.
+*   **Using mul\_unit.result\_2width\_def**: The `result_2width_def` signal is used instead of `result_low_d` because it is the final result of the multiplication after the pipeline.
+*   **Using mul\_unit.ONE**: The `ONE` signal is used instead of `mul_unit.ONE64` because it is the correct signal for the current operation.
+*   **Using WIDTH**: The `WIDTH` parameter is used instead of `WIDTH64` because it is the correct width for the current operation.
+
+# Tests and example uses:
+This assertion can be tested by simulating the design with different inputs and checking if the assertion passes or fails. The assertion should pass for all valid inputs and fail for invalid inputs.

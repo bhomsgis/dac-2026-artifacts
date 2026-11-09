@@ -1,0 +1,11 @@
+The current assertion is failing because it checks if all bits of `ptw.valid_vector` are zeros in the next cycle after `csr_ptw_comm_i.flush` is asserted. However, the `valid_vector` is updated in the same cycle as the flush signal, not in the next cycle.
+
+The corrected assertion should check if all bits of `ptw.valid_vector` are zeros in the same cycle as `csr_ptw_comm_i.flush` is asserted.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlushAll: assert property(csr_ptw_comm_i.flush |-> !(&ptw.valid_vector));
+```
+
+This assertion checks if `csr_ptw_comm_i.flush` is asserted, then all bits of `ptw.valid_vector` should be zeros in the same cycle.

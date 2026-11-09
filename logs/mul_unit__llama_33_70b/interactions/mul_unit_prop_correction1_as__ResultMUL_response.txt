@@ -1,0 +1,1 @@
+as__ResultMUL: assert property(valid_i && op_i == mul_unit.MUL && op_32bits_i |=> result_o == (mul_unit.neg_q_final ? (~mul_unit.result_32_q + mul_unit.ONE) : mul_unit.result_32_q));

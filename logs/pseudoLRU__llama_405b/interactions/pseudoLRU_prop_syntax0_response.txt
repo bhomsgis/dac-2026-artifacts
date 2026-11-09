@@ -1,0 +1,10 @@
+```
+as__NoUpdateWhenNoHit: assert property(access_hit_i == 1'b0 |-> pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q);
+as__UpdateWhenHit: assert property(access_hit_i == 1'b1 |-> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);
+as__OnlyOneEntryReplaced: assert property($countones(pseudoLRU.replace_en) <= 1);
+as__ReplacementIsValidEntry: assert property(|pseudoLRU.replace_en |-> replacement_idx_o < ENTRIES);
+as__NoReplacementWhenNoHit: assert property(access_hit_i == 1'b0 |-> pseudoLRU.replace_en == '0);
+as__ReplacementUpdated: assert property(access_hit_i == 1'b1 |=> pseudoLRU.replace_en != '0);
+as__TreeUpdated: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+as__ReplacementIdx: assert property(|pseudoLRU.replace_en |-> replacement_idx_o == cast_integer($onehot(pseudoLRU.replace_en)));
+```

@@ -1,0 +1,3 @@
+// The original assertion fails because it compares divisor_aux_d (a wire updated combinationally) directly on valid_i cycle, but divisor_aux_d depends on op_32bits_i and op_unsigned_i which are registered as op_32_q and signed_op_q in the pipeline. The assertion should check divisor_aux_d on the cycle after valid_i, i.e., on the cycle when op_32_d and signed_op_d are stable, using a next-cycle assertion and $past() for inputs.
+
+as__DivisorAuxDMatchesSignConversion: assert property (valid_i |=> (div_unit.divisor_aux_d == (((!div_unit.op_32_d && $past(data_rs2_i,1)[div_unit.WIDTH-1] && !div_unit.signed_op_d) || (div_unit.op_32_d && $past(data_rs2_i,1)[31] && !div_unit.signed_op_d)) ? (~$past(data_rs2_i,1) + div_unit.ONE) : $past(data_rs2_i,1))));

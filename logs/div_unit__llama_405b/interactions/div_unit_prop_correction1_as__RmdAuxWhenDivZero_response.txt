@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking the value of `rmd_aux` in the same cycle as `div_zero_q` is asserted. However, `rmd_aux` is assigned a value based on `remanent_q` and `first_dividend_q`, which are updated in the next cycle after `div_zero_q` is asserted.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `rmd_aux` in the next cycle after `div_zero_q` is asserted. Additionally, we need to use `$past()` to refer to the value of `first_dividend_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__RmdAuxWhenDivZero: assert property(div_unit.div_zero_q |=> div_unit.rmd_aux == $past(div_unit.first_dividend_q));
+```

@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Analysis:**
+The current assertion is failing because it is trying to check the value of `tmp_remanent[0]` in the same cycle as `sew_i` is checked. However, `tmp_remanent[0]` is a combinatorial signal that depends on `tmp_remanent_sub[1]` and `tmp_dividend_quotient[1]`, which are also combinatorial signals that depend on `sew_i`. This means that the values of `tmp_remanent_sub[1]` and `tmp_dividend_quotient[1]` are not yet stable when `sew_i` is checked, causing the assertion to fail.
+
+**Proposed Fix:**
+To fix this issue, we need to use a next-cycle assertion (`|=>`) to check the value of `tmp_remanent[0]` in the next cycle, after the values of `tmp_remanent_sub[1]` and `tmp_dividend_quotient[1]` have been updated.
+
+**Corrected Assertion:**
+```
+as__SimdDivSEW16_2: assert property(sew_i == 2'b01 |=> div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][15]});
+```
+Note that we use `$past()` is not needed in this case, as we are not referencing any signals from the previous cycle. The `|=>` operator ensures that the precondition `sew_i == 2'b01` is evaluated in the current cycle, and the postcondition `div_4bits.tmp_remanent[0] == ...` is evaluated in the next cycle.

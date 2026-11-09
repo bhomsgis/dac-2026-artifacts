@@ -1,0 +1,213 @@
+
+You are an expert in SystemVerilog Assertions (SVA) and have been asked to write assertions for a branch_unit. As an expert, you must not forget the following rules:
+SVA assertions are written within a property file, but DO NOT rewrite the branch_unit interface and DO NOT add includes in the property file (as we already have them in the property file).
+DO NOT declare properties; DECLARE assertions named as__<NAME>: assert property (<EXPRESSION>).
+DO NOT use [] at the end of assertion NAME. Do not add @(posedge clk) to EXPRESSION.
+Assertions must be as high-level as possible, to avoid repeating implementation details.
+Above each assertion, write a comment explaining behavior being checked.
+$countones(bitarray) returns the number of ONES in bitarray.
+&bitarray means that ALL the bits  are ONES.
+!(&bitarray) means it's NOT TRUE that ALL the bits are ONES, i.e., SOME of the bits are ZEROS.
+|bitarray means that SOME bits is ONES.
+!(|bitarray) means that NONE of the bits are ONES, i.e., ALL the bits are ZEROS.
+Same-cycle assertions (|->): the precondition and postcondition are evaluated in the same cycle.
+Next-cycle assertions (|=>): the precondition is evaluated in the current cycle and the postcondition in the next cycle.
+Signals ending in _q are registers: the assigned value changes in the next cycle.
+Signals NOT ending in _q are wires: the assigned value changes in the same cycle.
+The assigned value to wires (signals NOT ending in _q) can be referenced in the current cycle.
+USE a same-cycle assertion (|->) to reason about behavior ocurring in the same cycle.
+USE a next-cycle assertion (|=>) to reason about behavior ocurring in the next cycle, for example, the updated value of a _q.
+USE same-cycle assertions (|->) when reasoning about the assigned value of wires (signals NOT ending in _q).
+USE next-cycle assertions (|=>) when reasoning about the data being added to _q.
+DO NOT USE $past() in preconditions, ONLY in postconditions.
+DO NOT USE $past() on the postcondition of same-cycle assertion (|->).
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of wires.
+On the postcondition of next-cycle assertions (|=>), DO NOT USE $past() to refer to the updated value of _q.
+On the postcondition of next-cycle assertions (|=>), USE $past() to refer to the value of the _q on the cycle of the precondition, before the register update.
+Assertions without precondition DO NOT use |->
+DO NOT use foreach loops in assertions; Instead, use generate loops.
+Write SVA assertions to check correctness of ALL the functionality of branch_unit but the reset behavior.
+DO NOT answer anything except for the property file, DO NOT WRITE ANY COMMENTS. WRITE ASSERTIONS ONLY,
+ALL ASSERTIONS MUST BE WRITTEN WITHIN ONE LINE.
+We want to increase the assertion set for this RTL module called branch_unit
+Here are the current correct assertions:
+  as__BranchTakenOneForBranchesExceptJAL_JALR: assert property((instruction_i.instr.instr_type inside {BLT, BGE, BLTU, BGEU, BEQ, BNE}) |-> (branch_unit.branch_taken == ((instruction_i.instr.instr_type == BEQ) ? (data_rs1 == data_rs2) : (instruction_i.instr.instr_type == BNE) ? (data_rs1 != data_rs2) : (instruction_i.instr.instr_type == BLT) ? ($signed(data_rs1) < $signed(data_rs2)) : (instruction_i.instr.instr_type == BGE) ? !($signed(data_rs1) < $signed(data_rs2)) : (instruction_i.instr.instr_type == BLTU) ? (data_rs1 < data_rs2) : !(data_rs1 < data_rs2))));
+  as__TargetZeroForNonBranchJumpNonBranch: assert property(!(instruction_i.instr.instr_type inside {JAL, JALR, BLT, BGE, BLTU, BGEU, BEQ, BNE}) |-> (branch_unit.target == 0));
+  as__ResultEqualsTargetWhenBranchTakenNextCycle: assert property(branch_unit.branch_taken |=> (branch_unit.result == $past(branch_unit.target)));
+  as__ResultEqualsPCPlus4WhenBranchNotTakenNextCycle: assert property(!branch_unit.branch_taken |=> (branch_unit.result == $past(instruction_i.instr.pc + 4)));
+  as__InstructionOValidMatchesInputNextCycle: assert property((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH)) |=> (instruction_o.valid == 1));
+  as__InstructionOValidZeroWhenNotBranchNextCycle: assert property(!(instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH)) |=> (instruction_o.valid == 0));
+  as__InstructionOBranchTakenMatchesBranchUnitBranchTakenNextCycle: assert property(1 |=> (instruction_o.branch_taken == $past(branch_unit.branch_taken)));
+  as__InstructionOResultPCMatchesBranchUnitTargetNextCycle: assert property(1 |=> (instruction_o.result_pc == $past(branch_unit.target)));
+  as__InstructionOResultAlwaysPCPlus4NextCycle: assert property(1 |=> (instruction_o.result == $past(instruction_i.instr.pc + 4)));
+  as__ExceptionValidOnMisalignedAddressNextCycle: assert property((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && $past(branch_unit.branch_taken))) && ($past(branch_unit.result[1:0]) != 0)) |=> (instruction_o.ex.valid == 1 && instruction_o.ex.cause == INSTR_ADDR_MISALIGNED && instruction_o.ex.origin == $past(branch_unit.result)));
+  as__ExceptionInvalidWhenNoMisalignedAddressConditionNextCycle: assert property(!((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && $past(branch_unit.branch_taken))) && ($past(branch_unit.result[1:0]) != 0))) |=> (instruction_o.ex.valid == 0));
+  as__BranchTakenZeroForNonBranchNextCycle: assert property(!(instruction_i.instr.instr_type inside {JAL, JALR, BLT, BGE, BLTU, BGEU, BEQ, BNE}) |=> (branch_unit.branch_taken == 0));
+  as__TargetCorrectForJALNextCycle: assert property((instruction_i.instr.instr_type == JAL) |=> (branch_unit.target == (($past(instruction_i.instr.pc) + $past(instruction_i.instr.imm)) & 64'hFFFFFFFFFFFFFFFE)));
+  as__TargetCorrectForJALRNextCycle: assert property((instruction_i.instr.instr_type == JALR) |=> (branch_unit.target == (($past(data_rs1) + $past(instruction_i.instr.imm)) & 64'hFFFFFFFFFFFFFFFE)));
+  as__TargetCorrectForBranchesNextCycle: assert property((instruction_i.instr.instr_type inside {BLT, BGE, BLTU, BGEU, BEQ, BNE}) |=> (branch_unit.target == ($past(instruction_i.instr.pc) + $past(instruction_i.instr.imm))));
+Here is the RTL:
+/*
+ * Copyright 2025 BSC*
+ * *Barcelona Supercomputing Center (BSC)
+ * 
+ * SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+ * 
+ * Licensed under the Solderpad Hardware License v 2.1 (the “License”); you
+ * may not use this file except in compliance with the License, or, at your
+ * option, the Apache License version 2.0. You may obtain a copy of the
+ * License at
+ * 
+ * https://solderpad.org/licenses/SHL-2.1/
+ * 
+ * Unless required by applicable law or agreed to in writing, any work
+ * distributed under the License is distributed on an “AS IS” BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+module branch_unit
+    import drac_pkg::*;
+    import riscv_pkg::*;
+(
+    input rr_exe_arith_instr_t       instruction_i,       // In instruction
+    output exe_wb_scalar_instr_t     instruction_o        // Out instruction
+);
+
+bus64_t data_rs1, data_rs2;
+
+logic equal;
+logic less;
+logic less_u;
+
+logic   branch_taken;
+bus64_t target;
+bus64_t result;
+
+// Data source operands
+assign data_rs1 = instruction_i.data_rs1;
+assign data_rs2 = instruction_i.data_rs2;
+
+// Calculate all posible conditions
+assign equal = (data_rs1 == data_rs2);
+assign less = $signed(data_rs1) < $signed(data_rs2);
+assign less_u = data_rs1 < data_rs2;
+
+// Truncate Function
+function [63:0] trunc_65_64(input [64:0] val_in);
+  trunc_65_64 = val_in[63:0];
+endfunction
+
+// Calculate target
+always_comb begin
+    case (instruction_i.instr.instr_type)
+        JAL: begin
+            // Jal always puts a zero in the lower bit. PC plus immediate
+            target = trunc_65_64(instruction_i.instr.pc + instruction_i.instr.imm) & 64'hFFFFFFFFFFFFFFFE; 
+        end
+        JALR: begin
+            // Jalr always puts a zero in the lower bit
+            target = trunc_65_64(data_rs1 + instruction_i.instr.imm) & 64'hFFFFFFFFFFFFFFFE;
+        end
+        BLT, BLTU, BGE, BGEU, BEQ, BNE: begin
+            target = trunc_65_64(instruction_i.instr.pc + instruction_i.instr.imm);
+        end
+        default: begin
+            target = 0;
+        end
+    endcase
+end
+
+// Calculate taken
+always_comb begin
+    case (instruction_i.instr.instr_type)
+        JAL: begin
+            branch_taken = 1; // guillemlp this is done at decode stage
+        end
+        JALR: begin
+            branch_taken = 1;
+        end
+        BEQ: begin   //branch on equal
+            branch_taken = equal;
+        end
+        BNE: begin //branch on not equal
+            branch_taken = ~equal;
+        end
+        BLT: begin //branch on less than
+            branch_taken = less;
+        end
+        BGE: begin //branch on greater than or equal
+            branch_taken = ~less;
+        end
+        BLTU: begin //branch if less than unsigned
+            branch_taken = less_u;
+        end
+        BGEU: begin //branch if greater than or equal unsigned
+            branch_taken = ~less_u;
+        end
+        default: begin
+            branch_taken = 0;
+        end
+    endcase
+end
+
+//------------------------------------------------------------------------------
+// METADATA TO WRITE_BACK
+//------------------------------------------------------------------------------
+
+assign instruction_o.valid           = instruction_i.instr.valid & (instruction_i.instr.unit == UNIT_BRANCH);
+assign instruction_o.pc              = instruction_i.instr.pc;
+assign instruction_o.bpred           = instruction_i.instr.bpred;
+assign instruction_o.rs1             = instruction_i.instr.rs1;
+assign instruction_o.rd              = instruction_i.instr.rd;
+assign instruction_o.regfile_we      = instruction_i.instr.regfile_we;
+assign instruction_o.instr_type      = instruction_i.instr.instr_type;
+assign instruction_o.stall_csr_fence = instruction_i.instr.stall_csr_fence;
+assign instruction_o.csr_addr        = instruction_i.instr.imm[CSR_ADDR_SIZE-1:0];
+assign instruction_o.prd             = instruction_i.prd;
+assign instruction_o.checkpoint_done = instruction_i.checkpoint_done;
+assign instruction_o.chkp            = instruction_i.chkp;
+assign instruction_o.gl_index        = instruction_i.gl_index;
+assign instruction_o.mem_type        = instruction_i.instr.mem_type;
+assign instruction_o.vl              = instruction_i.instr.vl;
+assign instruction_o.sew             = instruction_i.instr.sew;
+`ifdef SIM_KONATA_DUMP
+assign instruction_o.id            = instruction_i.instr.id;
+`endif
+assign instruction_o.branch_taken  = branch_taken;
+assign instruction_o.fp_status     = 'h0;
+
+// Target 
+
+assign result = (branch_taken) ? target : trunc_65_64(instruction_i.instr.pc + 4);
+assign instruction_o.result     = trunc_65_64(instruction_i.instr.pc + 4);
+assign instruction_o.result_pc  = target;
+        
+// Exceptions
+
+always_comb begin
+    instruction_o.ex.cause  = INSTR_ADDR_MISALIGNED;
+    instruction_o.ex.origin = 0;
+    instruction_o.ex.valid  = 0;
+    if(instruction_i.instr.valid) begin // Check exceptions in exe stage
+        if ((result[1:0] != 0) && (instruction_i.instr.unit == UNIT_BRANCH) &&
+             ((instruction_i.instr.instr_type == JALR) ||
+               (((instruction_i.instr.instr_type == BLT)  || 
+                 (instruction_i.instr.instr_type == BLTU) || 
+                 (instruction_i.instr.instr_type == BGE)  ||
+                 (instruction_i.instr.instr_type == BGEU) || 
+                 (instruction_i.instr.instr_type == BEQ)  || 
+                 (instruction_i.instr.instr_type == BNE) ) &&
+                branch_taken ))) begin // invalid address
+            instruction_o.ex.cause = INSTR_ADDR_MISALIGNED;
+            instruction_o.ex.origin = result;
+            instruction_o.ex.valid = 1;
+        end
+    end 
+end
+
+endmodule
+
+
+Remember that internal signals, those that end in _q and _d, should be prepended with 'branch_unit.'

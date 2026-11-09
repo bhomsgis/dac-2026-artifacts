@@ -1,0 +1,3 @@
+```systemverilog
+as__permOk: assert property(ptw.prv_req[0] && (ptw.is_pte_sx || ptw.is_pte_ux) || !ptw.prv_req[0] && ptw.is_pte_ux |=> ptw.perm_ok_q);
+```

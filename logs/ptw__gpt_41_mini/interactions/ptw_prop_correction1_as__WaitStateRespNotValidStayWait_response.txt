@@ -1,0 +1,5 @@
+// The original assertion fails because it checks only !dmem_ptw_comm_i.resp.valid in the precondition, but the FSM can stay in S_WAIT also when dmem_ptw_comm_i.resp.nack is asserted. The FSM transitions back to S_REQ on nack, but if neither valid nor nack is asserted, it stays in S_WAIT. The assertion should consider that the state remains S_WAIT when neither valid nor nack is asserted, i.e., when the response is not ready yet.
+// The fix is to include the condition that dmem_ptw_comm_i.resp.nack is false and dmem_ptw_comm_i.resp.valid is false in the precondition, and then check that next_state remains S_WAIT. This matches the FSM behavior where the state stays in S_WAIT while waiting for a valid or nack response.
+// This corrected assertion uses the correct module prefix ptw., uses next-cycle implication (|=>) to check next_state, and covers the case when neither valid nor nack is asserted.
+
+as__WaitStateRespNotValidStayWait: assert property ((ptw.current_state == ptw.S_WAIT && !ptw.dmem_ptw_comm_i.resp.valid && !ptw.dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_WAIT));

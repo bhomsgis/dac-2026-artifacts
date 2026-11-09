@@ -1,0 +1,21 @@
+The current assertion is failing because it's trying to check the validity of the output in the same cycle as the input, which is not correct. The `valid_o` signal is assigned the value of `valid_q[mul_unit.MAX_CYCLES-1]`, which is a registered signal that will only be updated in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will allow the assertion to check the validity of the output in the next cycle, after the `valid_q` register has been updated.
+
+Here is the corrected assertion:
+
+```
+as__ValidCheck2: assert property((valid_i && !op_32bits_i) |=> (valid_o == mul_unit.valid_q[mul_unit.MAX_CYCLES-1]));
+```
+
+However, this is still not correct. The issue is that `valid_q[mul_unit.MAX_CYCLES-1]` is not the correct signal to check. When `op_32bits_i` is 0, the `valid_o` signal is assigned the value of `valid_q[1]`, not `valid_q[mul_unit.MAX_CYCLES-1]`.
+
+To fix this, we need to check the `valid_q` signal that corresponds to the correct pipeline stage. We can do this by checking the `valid_q` signal that is used to assign the `valid_o` signal.
+
+Here is the corrected assertion:
+
+```
+as__ValidCheck2: assert property((valid_i && !op_32bits_i) |=> (valid_o == mul_unit.valid_q[1]));
+```
+
+This assertion checks that when `valid_i` is 1 and `op_32bits_i` is 0, the `valid_o` signal is equal to `valid_q[1]` in the next cycle.

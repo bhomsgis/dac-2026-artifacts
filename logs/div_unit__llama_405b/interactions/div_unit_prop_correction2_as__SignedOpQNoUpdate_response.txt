@@ -1,0 +1,7 @@
+The current assertion is failing because it is checking if the `signed_op_q` register remains the same when `valid_i` is low, but it is not considering the case when `flush_i` is high. When `flush_i` is high, the `signed_op_q` register is reset to 0, regardless of the value of `valid_i`.
+
+To fix this, we need to add a condition to the assertion to ignore the case when `flush_i` is high. We can do this by adding a conjunction to the precondition of the assertion.
+
+Here is the corrected assertion:
+
+as__SignedOpQNoUpdate: assert property(!valid_i && !flush_i |=> div_unit.signed_op_q == $past(div_unit.signed_op_q));

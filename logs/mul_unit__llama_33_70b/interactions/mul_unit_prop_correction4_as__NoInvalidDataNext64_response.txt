@@ -1,0 +1,3 @@
+```systemverilog
+as__NoInvalidDataNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && ($past(data_rs1_i) == {mul_unit.WIDTH{1'bx}} || $past(data_rs2_i) == {mul_unit.WIDTH{1'bx}} || $past(data_rs1_i) == {mul_unit.WIDTH{1'bz}} || $past(data_rs2_i) == {mul_unit.WIDTH{1'bz}})));
+```

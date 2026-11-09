@@ -1,0 +1,7 @@
+The current assertion is failing because it does not consider the case where there is a pending iTLB request waiting to be served. In this scenario, the arbiter will not transition to the IDLE state immediately after receiving a valid response from the PTW, but instead will serve the pending iTLB request first.
+
+The proposed fix is to add a condition to check if there is a pending iTLB request waiting to be served. If there is, the arbiter should not transition to the IDLE state.
+
+Here is the corrected assertion:
+
+as__ServingiTLBToIdle: assert property(ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_tlb_comm_i.resp.valid == 1'b1 && ptw_arb.is_req_waiting_q == 1'b0 && ptw_itlb_comm_o.ptw_ready == 1'b1 |=> ptw_arb.next_state == ptw_arb.IDLE);

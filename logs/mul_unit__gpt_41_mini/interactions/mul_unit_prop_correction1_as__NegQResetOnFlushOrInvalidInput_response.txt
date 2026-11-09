@@ -1,0 +1,4 @@
+// The original assertion fails because neg_q is a registered signal updated on the clock edge, but the precondition flush_i[0] or !valid_i is evaluated in the current cycle. The assertion uses a same-cycle implication (|->) which checks neg_q in the same cycle as flush_i[0] or !valid_i, but neg_q is reset only on the next clock edge. Therefore, the assertion should use a next-cycle implication (|=>) and check neg_q in the next cycle without $past() since neg_q is a register updated on the clock edge.  
+// The fix is to change the implication to next-cycle (|=>) and check neg_q == 0 in the next cycle, reflecting the pipeline behavior and register update timing.
+
+as__NegQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |=> (mul_unit.neg_q == 1'b0));

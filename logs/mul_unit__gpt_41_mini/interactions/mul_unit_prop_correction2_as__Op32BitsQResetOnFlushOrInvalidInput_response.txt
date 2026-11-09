@@ -1,0 +1,5 @@
+// The original assertion fails because it uses a same-cycle implication (|->) to check the value of op_32bits_q, which is a registered signal updated on the clock edge. The flush_i[0] and valid_i signals affect the register update at the clock edge, so the reset of op_32bits_q happens in the next cycle, not the same cycle. The previous attempt used a next-cycle implication (|=>) but incorrectly referenced $past(mul_unit.op_32bits_q) instead of the updated value. The correct approach is to use a next-cycle implication (|=>) and check that the updated op_32bits_q is zero in the next cycle, without using $past() on the _q signal in the postcondition. This matches the pipeline behavior where flush or invalid input clears op_32bits_q in the next cycle.
+
+// Corrected assertion uses next-cycle implication (|=>) and checks that op_32bits_q is zero in the next cycle after flush_i[0] or !valid_i.
+
+as__Op32BitsQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |=> mul_unit.op_32bits_q == 1'b0);

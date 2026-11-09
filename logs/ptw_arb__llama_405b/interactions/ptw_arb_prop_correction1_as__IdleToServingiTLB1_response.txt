@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Why the current assertion is failing:**
+The current assertion is failing because it checks that `ptw_arb.ptw_itlb_comm_o.ptw_ready` and `ptw_arb.ptw_dtlb_comm_o.ptw_ready` are both 0 when `ptw_arb.current_state` is IDLE and `ptw_arb.is_req_waiting_q` is 1. However, in the RTL, when `ptw_arb.current_state` is IDLE and `ptw_arb.is_req_waiting_q` is 1, `ptw_arb.ptw_itlb_comm_o.ptw_ready` and `ptw_arb.ptw_dtlb_comm_o.ptw_ready` are set to 0 only if there is no valid request from dTLB or iTLB. If there is a valid request from either dTLB or iTLB, `ptw_arb.ptw_itlb_comm_o.ptw_ready` and `ptw_arb.ptw_dtlb_comm_o.ptw_ready` will be set to 1.
+
+**Proposed fix:**
+To fix this assertion, we need to add a condition to check that there is no valid request from dTLB or iTLB when `ptw_arb.current_state` is IDLE and `ptw_arb.is_req_waiting_q` is 1.
+
+**Corrected assertion:**
+```
+as__IdleToServingiTLB1: assert property(ptw_arb.current_state == ptw_arb.IDLE && ptw_arb.is_req_waiting_q == 1'b1 && !dtlb_ptw_comm_i.req.valid && !itlb_ptw_comm_i.req.valid |-> ptw_arb.ptw_itlb_comm_o.ptw_ready == 1'b0 && ptw_arb.ptw_dtlb_comm_o.ptw_ready == 1'b0);
+```
+This corrected assertion checks that `ptw_arb.ptw_itlb_comm_o.ptw_ready` and `ptw_arb.ptw_dtlb_comm_o.ptw_ready` are both 0 when `ptw_arb.current_state` is IDLE, `ptw_arb.is_req_waiting_q` is 1, and there is no valid request from dTLB or iTLB.

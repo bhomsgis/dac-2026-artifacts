@@ -1,0 +1,68 @@
+// Check that result_32_aux is correctly negated for MULHU operation
+as__Result32AuxNegationCorrectForMulHU: assert property((mul_unit.op_q_final == 3) |=> mul_unit.result_32_aux == mul_unit.result_low_q[mul_unit.WIDTH-1:0]);
+// Check that neg_q is zero for MULHU operation
+as__NegQZeroForMulHUQ: assert property((mul_unit.op_q == 3) |-> mul_unit.neg_q == 1'b0);
+// Check that neg_d is zero for MULHU operation
+as__NegDZeroForMulHUQ: assert property((op_i == 3) |-> mul_unit.neg_d == 1'b0);
+// Check that result_2width_def is correctly negated when neg_q_final is set
+as__Result2WidthDefNegationCorrectGeneral: assert property(mul_unit.valid_q[1] |=> mul_unit.result_2width_def == (mul_unit.neg_q_final ? (~mul_unit.result_2width + mul_unit.ONEDOUBLE) : mul_unit.result_2width));
+// Check that result_2width is sum of zero-extended low and high parts on valid_q[1]
+as__Result2WidthSumCorrectGeneral: assert property(mul_unit.valid_q[1] |=> mul_unit.result_2width == {{(mul_unit.WIDTH/2){1'b0}}, mul_unit.result_low_q} + {mul_unit.result_high_q, {(mul_unit.WIDTH/2){1'b0}}});
+// Check that valid_q[0] is cleared on flush or invalid input
+as__ValidQ0ClearedOnFlushOrInvalidGeneral: assert property((mul_unit.flush_i[0] || !valid_i) |-> !mul_unit.valid_q[0]);
+// Check that valid_q[0] is set on valid input and no flush
+as__ValidQ0SetOnValidGeneral: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.valid_q[0]);
+// Check that op_q is updated on valid input and no flush
+as__OpQUpdatedOnValidGeneral: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.op_q == op_i);
+// Check that op_32bits_q is updated on valid input and no flush
+as__Op32BitsQUpdatedOnValidGeneral: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)));
+// Check that neg_q is updated on valid input and no flush
+as__NegQUpdatedOnValidGeneral: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.neg_q == mul_unit.neg_d);
+// Check that data_rs1_q is updated on valid input and no flush
+as__DataRs1QUpdatedOnValidGeneral: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.data_rs1_q == mul_unit.data_rs1_d);
+// Check that data_rs2_q is updated on valid input and no flush
+as__DataRs2QUpdatedOnValidGeneral: assert property((valid_i && !mul_unit.flush_i[0]) |-> mul_unit.data_rs2_q == mul_unit.data_rs2_d);
+// Check that valid_q[1] is cleared on flush or invalid valid_q[0]
+as__ValidQ1ClearedOnFlushOrInvalidQ0General: assert property((mul_unit.flush_i[1] || !mul_unit.valid_q[0]) |-> !mul_unit.valid_q[1]);
+// Check that valid_q[1] is set on valid_q[0] and no flush
+as__ValidQ1SetOnValidQ0General: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |-> mul_unit.valid_q[1]);
+// Check that op_q_final is updated on valid_q[0] and no flush with past op_q
+as__OpQFinalUpdatedOnValidQ0General: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.op_q_final == $past(mul_unit.op_q));
+// Check that op_32bits_q_final is updated on valid_q[0] and no flush with past op_32bits_q
+as__Op32BitsQFinalUpdatedOnValidQ0General: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.op_32bits_q_final == $past(mul_unit.op_32bits_q));
+// Check that neg_q_final is updated on valid_q[0] and no flush with past neg_q
+as__NegQFinalUpdatedOnValidQ0General: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.neg_q_final == $past(mul_unit.neg_q));
+// Check that result_32_q is updated on valid_q[0] and no flush with past result_32
+as__Result32QUpdatedOnValidQ0General: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.result_32_q == $past(mul_unit.result_32));
+// Check that result_low_q is updated on valid_q[0] and no flush with past result_low_d
+as__ResultLowQUpdatedOnValidQ0General: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.result_low_q == $past(mul_unit.result_low_d));
+// Check that result_high_q is updated on valid_q[0] and no flush with past result_high_d
+as__ResultHighQUpdatedOnValidQ0General: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[1]) |=> mul_unit.result_high_q == $past(mul_unit.result_high_d));
+// Check that valid_q[1] is set only if valid_q[0] and no flush
+as__ValidQ1SetOnlyIfValidQ0AndNoFlushGeneral: assert property((mul_unit.valid_q[1]) |-> (mul_unit.valid_q[0] && !mul_unit.flush_i[1]));
+// Check that registers update on valid and no flush for stage 0
+as__RegistersUpdateOnValidAndNoFlush0General: assert property((valid_i && !mul_unit.flush_i[0]) |-> (mul_unit.op_q == op_i && mul_unit.op_32bits_q == (op_32bits_i && (op_i == 0)) && mul_unit.neg_q == mul_unit.neg_d && mul_unit.data_rs1_q == mul_unit.data_rs1_d && mul_unit.data_rs2_q == mul_unit.data_rs2_d));
+// Check that op_q resets on flush or invalid input
+as__OpQResetOnFlushOrInvalidInputGeneral: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.op_q == {mul_unit.MUL_OPS_BITS{1'b0}});
+// Check that op_32bits_q resets on flush or invalid input
+as__Op32BitsQResetOnFlushOrInvalidInputGeneral: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.op_32bits_q == 1'b0);
+// Check that neg_q resets on flush or invalid input
+as__NegQResetOnFlushOrInvalidInputGeneral: assert property((mul_unit.flush_i[0] || !valid_i) |-> mul_unit.neg_q == 1'b0);
+// Check that result matches result_32_q on valid_q[1] when REG_32 is set
+as__ResultMatchesResult32QOnValidQ1ForReg32General: assert property((mul_unit.valid_q[1] && mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) |-> mul_unit.result == mul_unit.result_32_q);
+// Check that result matches low part on valid_q[1] for MUL operation
+as__ResultMatchesLowPartOnValidQ1ForMulGeneral: assert property((mul_unit.valid_q[1] && mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]);
+// Check that result matches high part on valid_q[1] for non-MUL operations
+as__ResultMatchesHighPartOnValidQ1ForNonMulGeneral: assert property((mul_unit.valid_q[1] && mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) |-> mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+// Check that valid_o matches valid_q[1] when REG_32 is set
+as__ValidOMatchesValidQ1WhenReg32General: assert property(mul_unit.REG_32 |-> valid_o == mul_unit.valid_q[1]);
+// Check that result_o matches result when REG_32 is set
+as__ResultOMatchesResultWhenReg32General: assert property(mul_unit.REG_32 |-> result_o == mul_unit.result);
+// Check that valid_o matches valid_q[0] when CONFIG32 is set
+as__ValidOMatchesValidQ0WhenConfig32General: assert property(mul_unit.CONFIG32 |-> valid_o == mul_unit.valid_q[0]);
+// Check that result_o matches result when CONFIG32 is set
+as__ResultOMatchesResultWhenConfig32General: assert property(mul_unit.CONFIG32 |-> result_o == mul_unit.result);
+// Check that valid_o and result_o match expected values when no REG_32 and no CONFIG32
+as__ValidOAndResultOMatchNoRegister32bitGenGeneral: assert property((!mul_unit.REG_32 && !mul_unit.CONFIG32) |-> ((mul_unit.op_32bits_q[0] && mul_unit.valid_q[0]) ? (valid_o == mul_unit.valid_q[0] && result_o == mul_unit.result_32) : (valid_o == (mul_unit.valid_q[1] && !mul_unit.op_32bits_q_final) && result_o == mul_unit.result)));
+// Check that result selection is correct based on op_32bits_q_final, REG_32, CONFIG32, and op_q_final
+as__ResultSelectionCorrectGeneral: assert property(((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) || (mul_unit.op_q_final == 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32)) || (mul_unit.op_q_final != 0 && !(mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32))) |-> ((mul_unit.op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? (mul_unit.result == mul_unit.result_32_q) : (mul_unit.op_q_final == 0 ? (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) : (mul_unit.result == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]))));

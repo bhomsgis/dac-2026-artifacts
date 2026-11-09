@@ -1,0 +1,3 @@
+// The assertion fails because $stable(ptw.count_q) means count_q did not change, so count_q == count_d is not guaranteed. Instead, when count_q changes, it should update to count_d on the next cycle. The assertion should check that if count_q changes, then next cycle count_q equals previous cycle count_d. Also, use $past(ptw.count_d) in the postcondition to refer to the count_d value at the precondition cycle.
+
+as__CountQUpdatedNextCycle: assert property((ptw.count_q != $past(ptw.count_q)) |=> (ptw.count_q == $past(ptw.count_d)));

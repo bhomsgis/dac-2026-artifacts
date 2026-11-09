@@ -1,0 +1,46 @@
+// Check ready_1cycle_o is asserted only when inst_q[0] is zero
+as__Ready1CycleAssertedWhenInst0Clear: assert property((!scoreboard_sargantana.inst_q[0]) |-> scoreboard_sargantana.ready_1cycle_o);
+// Check ready_mul_32_o is asserted only when inst_q[1] is zero
+as__ReadyMul32AssertedWhenInst1Clear: assert property((!scoreboard_sargantana.inst_q[1]) |-> scoreboard_sargantana.ready_mul_32_o);
+// Check ready_mul_64_o is asserted only when inst_q[2] is zero
+as__ReadyMul64AssertedWhenInst2Clear: assert property((!scoreboard_sargantana.inst_q[2]) |-> scoreboard_sargantana.ready_mul_64_o);
+// Check ready_div_32_o is asserted only when inst_q[17] is zero
+as__ReadyDiv32AssertedWhenInst17Clear: assert property((!scoreboard_sargantana.inst_q[17]) |-> scoreboard_sargantana.ready_div_32_o);
+// Check div_unit_sel_o is asserted only when free_div_unit[0] is zero
+as__DivUnitSelDeassertedWhenFreeDivUnit0Asserted: assert property((scoreboard_sargantana.free_div_unit[0]) |-> !scoreboard_sargantana.div_unit_sel_o);
+// Check ready_div_unit_o is deasserted only when both free_div_unit are zero
+as__ReadyDivUnitDeassertedWhenNoFreeDivUnit: assert property((!(scoreboard_sargantana.free_div_unit[0] || scoreboard_sargantana.free_div_unit[1])) |-> !scoreboard_sargantana.ready_div_unit_o);
+// Check free_div_unit[0] is deasserted only when ocup_div_unit_q[0] is not zero
+as__FreeDivUnit0DeassertedWhenOcupDivUnit0NonZero: assert property((|scoreboard_sargantana.ocup_div_unit_q[0]) |-> !scoreboard_sargantana.free_div_unit[0]);
+// Check free_div_unit[1] is deasserted only when ocup_div_unit_q[1] is not zero
+as__FreeDivUnit1DeassertedWhenOcupDivUnit1NonZero: assert property((|scoreboard_sargantana.ocup_div_unit_q[1]) |-> !scoreboard_sargantana.free_div_unit[1]);
+// Check inst_d bits other than 0,1,16,32 are cleared when no set signals active
+as__InstDClearedWhenNoSetSignals: assert property((!set_mul_32_i && !set_mul_64_i && !set_div_32_i && !set_div_64_i) |-> !(|({scoreboard_sargantana.inst_d[31:2], scoreboard_sargantana.inst_d[15:1], scoreboard_sargantana.inst_d[30:17], scoreboard_sargantana.inst_d[31:33]})));
+// Check ocup_div_unit_d[0] and ocup_div_unit_d[1] bits other than 16 and 32 are cleared when no set signals active
+as__OcupDivUnitDClearedWhenNoSetSignals: assert property((!set_div_32_i && !set_div_64_i) |-> !(|({scoreboard_sargantana.ocup_div_unit_d[0][32:17], scoreboard_sargantana.ocup_div_unit_d[0][15:0]})) && !(|({scoreboard_sargantana.ocup_div_unit_d[1][32:17], scoreboard_sargantana.ocup_div_unit_d[1][15:0]})));
+// Check inst_d[0] is cleared when set_mul_32_i is not asserted
+as__InstD0ClearedWhenNoSetMul32: assert property((!set_mul_32_i) |-> (scoreboard_sargantana.inst_d[0] == 1'b0));
+// Check inst_d[1] is cleared when set_mul_64_i is not asserted
+as__InstD1ClearedWhenNoSetMul64: assert property((!set_mul_64_i) |-> (scoreboard_sargantana.inst_d[1] == 1'b0));
+// Check inst_d[16] is cleared when set_div_32_i is not asserted
+as__InstD16ClearedWhenNoSetDiv32: assert property((!set_div_32_i) |-> (scoreboard_sargantana.inst_d[16] == 1'b0));
+// Check ocup_div_unit_d[0] or ocup_div_unit_d[1] is set to 33'h000010000 only when set_div_32_i and free_div_unit[0] or !free_div_unit[0]
+as__OcupDivUnitDSetCorrectlyForDiv32: assert property((set_div_32_i) |-> ((scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h000010000) && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h0)) || (!scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h000010000) && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h0))));
+// Check ocup_div_unit_d[0] or ocup_div_unit_d[1] is set to 33'h100000000 only when set_div_64_i and free_div_unit[0] or !free_div_unit[0]
+as__OcupDivUnitDSetCorrectlyForDiv64: assert property((set_div_64_i) |-> ((scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h100000000) && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h0)) || (!scoreboard_sargantana.free_div_unit[0] && (scoreboard_sargantana.ocup_div_unit_d[1] == 33'h100000000) && (scoreboard_sargantana.ocup_div_unit_d[0] == 33'h0))));
+// Check inst_d[32] is cleared when set_div_64_i is not asserted
+as__InstD32ClearedWhenNoSetDiv64: assert property((!set_div_64_i) |-> (scoreboard_sargantana.inst_d[32] == 1'b0));
+// Check inst_q shifts right by 1 to inst_d every cycle
+as__InstQShiftsRightToInstD: assert property(scoreboard_sargantana.inst_d == (scoreboard_sargantana.inst_q >> 1));
+// Check ocup_div_unit_q shifts right by 1 to ocup_div_unit_d every cycle for both units
+as__OcupDivUnitQShiftsRightToOcupDivUnitD0: assert property(scoreboard_sargantana.ocup_div_unit_d[0] == (scoreboard_sargantana.ocup_div_unit_q[0] >> 1));
+as__OcupDivUnitQShiftsRightToOcupDivUnitD1: assert property(scoreboard_sargantana.ocup_div_unit_d[1] == (scoreboard_sargantana.ocup_div_unit_q[1] >> 1));
+// Check ready signals correspond to negation of inst_q bits
+as__Ready1CycleMatchesInst0: assert property(scoreboard_sargantana.ready_1cycle_o == !scoreboard_sargantana.inst_q[0]);
+as__ReadyMul32MatchesInst1: assert property(scoreboard_sargantana.ready_mul_32_o == !scoreboard_sargantana.inst_q[1]);
+as__ReadyMul64MatchesInst2: assert property(scoreboard_sargantana.ready_mul_64_o == !scoreboard_sargantana.inst_q[2]);
+as__ReadyDiv32MatchesInst17: assert property(scoreboard_sargantana.ready_div_32_o == !scoreboard_sargantana.inst_q[17]);
+// Check div_unit_sel_o equals negation of free_div_unit[0]
+as__DivUnitSelMatchesFreeDivUnit0: assert property(scoreboard_sargantana.div_unit_sel_o == !scoreboard_sargantana.free_div_unit[0]);
+// Check ready_div_unit_o equals OR of free_div_unit[0] and free_div_unit[1]
+as__ReadyDivUnitMatchesFreeDivUnits: assert property(scoreboard_sargantana.ready_div_unit_o == (scoreboard_sargantana.free_div_unit[0] || scoreboard_sargantana.free_div_unit[1]));

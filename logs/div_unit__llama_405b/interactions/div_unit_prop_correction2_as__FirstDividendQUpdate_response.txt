@@ -1,0 +1,8 @@
+The current assertion is failing because it's checking if `div_unit.first_dividend_q` is equal to `data_rs1_i` in the next cycle after `valid_i` is asserted. However, this is not accurate because `div_unit.first_dividend_q` is updated with the value of `data_rs1_i` only when `valid_i` is asserted, but the update happens in the same cycle, not in the next cycle.
+
+Proposed fix:
+The correct assertion should check if `div_unit.first_dividend_q` is equal to the past value of `data_rs1_i` in the next cycle after `valid_i` is asserted. This is because we want to check if the value of `data_rs1_i` that was present when `valid_i` was asserted is correctly updated to `div_unit.first_dividend_q` in the next cycle.
+
+Here is the corrected assertion:
+
+`as__FirstDividendQUpdate: assert property(valid_i |=> div_unit.first_dividend_q == $past(data_rs1_i));`

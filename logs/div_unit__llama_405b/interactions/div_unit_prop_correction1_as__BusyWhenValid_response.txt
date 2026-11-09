@@ -1,0 +1,9 @@
+The current assertion `as__BusyWhenValid: assert property(valid_i |-> busy_o);` might be failing because it checks if the `busy_o` signal is high in the same cycle when `valid_i` is high. However, the `busy_o` signal is assigned the value of `|cycles_counter`, which is updated in the next cycle after `valid_i` is asserted.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), to account for the pipeline behavior and timing. The corrected assertion should check if `busy_o` is high in the next cycle after `valid_i` is asserted.
+
+Here is the corrected assertion:
+
+`as__BusyWhenValid: assert property(valid_i |=> busy_o);`
+
+This assertion will check if `busy_o` is high in the next cycle after `valid_i` is asserted, taking into account the pipeline behavior and timing of the `div_unit` module.

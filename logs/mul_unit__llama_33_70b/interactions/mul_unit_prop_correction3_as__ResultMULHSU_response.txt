@@ -1,0 +1,9 @@
+The current assertion `as__ResultMULHSU: assert property(valid_i && op_i == mul_unit.MULHSU |-> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` might be failing because it does not account for the pipeline behavior and timing of the `mul_unit` module. 
+
+The `result_o` is assigned in different ways depending on the `op_32bits_q_final` and `op_q_final` signals, which are updated in the next cycle. Therefore, the assertion should use a next-cycle assertion (`|=>`) to check the value of `result_o` in the next cycle.
+
+Moreover, the assertion should consider the case when `op_32bits_q_final` is true, in which case `result_o` is assigned the value of `result_32_q`.
+
+Here is the corrected assertion:
+
+as__ResultMULHSU: assert property(valid_i && op_i == mul_unit.MULHSU |=> result_o == (op_32bits_q ? $past(mul_unit.result_32) : $past(mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH])));

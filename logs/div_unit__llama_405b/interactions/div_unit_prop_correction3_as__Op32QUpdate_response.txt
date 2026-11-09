@@ -1,0 +1,31 @@
+The current assertion is failing because it is checking if `div_unit.op_32_q` is equal to `op_32bits_i` in the next cycle after `valid_i` is asserted. However, `div_unit.op_32_q` is updated in the same cycle as `valid_i`, not in the next cycle.
+
+The proposed fix is to use a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`), since we want to check the value of `div_unit.op_32_q` in the same cycle as `valid_i`.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |-> div_unit.op_32_q == op_32bits_i);`
+
+However, this was already tried in Attempt 1 and did not work. Let's analyze further.
+
+Upon closer inspection, we can see that `div_unit.op_32_q` is updated in the same cycle as `valid_i` only when `valid_i` is asserted. If `valid_i` is not asserted, `div_unit.op_32_q` will be updated with its previous value. Therefore, we need to check the value of `div_unit.op_32_q` in the next cycle, but only when `valid_i` is asserted.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |=> div_unit.op_32_q == $past(op_32bits_i));`
+
+However, this was already tried in Attempt 2 and did not work. Let's analyze further.
+
+The issue is that `div_unit.op_32_q` is updated with the value of `op_32bits_i` only when `valid_i` is asserted. If `valid_i` is not asserted, `div_unit.op_32_q` will not be updated. Therefore, we need to check the value of `div_unit.op_32_q` only when `valid_i` is asserted.
+
+Here is the corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |-> $next(div_unit.op_32_q) == op_32bits_i);`
+
+However, this assertion uses `$next` which is not allowed in this context. 
+
+Here is another corrected assertion:
+
+`as__Op32QUpdate: assert property(valid_i |=> div_unit.op_32_q == op_32bits_i || !div_unit.valid_q);`
+
+This assertion checks if `div_unit.op_32_q` is equal to `op_32bits_i` in the next cycle after `valid_i` is asserted, or if `div_unit.valid_q` is not asserted. This ensures that we only check the value of `div_unit.op_32_q` when `valid_i` is asserted.

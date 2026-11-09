@@ -1,0 +1,20 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__NoInvalidResultMUL` checks if the result of a multiplication operation is valid when the operation is MUL. It compares the result with the expected value, which is calculated based on the sign of the operands and the result of the multiplication.
+2. **Identifying the issue**: The assertion is failing, which means that the result of the multiplication operation is not matching the expected value. This could be due to various reasons such as incorrect calculation of the expected value, incorrect handling of the sign of the operands, or incorrect handling of the result.
+3. **Analyzing the calculation of the expected value**: The expected value is calculated based on the sign of the operands and the result of the multiplication. If the sign of the operands is different, the expected value is calculated as the two's complement of the result. Otherwise, the expected value is the result itself.
+4. **Considering the pipeline behavior**: The result of the multiplication operation is calculated in multiple stages. The first stage calculates the result of the multiplication, and the second stage handles the sign of the operands and calculates the final result.
+5. **Identifying the correct signals to use**: To check the correctness of the result, we need to use the signals that are available at the output of the multiplication unit. These signals are `result_o` and `valid_o`.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidResultMUL: assert property(valid_o && op_i == mul_unit.MUL |=> result_o == ($past(mul_unit.neg_q_final) ? ~$past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0]) + mul_unit.ONE : $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));
+```
+
+# Explanation of changes:
+* **Using the correct signals**: We are using the signals `result_o` and `valid_o` to check the correctness of the result.
+* **Considering the pipeline behavior**: We are using the `|=>` operator to check the result in the next cycle.
+* **Using the correct calculation of the expected value**: We are using the `result_2width_def` signal to calculate the expected value, which takes into account the sign of the operands and the result of the multiplication.
+* **Using the correct module prefix**: We are using the `mul_unit.` prefix to access the internal signals of the module.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with different inputs and checking if the assertion passes or fails. The assertion should pass for all valid inputs and fail for invalid inputs.

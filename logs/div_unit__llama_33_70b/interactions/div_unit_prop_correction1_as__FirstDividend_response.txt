@@ -1,0 +1,1 @@
+as__FirstDividend: assert property(valid_i |=> div_unit.first_dividend_q == $past(data_rs1_i));

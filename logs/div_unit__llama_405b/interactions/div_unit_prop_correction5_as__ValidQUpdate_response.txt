@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking if the `valid_i` input directly affects the `div_unit.valid_q` register in the next cycle. However, the `div_unit.valid_q` register is updated based on the `valid_i` input, but also has other conditions that can affect its value, such as the `flush_i` input and the current state of the `div_unit.valid_q` register itself.
+
+The proposed fix is to check that when `valid_i` is high, `div_unit.valid_q` is high in the next cycle, unless `flush_i` is high in the current cycle, which would reset `div_unit.valid_q` to low.
+
+Here is the corrected assertion:
+
+as__ValidQUpdate: assert property(valid_i && !flush_i |=> div_unit.valid_q);

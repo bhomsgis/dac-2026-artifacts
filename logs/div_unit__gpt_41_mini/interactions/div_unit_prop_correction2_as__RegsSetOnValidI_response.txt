@@ -1,0 +1,9 @@
+1. Analysis of failure:
+The original assertion checks that when valid_i is high, the registered signals (ending with _q) immediately match the combinational signals or inputs in the same cycle. However, these registered signals update on the clock edge, so their updated values appear in the next cycle, not the current one. The assertion uses a same-cycle implication (|=>) which expects the postcondition to hold in the next cycle, but it compares registered signals to current inputs or combinational signals without using $past() properly. The previous attempt tried to use $past() on inputs in the postcondition, but it used $past() on the postcondition of a same-cycle assertion, which is forbidden. Also, the assertion should be a next-cycle assertion (|=>) because the registered signals update on the clock edge following valid_i.
+
+2. Proposed fix:
+Change the assertion to a next-cycle assertion (|=>) so that the precondition is checked in the current cycle and the postcondition in the next cycle, when the registered signals have updated. In the postcondition, use $past() on the inputs and combinational signals to refer to their values at the time of the precondition (valid_i). Do not use $past() on the registered signals in the postcondition, as they represent the updated values. This aligns with the timing semantics and avoids illegal usage of $past().
+
+3. Corrected assertion:
+
+as__RegsSetOnValidI: assert property((valid_i) |=> (div_unit.valid_q && div_unit.op_q == $past(op_i) && div_unit.op_32_q == $past(op_32bits_i) && div_unit.signed_op_q == !$past(op_unsigned_i) && div_unit.div_zero_q == $past(div_unit.div_zero_d) && div_unit.same_sign_q == $past(div_unit.same_sign_d) && div_unit.dividend_quotient_q == $past(div_unit.dividend_d) && div_unit.divisor_q == $past(div_unit.divisor_d) && div_unit.remanent_q == {WIDTH{1'b0}} && div_unit.first_dividend_q == $past(data_rs1_i)));

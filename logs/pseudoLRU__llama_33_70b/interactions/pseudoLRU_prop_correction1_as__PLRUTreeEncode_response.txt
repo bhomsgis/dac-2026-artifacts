@@ -1,0 +1,3 @@
+```systemverilog
+as__PLRUTreeEncode: assert property(pseudoLRU.replace_en[0] == 1'b1 |-> &pseudoLRU.plru_tree_d[0] == 1'b1);
+```

@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if the `plru_tree_q` register is updated when `access_hit_i` is high, but it does not consider the case where the update does not change the value of `plru_tree_q`. This can happen when the hit occurs at the same index that would be replaced next, so the PLRU tree does not need to be updated.
+
+The proposed fix is to check if `plru_tree_d` is different from `plru_tree_q` when `access_hit_i` is high, instead of checking if `plru_tree_q` is updated. This way, we ensure that the PLRU tree is updated correctly even if the update does not change the value of `plru_tree_q`.
+
+Here is the corrected assertion:
+
+as__TreeUpdated: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_d != pseudoLRU.plru_tree_q);

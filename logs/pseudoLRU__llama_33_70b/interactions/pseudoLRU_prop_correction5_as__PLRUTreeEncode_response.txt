@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when replace_en[0] is set, the corresponding plru_tree_q bits are set
+as__PLRUTreeEncode: assert property(pseudoLRU.replace_en[0] == 1'b1 |-> &pseudoLRU.plru_tree_q[0:2*(ENTRIES-1)-1] == 1'b1);
+```

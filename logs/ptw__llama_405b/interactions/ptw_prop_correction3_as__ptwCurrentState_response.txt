@@ -1,0 +1,21 @@
+The current assertion is failing because it is comparing the current state with the past value of the next state, which is not the correct behavior to check. The correct behavior to check is that the current state is equal to the next state from the previous cycle.
+
+The issue with the current assertion is that it is using `$past(ptw.next_state)` which gives the value of `ptw.next_state` from the previous cycle, but it is comparing it with `ptw.current_state` from the current cycle. This is not the correct comparison because `ptw.current_state` is updated in the current cycle based on the value of `ptw.next_state` from the previous cycle.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__ptwCurrentState: assert property(ptw.current_state == $past(ptw.current_state, 1) ? ptw.current_state : $past(ptw.next_state, 1));
+```
+
+However, this assertion is still not correct because it is not considering the reset behavior. When the reset signal is asserted, the current state is set to `S_READY` regardless of the previous value of the next state.
+
+A better approach is to check that the current state is equal to the next state from the previous cycle only when the reset signal is not asserted.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__ptwCurrentState: assert property(!$past(ptw.rstn_i, 1) ? ptw.current_state == S_READY : ptw.current_state == $past(ptw.next_state, 1));
+```
+
+This assertion checks that when the reset signal is not asserted, the current state is equal to the next state from the previous cycle. When the reset signal is asserted, it checks that the current state is `S_READY`.

@@ -1,0 +1,13 @@
+The current assertion is failing because it's checking the result in the same cycle as the input, but the result is actually available in the next cycle due to the pipeline behavior of the design.
+
+The assertion is trying to check if the result of a 32-bit multiplication is correct when `REG_32` is high and `CONFIG32` is low. However, the result is not available in the same cycle as the input, but rather in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will allow the assertion to check the result in the next cycle, after the pipeline has had a chance to process the input.
+
+Here is the corrected assertion:
+
+```
+as__ResultCheck: assert property((valid_i && op_32bits_i && REG_32 && !mul_unit.CONFIG32) |=> (result_o == $past(mul_unit.result_32)));
+```
+
+This assertion will check if the result of a 32-bit multiplication is correct in the next cycle, after the pipeline has had a chance to process the input. The `$past` function is used to refer to the value of `mul_unit.result_32` in the previous cycle, which is the cycle when the input was valid.

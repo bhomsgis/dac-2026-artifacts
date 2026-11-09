@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion `reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i` fails because `target_reg_q` is a register updated on the clock edge, so its updated value appears in the next cycle after `reset_count_i` is asserted. The assertion uses a next-cycle implication (`|=>`), but it compares `target_reg_q` to `target_value_i` in the same cycle as the update, without accounting for the pipeline delay. Also, `target_value_i` is a wire and can be sampled in the current cycle, but the register update happens at the clock edge. The assertion should compare the updated `target_reg_q` in the cycle after `reset_count_i` is asserted to the `target_value_i` sampled in the cycle when `reset_count_i` was asserted (using `$past(target_value_i)`).
+
+2. Proposed fix:  
+Use a next-cycle assertion (`|=>`) with the postcondition referencing the updated register `target_reg_q` in the next cycle, and compare it to `$past(target_value_i)` (the value of `target_value_i` at the cycle when `reset_count_i` was asserted). This correctly models the pipeline behavior: `reset_count_i` asserted at cycle N causes `target_reg_q` to update at cycle N+1 to the value of `target_value_i` sampled at cycle N.
+
+3. Corrected assertion:  
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i)));

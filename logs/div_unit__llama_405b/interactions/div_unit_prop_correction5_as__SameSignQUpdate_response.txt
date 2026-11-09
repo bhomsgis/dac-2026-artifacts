@@ -1,0 +1,7 @@
+The current assertion is failing because it is trying to check the value of `same_sign_q` in the next cycle, but it is using the current cycle's values of `op_32bits_i`, `data_rs2_i`, and `data_rs1_i`. 
+
+The proposed fix is to use the next cycle's values of `op_32_q`, `data_rs2_i`, and `data_rs1_i` by referencing the `_q` registers in the `div_unit` module. However, since `data_rs2_i` and `data_rs1_i` are not registered, we need to use the `_d` signals that are assigned to the `_q` registers in the next cycle.
+
+Here is the corrected assertion:
+
+as__SameSignQUpdate: assert property(valid_i |=> div_unit.same_sign_q == ((div_unit.op_32_q) ? ~(div_unit.divisor_d[31] ^ div_unit.dividend_d[31]) : ~(div_unit.divisor_d[63] ^ div_unit.dividend_d[63])));

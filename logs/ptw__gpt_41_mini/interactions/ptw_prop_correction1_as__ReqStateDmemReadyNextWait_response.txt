@@ -1,0 +1,7 @@
+// The original assertion likely fails because it does not consider the condition when pte_cache_hit is true and count_q < LEVELS-1, which keeps the state in S_REQ, or when dmem_ready is false, so next_state remains S_REQ. The assertion assumes that whenever in S_REQ with !pte_cache_hit and dmem_ready, next_state must be S_WAIT, but the RTL allows next_state to remain S_REQ if dmem_ready is false or other conditions hold. Also, the assertion does not consider that next_state is assigned combinationally and current_state is updated only on clk edge, so the assertion should use next_state directly without $past().
+
+// The fix is to add the condition that pte_cache_hit is false and dmem_ptw_comm_i.dmem_ready is true in the precondition, and assert that next_state is S_WAIT. Also, ensure that the assertion uses ptw.current_state, ptw.pte_cache_hit, ptw.dmem_ptw_comm_i.dmem_ready, and ptw.next_state with the ptw prefix, and that the assertion is a next-cycle assertion (|=>) because next_state is combinationally assigned and updated on clock edge.
+
+// Corrected assertion:
+
+as__ReqStateDmemReadyNextWait: assert property ((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && ptw.dmem_ptw_comm_i.dmem_ready) |=> (ptw.next_state == ptw.S_WAIT));

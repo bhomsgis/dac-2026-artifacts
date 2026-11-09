@@ -1,0 +1,2 @@
+// Check that is_req_waiting is cleared only in the cycle after a valid iTLB response when serving iTLB and request was waiting
+as__IsReqWaitingClearedOnlyOnValidITLBResp: assert property ((ptw_arb.current_state == ptw_arb.SERVING_iTLB && ptw_arb.is_req_waiting_q) |=> (ptw_tlb_comm_i.resp.valid ##1 (ptw_arb.is_req_waiting_q == 1'b1 && ptw_arb.is_req_waiting_d == 1'b0)));

@@ -1,0 +1,28 @@
+// Check that counter_d equals counter_q plus BASE_INCREMENT times number of event triggers when incrementing and event_triggers_i has exactly one bit set
+as__SingleEventIncrement: assert property((|event_triggers_i && $countones(event_triggers_i) == 1 && INCR_DECR_COUNT == 1'b1) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + BASE_INCREMENT);
+// Check that counter_d equals counter_q minus BASE_INCREMENT times number of event triggers when decrementing and event_triggers_i has exactly one bit set
+as__SingleEventDecrement: assert property((|event_triggers_i && $countones(event_triggers_i) == 1 && INCR_DECR_COUNT == 1'b0) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - BASE_INCREMENT);
+// Check that when no event triggers and no reset_count_i, counter_d equals counter_q (counter holds)
+as__CounterHoldNoEventNoReset: assert property((!|event_triggers_i && !reset_count_i) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q);
+// Check that when reset_count_i is asserted and EXT_COUNT_RESET is 0, counter_q updates to RST_COUNTER_VAL
+as__CounterResetExtCountZero: assert property((reset_count_i && EXT_COUNT_RESET == 1'b0) |=> dynamic_target_event_counter.counter_q == RST_COUNTER_VAL);
+// Check that when reset_count_i is asserted and EXT_COUNT_RESET is 1, counter_q updates to rst_cntr_val_i
+as__CounterResetExtCountOne: assert property((reset_count_i && EXT_COUNT_RESET == 1'b1) |=> dynamic_target_event_counter.counter_q == rst_cntr_val_i);
+// Check that target_reg_q updates to target_value_i on reset_count_i assertion
+as__TargetRegUpdateOnResetCount: assert property(reset_count_i |=> dynamic_target_event_counter.target_reg_q == target_value_i);
+// Check that target_reg_q holds its value when reset_count_i is not asserted
+as__TargetRegHoldNoResetCount: assert property((!reset_count_i) |=> dynamic_target_event_counter.target_reg_q == dynamic_target_event_counter.target_reg_q);
+// Check that target_reached_o is 1 when OPEN_CLLOSE_LIMIT is 1 and counter_q is greater than target_reg_q
+as__TargetReachedOpenLimit: assert property(OPEN_CLLOSE_LIMIT == 1'b1 |-> target_reached_o == (dynamic_target_event_counter.counter_q > dynamic_target_event_counter.target_reg_q));
+// Check that target_reached_o is 1 when OPEN_CLLOSE_LIMIT is 0 and counter_q is greater or equal to target_reg_q
+as__TargetReachedClosedLimit: assert property(OPEN_CLLOSE_LIMIT == 1'b0 |-> target_reached_o == (dynamic_target_event_counter.counter_q >= dynamic_target_event_counter.target_reg_q));
+// Check that current_count_o outputs counter_q when CURRENT_COUNT_PCONF is 1
+as__CurrentCountOutputConfigOne: assert property(dynamic_target_event_counter.CURRENT_COUNT_PCONF == 1 |-> current_count_o == dynamic_target_event_counter.counter_q);
+// Check that current_count_o outputs target_reg_q when CURRENT_COUNT_PCONF is 0
+as__CurrentCountOutputConfigZero: assert property(dynamic_target_event_counter.CURRENT_COUNT_PCONF == 0 |-> current_count_o == dynamic_target_event_counter.target_reg_q);
+// Check that current_count_o outputs zero when CURRENT_COUNT_PCONF is neither 0 nor 1
+as__CurrentCountOutputConfigOther: assert property((dynamic_target_event_counter.CURRENT_COUNT_PCONF != 1 && dynamic_target_event_counter.CURRENT_COUNT_PCONF != 0) |-> current_count_o == '0);
+// Check that counter_d increments by increment_table[$countones(event_triggers_i)] when INCR_DECR_COUNT is 1 and multiple parallel events occur
+as__CounterIncrementMultipleEvents: assert property((|event_triggers_i && INCR_DECR_COUNT == 1'b1 && PPARLL_EVNTS > 1) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q + COUNT_BSIZE'(dynamic_target_event_counter.increment_table[$countones(event_triggers_i)]));
+// Check that counter_d decrements by increment_table[$countones(event_triggers_i)] when INCR_DECR_COUNT is 0 and multiple parallel events occur
+as__CounterDecrementMultipleEvents: assert property((|event_triggers_i && INCR_DECR_COUNT == 1'b0 && PPARLL_EVNTS > 1) |-> dynamic_target_event_counter.counter_d == dynamic_target_event_counter.counter_q - COUNT_BSIZE'(dynamic_target_event_counter.increment_table[$countones(event_triggers_i)]));

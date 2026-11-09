@@ -1,0 +1,6 @@
+The current assertion `as__ReplacementIdxUpdateHit: assert property(access_hit_i |=> replacement_idx_o != $past(replacement_idx_o));` might be failing because it does not consider the case when `access_hit_i` is high but the replacement index does not change due to the pseudoLRU logic. 
+
+The proposed fix is to check if `access_hit_i` is high and the replacement index is updated to a new value that is different from the previous one. 
+
+Here is the corrected assertion:
+`as__ReplacementIdxUpdateHit: assert property(access_hit_i |=> $past(replacement_idx_o) != replacement_idx_o);`

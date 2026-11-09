@@ -1,0 +1,41 @@
+// Check that branch_taken is 1 for all branch instructions except default case
+assert property((instruction_i.instr.instr_type inside {JAL, JALR, BLT, BLTU, BGE, BGEU, BEQ, BNE}) |-> branch_unit.branch_taken == 1 || (instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) |-> branch_unit.branch_taken == ((instruction_i.instr.instr_type == BEQ) ? (data_rs1 == data_rs2) : (instruction_i.instr.instr_type == BNE) ? (data_rs1 != data_rs2) : (instruction_i.instr.instr_type inside {BLT, BLTU}) ? ((instruction_i.instr.instr_type inside {BLT}) ? ($signed(data_rs1) < $signed(data_rs2)) : (data_rs1 < data_rs2)) : !((instruction_i.instr.instr_type inside {BGE}) ? ($signed(data_rs1) < $signed(data_rs2)) : (data_rs1 < data_rs2))));
+
+// Check that target address for JAL is pc + imm with LSB zeroed
+assert property((instruction_i.instr.instr_type == JAL) |-> instruction_o.result_pc == ((instruction_i.instr.pc + instruction_i.instr.imm) & 64'hFFFFFFFFFFFFFFFE));
+
+// Check that target address for JALR is rs1 + imm with LSB zeroed
+assert property((instruction_i.instr.instr_type == JALR) |-> instruction_o.result_pc == ((data_rs1 + instruction_i.instr.imm) & 64'hFFFFFFFFFFFFFFFE));
+
+// Check that target address for conditional branches is pc + imm without modification
+assert property((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) |-> instruction_o.result_pc == (instruction_i.instr.pc + instruction_i.instr.imm));
+
+// Check that branch_taken is 0 for default instructions not in branch set
+assert property((!(instruction_i.instr.instr_type inside {JAL, JALR, BLT, BLTU, BGE, BGEU, BEQ, BNE})) |-> branch_unit.branch_taken == 0);
+
+// Check that result is target when branch is taken
+assert property(branch_unit.branch_taken |-> instruction_o.result == instruction_o.result_pc);
+
+// Check that result is pc + 4 when branch is not taken
+assert property(!branch_unit.branch_taken |-> instruction_o.result == (instruction_i.instr.pc + 4));
+
+// Check that exception valid is 1 when misaligned address occurs for JALR or taken conditional branch
+assert property(instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && branch_unit.branch_taken)) && (instruction_o.result_pc[1:0] != 0) |-> instruction_o.ex.valid == 1 && instruction_o.ex.cause == INSTR_ADDR_MISALIGNED && instruction_o.ex.origin == instruction_o.result_pc);
+
+// Check that exception valid is 0 when no misaligned address condition
+assert property(!((instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH) && ((instruction_i.instr.instr_type == JALR) || ((instruction_i.instr.instr_type inside {BLT, BLTU, BGE, BGEU, BEQ, BNE}) && branch_unit.branch_taken)) && (instruction_o.result_pc[1:0] != 0))) |-> instruction_o.ex.valid == 0);
+
+// Check that instruction_o.valid is consistent with instruction_i.instr.valid and unit
+assert property(instruction_o.valid == (instruction_i.instr.valid && (instruction_i.instr.unit == UNIT_BRANCH)));
+
+// Check that instruction_o.branch_taken matches branch_unit.branch_taken
+assert property(instruction_o.branch_taken == branch_unit.branch_taken);
+
+// Check that instruction_o.result_pc matches branch_unit.target
+assert property(instruction_o.result_pc == branch_unit.target);
+
+// Check that instruction_o.fp_status is always zero
+assert property(instruction_o.fp_status == 0);
+
+// Check that instruction_o.result is always pc + 4
+assert property(instruction_o.result == (instruction_i.instr.pc + 4));

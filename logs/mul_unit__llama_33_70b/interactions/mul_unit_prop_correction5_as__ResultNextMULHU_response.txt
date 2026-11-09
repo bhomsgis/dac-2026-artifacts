@@ -1,0 +1,18 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ResultNextMULHU: assert property(valid_i && op_i == mul_unit.MULHU |=> result_o == mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:WIDTH]);` checks if the result of the MULHU operation is correctly assigned to `result_o` in the next cycle.
+2. **Identifying the issue**: The assertion might be failing because it does not consider the case when `op_32bits_i` is high, which means the operation is a 32-bit multiplication. In this case, the result should be assigned to `result_32` instead of `result_2width_def`.
+3. **Analyzing the pipeline behavior**: The `mul_unit` module has a pipeline with two stages. The first stage computes the result of the multiplication, and the second stage selects the correct word from the result based on the operation type.
+4. **Considering the timing**: The assertion should consider the timing of the pipeline and the fact that the result is assigned to `result_o` in the next cycle.
+
+# Fixed solution:
+```systemverilog
+as__ResultNextMULHU: assert property(valid_i && op_i == mul_unit.MULHU |=> result_o == (op_32bits_q_final && mul_unit.REG_32 && !mul_unit.CONFIG32) ? mul_unit.result_32_q : mul_unit.result_2width_def[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH]);
+```
+
+# Explanation of changes:
+* **Added condition for 32-bit multiplication**: The assertion now checks if `op_32bits_q_final` is high and `mul_unit.REG_32` is high and `mul_unit.CONFIG32` is low. If this condition is true, the result is assigned to `result_32_q` instead of `result_2width_def`.
+* **Used `op_32bits_q_final` instead of `op_32bits_i`**: The assertion uses `op_32bits_q_final` instead of `op_32bits_i` to consider the pipeline behavior and the fact that the result is assigned to `result_o` in the next cycle.
+* **Used `result_32_q` instead of `result_32`**: The assertion uses `result_32_q` instead of `result_32` to consider the pipeline behavior and the fact that the result is assigned to `result_o` in the next cycle.
+
+# Tests and example uses:
+The corrected assertion can be tested by simulating the `mul_unit` module with different input scenarios, including 32-bit and 64-bit multiplications, and verifying that the result is correctly assigned to `result_o` in the next cycle.

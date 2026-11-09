@@ -1,0 +1,7 @@
+1. The current assertion as__ValidQ0ClearedOnFlushOrInvalid: assert property((mul_unit.flush_i[0] || !valid_i) |-> !mul_unit.valid_q[0]); might be failing because it assumes that valid_q[0] is cleared immediately in the same cycle when flush_i[0] or !valid_i is asserted. However, valid_q[0] is a register updated on the positive edge of clk_i, so its value reflects the previous cycle's inputs. The flush_i[0] and valid_i signals affect valid_q[0] at the clock edge, so the clearing of valid_q[0] happens in the next cycle after flush_i[0] or !valid_i is asserted. Therefore, the assertion should check valid_q[0] in the next cycle after flush_i[0] or !valid_i is asserted, not in the same cycle.
+
+2. The proposed fix is to use a next-cycle assertion (|=>) instead of a same-cycle assertion (|->) so that the precondition is evaluated in the current cycle and the postcondition is evaluated in the next cycle, reflecting the register update timing. Also, since valid_q[0] is a register, we check that in the next cycle valid_q[0] is cleared (0). This matches the RTL behavior where valid_q[0] is cleared on the clock edge when flush_i[0] or !valid_i is asserted in the current cycle.
+
+3. Corrected assertion:
+
+as__ValidQ0ClearedOnFlushOrInvalid: assert property((mul_unit.flush_i[0] || !valid_i) |=> !mul_unit.valid_q[0]);

@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when there is a hit, the PLRU tree is updated
+as__PLRUTreeDecodeUpdateHit: assert property(access_hit_i |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));
+```

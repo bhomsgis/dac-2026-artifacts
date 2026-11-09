@@ -1,0 +1,5 @@
+// The original assertion fails because the FSM transitions from S_DONE to S_READY unconditionally in the next cycle, but the assertion does not consider that the transition might be delayed by one cycle due to pipeline or handshake signals. Also, the assertion uses a next-cycle implication (|=>) but does not consider that the current_state register updates at posedge clk_i, so the next_state signal is combinational and may not reflect the registered next state. The fix is to check that whenever current_state is S_DONE, the next_state signal is S_READY in the same cycle (using |->), reflecting the combinational next_state logic, which is the correct timing for next_state signal validity.
+
+// Corrected assertion uses same-cycle implication (|->) to check that when current_state is S_DONE, next_state is S_READY in the same cycle.
+
+as__DoneStateNextReady: assert property((ptw.current_state == ptw.S_DONE) |-> (ptw.next_state == ptw.S_READY));

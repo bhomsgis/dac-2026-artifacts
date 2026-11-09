@@ -1,0 +1,6 @@
+The current assertion `as__iTLBReqValid: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |-> (ptw_arb.tlb_ptw_comm_o.req.valid == (ptw_arb.is_req_waiting_q) ? ptw_arb.itlb_req_waiting_q.req.valid : itlb_ptw_comm_i.req.valid));` might be failing because it does not consider the case when `ptw_arb.is_req_waiting_q` is 1 and `ptw_arb.itlb_req_waiting_q.req.valid` is 0. In this case, the assertion expects `ptw_arb.tlb_ptw_comm_o.req.valid` to be 0, but the RTL code does not guarantee this.
+
+The proposed fix is to use a next-cycle assertion to check the value of `ptw_arb.tlb_ptw_comm_o.req.valid` in the next cycle, when `ptw_arb.current_state` is `ptw_arb.SERVING_iTLB`. This allows us to consider the case when `ptw_arb.is_req_waiting_q` is 1 and `ptw_arb.itlb_req_waiting_q.req.valid` is 0.
+
+Here is the corrected assertion:
+as__iTLBReqValid: assert property((ptw_arb.current_state == ptw_arb.SERVING_iTLB) |=> (ptw_arb.tlb_ptw_comm_o.req.valid == ($past(ptw_arb.is_req_waiting_q)) ? $past(ptw_arb.itlb_req_waiting_q.req.valid) : $past(itlb_ptw_comm_i.req.valid)));

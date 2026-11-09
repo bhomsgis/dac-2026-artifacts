@@ -1,0 +1,6 @@
+// 1. Explanation of failure: The original assertion fails because it uses a same-cycle implication (|=>) expecting the target_reg_q to be updated immediately in the same cycle as reset_count_i is asserted. However, target_reg_q is a register updated on the positive edge of clk_i, so its new value appears in the next cycle. Also, the assertion does not consider the pipeline delay and the correct timing of the register update.
+
+// 2. Proposed fix: Use a next-cycle implication (|=>) to check the updated value of target_reg_q in the cycle after reset_count_i is asserted. In the postcondition, refer to the target_value_i using $past(target_value_i) to get the value at the cycle of the precondition. Do not use $past on target_reg_q because it is the updated register value we want to check. This matches the RTL behavior where target_reg_q is updated at the clock edge after reset_count_i is asserted.
+
+// 3. Corrected assertion:
+as__TargetRegUpdateOnResetCount: assert property (reset_count_i |=> (dynamic_target_event_counter.target_reg_q == $past(target_value_i)));

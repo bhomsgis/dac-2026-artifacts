@@ -1,0 +1,9 @@
+The current assertion is failing because it's checking if the `cycles_counter` remains at 0 in the next cycle when it's already 0. However, this doesn't account for the case when a new operation is started and `cycles_counter` is updated to a non-zero value.
+
+The proposed fix is to check if `cycles_counter` remains at 0 in the next cycle when there's no new operation being started (i.e., `valid_i` is 0). This ensures that `cycles_counter` only decrements when an operation is in progress.
+
+Here's the corrected assertion:
+
+```
+as__CyclesCounterNoUpdate: assert property(!div_unit.valid_i && div_unit.cycles_counter == 6'd0 |=> div_unit.cycles_counter == 6'd0);
+```

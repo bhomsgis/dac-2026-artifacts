@@ -1,0 +1,16 @@
+// Check quotient_bit[1] correctness based on tmp_remanent[1] and divisor_i
+as__QuotientBit1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.quotient_bit[1] == 1'b1 && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.quotient_bit[1] == 1'b0);
+// Check tmp_remanent_sub[1] correctness based on tmp_remanent[1] and divisor_i
+as__TmpRemanentSub1Correcteotid: assert property((div_4bits.tmp_remanent[1] >= divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1] - divisor_i && (div_4bits.tmp_remanent[1] < divisor_i) |-> div_4bits.tmp_remanent_sub[1] == div_4bits.tmp_remanent[1]);
+// Check tmp_dividend_quotient[1] shift correctness from dividend_quotient_i and quotient_bit[1]
+as__TmpDividendQuotient1ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[1] == {dividend_quotient_i[div_4bits.WIDTH-2:0], div_4bits.quotient_bit[1]});
+// Check tmp_remanent[1] shift correctness from remanent_i and dividend_quotient_i
+as__TmpRemanent1ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]});
+// Check tmp_remanent[0] shift correctness from tmp_remanent_sub[1] and tmp_dividend_quotient[1]
+as__TmpRemanent0ShiftCorrecteotid: assert property(div_4bits.tmp_remanent[0] == {div_4bits.tmp_remanent_sub[1][div_4bits.WIDTH-2:0], div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-1]});
+// Check tmp_dividend_quotient[0] shift correctness from tmp_dividend_quotient[1] and quotient_bit[0]
+as__TmpDividendQuotient0ShiftCorrecteotid: assert property(div_4bits.tmp_dividend_quotient[0] == {div_4bits.tmp_dividend_quotient[1][div_4bits.WIDTH-2:0], div_4bits.quotient_bit[0]});
+// Check quotient_bit[0] correctness based on tmp_remanent[0] and divisor_i
+as__QuotientBit0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.quotient_bit[0] == 1'b1 && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.quotient_bit[0] == 1'b0);
+// Check tmp_remanent_sub[0] correctness based on tmp_remanent[0] and divisor_i
+as__TmpRemanentSub0Correcteotid: assert property((div_4bits.tmp_remanent[0] >= divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0] - divisor_i && (div_4bits.tmp_remanent[0] < divisor_i) |-> div_4bits.tmp_remanent_sub[0] == div_4bits.tmp_remanent[0]);

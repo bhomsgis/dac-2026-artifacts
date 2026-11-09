@@ -1,0 +1,11 @@
+The current assertion is failing because it is trying to check the value of `data_rs2_d` in the same cycle as `valid_i`, but `data_rs2_d` is a combinational signal that depends on `op_i` and `op_32bits_i`, which are also inputs that are only valid when `valid_i` is high. This can cause a timing issue, as the values of `op_i` and `op_32bits_i` may not be stable yet when `valid_i` is high.
+
+To fix this, we need to check the value of `data_rs2_d` in the next cycle, after `op_i` and `op_32bits_i` have been registered. We can do this by using a next-cycle assertion (`|=>`) and checking the value of `mul_unit.data_rs2_q` instead of `mul_unit.data_rs2_d`.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check: assert property((valid_i) |=> (mul_unit.data_rs2_q == ((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+```
+
+This assertion checks that in the next cycle after `valid_i` is high, the value of `mul_unit.data_rs2_q` is correct based on the values of `op_i` and `op_32bits_i` in the previous cycle.

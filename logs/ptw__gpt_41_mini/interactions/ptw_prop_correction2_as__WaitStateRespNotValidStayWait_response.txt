@@ -1,0 +1,5 @@
+// The original assertion fails because it does not consider the possibility of dmem_ptw_comm_i.resp.nack being asserted, which causes a transition from S_WAIT to S_REQ, nor does it consider that the state machine may remain in S_WAIT when resp.valid is false and resp.nack is false. The assertion only checks that if resp.valid is false, the next state remains S_WAIT, which is not always true due to nack or other conditions.
+// The fix is to include the condition that resp.nack is false in the precondition and to explicitly allow the next state to be S_WAIT only if resp.valid is false and resp.nack is false. This matches the RTL behavior where nack causes a transition to S_REQ, and valid causes transitions to other states. Also, the assertion should use the correct module prefix for signals and use a next-cycle assertion to check next_state.
+// Corrected assertion:
+
+as__WaitStateRespNotValidStayWait: assert property ((ptw.current_state == ptw.S_WAIT && !ptw.dmem_ptw_comm_i.resp.valid && !ptw.dmem_ptw_comm_i.resp.nack) |=> (ptw.next_state == ptw.S_WAIT));

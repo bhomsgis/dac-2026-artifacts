@@ -1,0 +1,9 @@
+The current assertion is failing because it is checking if the `access_idx_i` signal changes when `access_hit_i` is high, but it is not considering the fact that the `access_idx_i` signal is only updated in the next cycle. 
+
+The assertion is using the same-cycle implication operator (`|->`), which means that the condition and the consequence are evaluated in the same cycle. However, the `access_idx_i` signal is only updated in the next cycle, so the assertion is not correctly capturing the behavior of the circuit.
+
+To fix this, we need to use the next-cycle implication operator (`|=>`) and check if the `pseudoLRU.plru_tree_q` signal changes in the next cycle when `access_hit_i` is high. We also need to use `$past()` to refer to the value of `pseudoLRU.plru_tree_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+as__AccessIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q));

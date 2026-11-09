@@ -1,0 +1,9 @@
+The current assertion is failing because it's not considering the case when `op_32bits_i` is high. In this case, the `data_rs1_d` should be calculated based on the 32-bit value of `data_rs1_i`, not the full `WIDTH` bits.
+
+The corrected assertion should consider both cases when `op_32bits_i` is high and low. Here is the corrected assertion:
+
+```
+as__DataRs1Check11: assert property((valid_i && (op_i == 2'b00)) |-> (mul_unit.data_rs1_d == ((data_rs1_i[(WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? ~data_rs1_i + mul_unit.ONE : data_rs1_i));
+```
+
+This assertion checks that `data_rs1_d` is calculated correctly based on the value of `op_32bits_i` and the sign of `data_rs1_i`. If `op_32bits_i` is high, it checks the 32-bit value of `data_rs1_i`, otherwise it checks the full `WIDTH` bits.

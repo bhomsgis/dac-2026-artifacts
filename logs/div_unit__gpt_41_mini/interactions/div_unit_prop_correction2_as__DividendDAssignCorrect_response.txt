@@ -1,0 +1,6 @@
+// The assertion fails because it compares dividend_d (a combinational signal) to dividend_aux_d and op_32_d (registered signals) in the same cycle without considering pipeline timing. The signals op_32_d and dividend_aux_d are updated in the same cycle as valid_i, but dividend_d depends combinationally on these signals. The original assertion uses signals from the same cycle, but the pipeline registers op_32_d and dividend_aux_d may not be stable or aligned with valid_i timing, causing mismatch.
+
+// The fix is to use a same-cycle assertion (|->) and compare dividend_d to the combinational expression using inputs valid_i, op_32bits_i, and dividend_aux_d directly, avoiding registered signals in the precondition. Since dividend_aux_d is combinational and depends on inputs, it can be used directly. Also, op_32bits_i is an input wire and valid_i is input wire, so using them in the same cycle is correct. This aligns the signals properly for comparison.
+
+// Corrected assertion:
+as__DividendDAssignCorrect: assert property (valid_i |-> (div_unit.dividend_d == ((div_unit.CONFIG32 == 1'b1) ? div_unit.dividend_aux_d : (div_unit.op_32bits_i ? {div_unit.dividend_aux_d[31:0], 32'b0} : div_unit.dividend_aux_d))));

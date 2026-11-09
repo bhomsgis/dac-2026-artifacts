@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking the value of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q` is asserted. However, `itlb_req_waiting_q` is a registered signal that is updated in the next cycle.
+
+The issue arises from the fact that `itlb_req_waiting_d` is assigned the value of `itlb_ptw_comm_i` in the `IDLE` state when `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are both true. However, this value is not reflected in `itlb_req_waiting_q` until the next cycle.
+
+To fix this, we need to check the value of `itlb_req_waiting_d` instead of `itlb_req_waiting_q` in the same cycle as `is_req_waiting_q` is asserted. However, this was already tried in Attempt 1 and did not work.
+
+A closer look at the RTL reveals that `itlb_req_waiting_d` is assigned the value of `itlb_ptw_comm_i` only when `dtlb_ptw_comm_i.req.valid` and `itlb_ptw_comm_i.req.valid` are both true. Therefore, we need to add this condition to the assertion.
+
+Here is the corrected assertion:
+
+as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 && ptw_arb.current_state == IDLE |-> ptw_arb.itlb_req_waiting_d == itlb_ptw_comm_i);

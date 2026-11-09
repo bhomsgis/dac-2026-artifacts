@@ -1,0 +1,17 @@
+The current assertion is failing because it's checking the result of a 32-bit multiplication operation against the high 32 bits of the `result_2width_def` signal, which is calculated for 64-bit multiplication operations. 
+
+When `op_i` is `MUL` and `op_32bits_i` is `1'b1`, the result of the multiplication is stored in `result_32_q`, not in `result_2width_def[63:32]`.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck7: assert property((valid_i && (op_i == 2'b01) && op_32bits_i) |-> (result_o == mul_unit.result_32_q));
+```
+
+This assertion checks that when the operation is `MUL` and `op_32bits_i` is `1'b1`, the result of the multiplication is correctly output on `result_o`. 
+
+Note that I've also added `op_32bits_i` to the precondition to ensure that we're only checking 32-bit multiplication operations. 
+
+Also, I've changed `result_2width_def[63:32]` to `mul_unit.result_32_q` to correctly compare the result of the 32-bit multiplication operation. 
+
+This assertion should now correctly check the result of 32-bit multiplication operations.

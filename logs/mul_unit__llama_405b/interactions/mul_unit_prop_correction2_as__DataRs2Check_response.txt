@@ -1,0 +1,27 @@
+The current assertion is failing because it is trying to check the value of `data_rs2_d` in the same cycle as `valid_i`, but `data_rs2_d` is a combinational signal that is assigned a value based on `data_rs2_i` and `op_32bits_i` in the same cycle. This means that the value of `data_rs2_d` is not yet stable when the assertion is checked.
+
+To fix this, we need to check the value of `data_rs2_d` in the next cycle, after it has been assigned a value based on `data_rs2_i` and `op_32bits_i`. We can do this by using a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`).
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check: assert property((valid_i) |=> (mul_unit.data_rs2_q == ((data_rs2_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs2_i[31] & op_32bits_i)) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+```
+
+However, this assertion is still not correct because it is using `data_rs2_i` and `op_32bits_i` in the next cycle, but these signals are not registered and therefore do not have a stable value in the next cycle. To fix this, we need to use the registered versions of these signals, which are `mul_unit.data_rs2_q` and `mul_unit.op_32bits_q`.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check: assert property((valid_i) |=> (mul_unit.data_rs2_q == ((mul_unit.data_rs2_q[(mul_unit.WIDTH-1)] & !mul_unit.op_32bits_q) | (mul_unit.data_rs2_q[31] & mul_unit.op_32bits_q)) ? ~mul_unit.data_rs2_q + mul_unit.ONE : mul_unit.data_rs2_q));
+```
+
+However, this assertion is still not correct because it is using `mul_unit.data_rs2_q` in the condition, which is not necessary. The condition should only depend on the input signals.
+
+Here is the corrected assertion:
+
+```
+as__DataRs2Check: assert property((valid_i) |=> (mul_unit.data_rs2_q == ((data_rs2_i[(mul_unit.WIDTH-1)] & !$past(op_32bits_i)) | (data_rs2_i[31] & $past(op_32bits_i))) ? ~data_rs2_i + mul_unit.ONE : data_rs2_i));
+```
+
+This assertion checks that `mul_unit.data_rs2_q` is correctly calculated based on `data_rs2_i` and `op_32bits_i` in the previous cycle.

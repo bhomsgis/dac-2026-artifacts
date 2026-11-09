@@ -1,0 +1,13 @@
+The current assertion is failing because it's checking if the `ptecache_entry` at the `plru_eviction_idx` index is valid when the cache is full and there's a hit. However, this check is not sufficient to guarantee that the cache replacement is correct.
+
+The issue is that the assertion is only checking the validity of the cache entry at the eviction index, but it's not verifying that the new data is actually being written to the cache. 
+
+A corrected version of the assertion should check that the cache entry at the eviction index is updated with the new data when the cache is full and there's a hit.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheReplace: assert property(ptw.full_cache && ptw.access_hit |=> ptw.ptecache_entry[ptw.plru_eviction_idx].data == $past(ptw.pte.ppn));
+```
+
+This assertion checks that when the cache is full and there's a hit, the data at the eviction index is updated with the new PPN value from the `pte` register. The `$past` function is used to refer to the value of `pte.ppn` in the previous cycle, which is when the cache hit occurred.

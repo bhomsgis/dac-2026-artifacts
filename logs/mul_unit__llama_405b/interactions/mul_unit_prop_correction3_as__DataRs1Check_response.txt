@@ -1,0 +1,9 @@
+I believe the current assertion is failing because it's trying to check the value of `data_rs1_d` in the same cycle as `valid_i`, but `data_rs1_d` is a combinational signal that depends on `op_i` and `op_32bits_i`, which are only guaranteed to be valid when `valid_i` is high. However, the assertion is trying to check the value of `data_rs1_d` in the same cycle, without giving the combinational logic time to settle.
+
+My proposed fix is to change the assertion to a next-cycle assertion (`|=>`) and check the value of `mul_unit.data_rs1_q` instead, which is the registered version of `data_rs1_d`. This ensures that we're checking the value of `data_rs1_d` after it has had time to settle.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check: assert property((valid_i) |=> (mul_unit.data_rs1_q == ((mul_unit.data_rs1_i[(mul_unit.WIDTH-1)] & !$past(op_32bits_i)) | ($past(data_rs1_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```

@@ -1,0 +1,1 @@
+as__respErrNext: assert property(ptw.resp_err |=> (ptw.current_state == ptw.S_ERROR || $past(ptw.current_state) == ptw.S_ERROR));

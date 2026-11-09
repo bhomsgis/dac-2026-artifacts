@@ -1,0 +1,2 @@
+// Check that when there is a hit, the PLRU tree is updated in the next cycle
+as__PLRUTreeUpdateHit: assert property(access_hit_i |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q) || &pseudoLRU.plru_tree_q);

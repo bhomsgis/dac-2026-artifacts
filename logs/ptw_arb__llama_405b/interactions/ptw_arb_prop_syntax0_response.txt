@@ -1,0 +1,13 @@
+```
+as__IdleState: assert property(ptw_arb.current_state == IDLE |-> ptw_itlb_comm_o.ptw_ready == 1'b1 && ptw_dtlb_comm_o.ptw_ready == 1'b1);
+as__IdleToServingiTLB: assert property(ptw_arb.current_state == IDLE && ptw_arb.is_req_waiting_q == 1'b1 |=> ptw_arb.next_state == SERVING_iTLB);
+as__IdleToServingdTLB: assert property(ptw_arb.current_state == IDLE && dtlb_ptw_comm_i.req.valid == 1'b1 |=> ptw_arb.next_state == SERVING_dTLB);
+as__ServingiTLBToIdle: assert property(ptw_arb.current_state == SERVING_iTLB && ptw_tlb_comm_i.resp.valid == 1'b1 |=> ptw_arb.next_state == IDLE);
+as__ServingdTLBToIdle: assert property(ptw_arb.current_state == SERVING_dTLB && ptw_tlb_comm_i.resp.valid == 1'b1 |=> ptw_arb.next_state == IDLE);
+as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 |-> ptw_arb.itlb_req_waiting_q == itlb_ptw_comm_i);
+as__TLBResp: assert property(ptw_arb.current_state == SERVING_iTLB |-> ptw_itlb_comm_o.resp == ptw_tlb_comm_i.resp);
+as__TLBResp1: assert property(ptw_arb.current_state == SERVING_dTLB |-> ptw_dtlb_comm_o.resp == ptw_tlb_comm_i.resp);
+as__PTWReady: assert property(ptw_arb.current_state == IDLE |-> ptw_itlb_comm_o.ptw_ready == 1'b1 && ptw_dtlb_comm_o.ptw_ready == 1'b1);
+as__PTWStatus: assert property(ptw_itlb_comm_o.ptw_status == ptw_tlb_comm_i.ptw_status && ptw_dtlb_comm_o.ptw_status == ptw_tlb_comm_i.ptw_status);
+as__InvalidateTLB: assert property(ptw_itlb_comm_o.invalidate_tlb == ptw_tlb_comm_i.invalidate_tlb && ptw_dtlb_comm_o.invalidate_tlb == ptw_tlb_comm_i.invalidate_tlb);
+```

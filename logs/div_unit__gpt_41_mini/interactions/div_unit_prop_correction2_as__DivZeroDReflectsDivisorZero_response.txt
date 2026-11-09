@@ -1,0 +1,8 @@
+1. Explanation of failure:  
+The original assertion uses a same-cycle implication (|->) to check that when valid_i is high, div_zero_d matches the zero divisor condition computed from data_rs2_i and op_32_d. However, div_zero_d is a combinational signal assigned inside an always_comb block that depends on valid_i and data_rs2_i, but op_32_d is a registered signal updated on the clock edge from op_32bits_i. The assertion uses div_unit.op_32_d which is a combinational signal assigned from div_unit.op_32_q (registered). This mismatch in timing means that the assertion checks div_zero_d against op_32_d in the same cycle, but op_32_d may not yet reflect the current valid_i cycle's op_32bits_i. Also, the original assertion uses op_32_d instead of op_32bits_i, which is the input wire valid in the current cycle. This timing mismatch causes the assertion to fail.
+
+2. Proposed fix:  
+Use a next-cycle assertion (|=>) so that the precondition valid_i is checked in the current cycle, and the postcondition checks div_zero_q (registered) in the next cycle. In the postcondition, use $past() to refer to the inputs data_rs2_i and op_32bits_i from the cycle of the precondition. This aligns with the pipeline behavior where div_zero_q is updated on the clock edge from div_zero_d, which depends on data_rs2_i and op_32bits_i of the previous cycle. This timing alignment ensures the assertion checks the registered div_zero_q against the inputs that generated it, avoiding mismatches.
+
+3. Corrected assertion:  
+as__DivZeroDReflectsDivisorZero: assert property (valid_i |=> div_unit.div_zero_q == (~(|$past(data_rs2_i)) || ($past(op_32bits_i) && ~(|$past(data_rs2_i[31:0])))));

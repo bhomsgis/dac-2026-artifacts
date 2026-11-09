@@ -1,0 +1,6 @@
+// The original assertion fails because valid_q is a registered signal updated on the clock edge when valid_i is asserted. The assertion uses a next-cycle implication (|=>) expecting valid_q to be set immediately in the next cycle after valid_i is asserted, but valid_q is only set when valid_i is high in the same cycle. Also, valid_q remains set while the division operation is in progress (busy_o is high), so valid_q might be set for multiple cycles after valid_i. Therefore, the assertion should check that when valid_i is asserted, valid_q is set in the same cycle (using |->), and also that valid_q remains set while busy_o is high.
+
+// The fix is to use a same-cycle assertion (|->) to check that when valid_i is high, valid_q is also high in the same cycle. This matches the RTL behavior where valid_q is assigned valid_i in the clocked process. This avoids timing mismatch and better reflects the pipeline behavior.
+
+// Corrected assertion:
+as__ValidQSetOnValidI: assert property ((valid_i) |-> div_unit.valid_q);

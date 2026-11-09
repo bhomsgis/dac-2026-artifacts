@@ -1,0 +1,17 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__ptwDmemCommOReqAddrNext: assert property(ptw_dmem_comm_o.req.addr |=> ptw.pte_addr);` is checking if the address of the dmem request is the same as the pte address in the next cycle.
+2. **Analyzing the RTL**: In the RTL, `ptw_dmem_comm_o.req.addr` is assigned the value of `pte_addr` which is calculated based on `r_pte.ppn` and `vpn_idx`. 
+3. **Identifying the issue**: The problem with the assertion is that it does not consider the case when `pte_cache_hit` is true and `count_q` is less than `LEVELS-1`. In this case, `ptw_dmem_comm_o.req.valid` is set to 0 and `ptw_dmem_comm_o.req.addr` is not updated.
+4. **Proposing a fix**: To fix this issue, we need to modify the assertion to consider the case when `pte_cache_hit` is true and `count_q` is less than `LEVELS-1`. We can do this by adding a condition to the assertion that checks if `ptw_dmem_comm_o.req.valid` is true.
+
+# Fixed solution:
+```systemverilog
+as__ptwDmemCommOReqAddrNext: assert property(ptw_dmem_comm_o.req.valid |=> ptw_dmem_comm_o.req.addr == ptw.pte_addr);
+```
+
+# Explanation of changes:
+* **Added condition**: We added a condition `ptw_dmem_comm_o.req.valid` to the assertion to check if the dmem request is valid.
+* **Modified postcondition**: We modified the postcondition to check if `ptw_dmem_comm_o.req.addr` is equal to `ptw.pte_addr` only when `ptw_dmem_comm_o.req.valid` is true.
+
+# Tests and example uses:
+This assertion can be tested by simulating the RTL with different inputs and checking if the assertion passes or fails. For example, we can test the assertion by setting `tlb_ptw_comm.req.valid` to true and checking if `ptw_dmem_comm_o.req.addr` is equal to `ptw.pte_addr` in the next cycle.

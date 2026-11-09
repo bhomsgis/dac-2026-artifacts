@@ -1,0 +1,8 @@
+The current assertion `as__Quo3: assert property(!div_unit.div_zero_q && div_unit.signed_op_q && !div_unit.same_sign_q |-> div_unit.quo == ~div_unit.dividend_quotient_q + {WIDTH{1'b1}});` might be failing because it does not consider the pipeline behavior and timing of the `div_unit` module. The assertion is checking the value of `quo` in the same cycle as the conditions `!div_unit.div_zero_q`, `div_unit.signed_op_q`, and `!div_unit.same_sign_q`, but the value of `quo` is determined by the values of `dividend_quotient_q` and `same_sign_q` in the previous cycle.
+
+To fix this issue, we need to consider the pipeline behavior and timing of the `div_unit` module. We can use a next-cycle assertion (`|=>`) to check the value of `quo` in the next cycle, after the values of `dividend_quotient_q` and `same_sign_q` have been updated.
+
+Here is the corrected assertion:
+```systemverilog
+as__Quo3: assert property(!div_unit.div_zero_q && div_unit.signed_op_q && !div_unit.same_sign_q |=> div_unit.quo == ~$past(div_unit.dividend_quotient_q) + {WIDTH{1'b1}});
+```

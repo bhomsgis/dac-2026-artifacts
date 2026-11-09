@@ -1,0 +1,25 @@
+The current assertion is failing because it is checking if the `replace_en` signal is high in the same cycle as the `access_hit_i` signal. However, the `replace_en` signal is generated based on the `plru_tree_q` signal, which is updated in the next cycle after `access_hit_i` is asserted.
+
+The proposed fix is to use a next-cycle assertion to check if the `replace_en` signal is high in the next cycle after `access_hit_i` is asserted. However, we need to make sure that we are checking the value of `access_hit_i` in the previous cycle, not the current cycle. We can do this by using the `$past()` function.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementUpdatedImpliesAccessHit: assert property (pseudoLRU.replace_en |=> $past(access_hit_i, 1) == 1'b1);
+```
+
+However, this assertion is still not correct because it is checking if any of the bits of `replace_en` are high, not if the specific bit corresponding to the `access_idx_i` is high. We need to modify the assertion to check the specific bit of `replace_en` that corresponds to `access_idx_i`.
+
+Here is the corrected assertion:
+
+```
+as__ReplacementUpdatedImpliesAccessHit: assert property (pseudoLRU.replace_en[pseudoLRU.access_idx_i] |=> $past(access_hit_i, 1) == 1'b1);
+```
+
+However, this is still not the best way to write this assertion. A better way would be to check if `replace_en` is not zero when `access_hit_i` is high. This is because `replace_en` is a one-hot encoded signal, so only one bit should be high at a time.
+
+Here is the final corrected assertion:
+
+```
+as__ReplacementUpdatedImpliesAccessHit: assert property (|pseudoLRU.replace_en |=> $past(access_hit_i, 1) == 1'b1);
+```

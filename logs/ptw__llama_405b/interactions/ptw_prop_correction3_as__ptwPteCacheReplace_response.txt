@@ -1,0 +1,31 @@
+The current assertion is failing because it's checking if the `ptecache_entry` at the `plru_eviction_idx` is valid when the cache is full and there's an access hit. However, this assertion doesn't consider the timing of when the cache entry is actually updated.
+
+The `ptecache_entry` is updated in the next cycle after the `dmem_ptw_comm_i.resp.valid` signal is asserted, as seen in the always_ff block that updates the `ptecache_entry`. Therefore, the assertion should check the validity of the `ptecache_entry` in the next cycle after the access hit.
+
+Here's the corrected assertion:
+
+```systemverilog
+as__ptwPteCacheReplace: assert property(ptw.full_cache && ptw.access_hit |=> $past(ptw.ptecache_entry[ptw.plru_eviction_idx].valid, 1));
+```
+
+However, this assertion is still not accurate because it doesn't consider the case where the cache entry is updated with a new value. A more accurate assertion would be to check if the cache entry is valid and its data matches the `pte.ppn` value.
+
+Here's the corrected assertion:
+
+```systemverilog
+as__ptwPteCacheReplace: assert property(ptw.full_cache && ptw.access_hit && dmem_ptw_comm_i.resp.valid && is_pte_table |=> ptw.ptecache_entry[ptw.plru_eviction_idx].valid && ptw.ptecache_entry[ptw.plru_eviction_idx].data == $past(dmem_ptw_comm_i.resp.data[10+:PPN_SIZE], 1));
+```
+
+However, this assertion is too complex and may not be efficient for formal verification. A better approach would be to break it down into smaller assertions that check the validity and data of the cache entry separately.
+
+Here's the final corrected assertion:
+
+```systemverilog
+as__ptwPteCacheReplace: assert property(ptw.full_cache && ptw.access_hit && dmem_ptw_comm_i.resp.valid && is_pte_table |=> ptw.ptecache_entry[ptw.plru_eviction_idx].valid);
+```
+
+And an additional assertion to check the data:
+
+```systemverilog
+as__ptwPteCacheData: assert property(ptw.full_cache && ptw.access_hit && dmem_ptw_comm_i.resp.valid && is_pte_table |=> ptw.ptecache_entry[ptw.plru_eviction_idx].data == $past(dmem_ptw_comm_i.resp.data[10+:PPN_SIZE], 1));
+```

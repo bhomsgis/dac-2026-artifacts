@@ -1,0 +1,17 @@
+The current assertion is failing because it's checking the value of `signed_op_q` in the next cycle after `valid_i` is asserted, but `signed_op_q` is updated in the same cycle as `valid_i`. This means that the assertion is checking the value of `signed_op_q` before it's updated.
+
+The proposed fix is to use a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`), since we want to check the value of `signed_op_q` in the same cycle as `valid_i`.
+
+Here is the corrected assertion:
+
+`as__SignedOpQUpdate: assert property(valid_i |-> div_unit.signed_op_q == !op_unsigned_i);`
+
+However, this was already tried in Attempt 1 and didn't work. Let's analyze further.
+
+The issue might be due to the fact that `signed_op_q` is updated in the same cycle as `valid_i`, but it's not guaranteed to be updated before the assertion is evaluated. To fix this, we can use a next-cycle assertion (`|=>`) and check the value of `signed_op_d` instead, which is the value that will be assigned to `signed_op_q` in the next cycle.
+
+Here is the corrected assertion:
+
+`as__SignedOpQUpdate: assert property(valid_i |=> div_unit.signed_op_d == !$past(op_unsigned_i));`
+
+This assertion checks the value of `signed_op_d` in the next cycle after `valid_i` is asserted, and compares it to the value of `op_unsigned_i` in the previous cycle. This ensures that we're checking the correct value of `signed_op_q` after it's been updated.

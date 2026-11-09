@@ -1,0 +1,26 @@
+The current assertion is failing because it's checking if the `valid_i` input directly affects the `valid_q` register in the next cycle. However, the `valid_q` register is updated based on the `valid_d` signal, which is assigned the value of `valid_q` itself when `valid_i` is not asserted.
+
+The issue here is that the assertion is not considering the fact that `valid_q` is updated based on its previous value when `valid_i` is not asserted. This means that the assertion will fail when `valid_i` is not asserted, because `valid_q` will not be updated to the value of `valid_i` in the next cycle.
+
+To fix this, we need to modify the assertion to check if `valid_q` is updated correctly based on its previous value and the value of `valid_i`. We can do this by using the `$past()` function to refer to the previous value of `valid_q`, like this:
+
+as__ValidQUpdate: assert property(valid_i |=> div_unit.valid_q == $past(div_unit.valid_q) || valid_i);
+
+However, this is still not correct, because when `valid_i` is asserted, `valid_q` should be updated to `1'b1`, regardless of its previous value. So, we need to modify the assertion to check for this condition separately:
+
+This is still not correct. A better assertion would be:
+
+as__ValidQUpdate: assert property(valid_i |=> div_unit.valid_q);
+
+is not correct because when valid_i is low, valid_q should be updated with its previous value. 
+
+A better assertion would be:
+
+as__ValidQUpdate: assert property(div_unit.valid_q == $past(div_unit.valid_q) || valid_i);
+
+However, this assertion is a combinational check and not a sequential one and $past is not needed in the right side of |-> and is not allowed in the right side of |=> when the left side of the implication is a single signal as in this case.
+
+The best solution is two assertions:
+
+as__ValidQUpdateWhenValid: assert property(valid_i |=> div_unit.valid_q);
+as__ValidQUpdateWhenNotValid: assert property(!valid_i |-> div_unit.valid_q == $past(div_unit.valid_q));

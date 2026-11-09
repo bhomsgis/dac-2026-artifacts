@@ -1,0 +1,29 @@
+The current assertion `as__NoInvalidDataNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && (data_rs1_i == {WIDTH{1'bx}} || data_rs2_i == {WIDTH{1'bx}})));` is failing because it does not correctly handle the pipeline behavior of the `mul_unit` module.
+
+The issue lies in the fact that the assertion is checking the validity of the output `valid_o` and the values of `data_rs1_i` and `data_rs2_i` in the same cycle, without considering the latency of the module. The `mul_unit` module has a latency of 1 or 2 cycles, depending on the operation and configuration, which means that the output `valid_o` and the values of `data_rs1_i` and `data_rs2_i` may not be related in the same cycle.
+
+To fix this issue, we need to modify the assertion to correctly handle the pipeline behavior of the module. We can do this by using the `$past` function to refer to the values of `data_rs1_i` and `data_rs2_i` in the previous cycle, and by checking the validity of the output `valid_o` in the next cycle.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__NoInvalidDataNext64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> !(valid_o && ($past(data_rs1_i) == {mul_unit.WIDTH{1'bx}} || $past(data_rs2_i) == {mul_unit.WIDTH{1'bx}})));
+```
+
+However, this assertion still does not correctly handle the case where the operation is `MUL` and `op_32bits_i` is `1'b1`, because in this case the output `valid_o` is not directly related to the input `valid_i`.
+
+To correctly handle this case, we need to modify the assertion to check the validity of the output `valid_o` only when the operation is not `MUL` or `op_32bits_i` is `1'b0`. We can do this by adding an additional condition to the assertion:
+
+```systemverilog
+as__NoInvalidDataNext64: assert property((valid_i && op_i != mul_unit.MUL && !op_32bits_i) || (valid_i && op_i == mul_unit.MUL && op_32bits_i) |=> !(valid_o && ($past(data_rs1_i) == {mul_unit.WIDTH{1'bx}} || $past(data_rs2_i) == {mul_unit.WIDTH{1'bx}})));
+```
+
+However, this assertion is still not correct because it does not correctly handle the case where the operation is `MUL` and `op_32bits_i` is `1'b1`, because in this case the output `valid_o` is not directly related to the input `valid_i`.
+
+To correctly handle this case, we need to modify the assertion to check the validity of the output `valid_o` only when the operation is not `MUL` or `op_32bits_i` is `1'b0`, and to use the internal signal `mul_unit.valid_q` to check the validity of the output.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__NoInvalidDataNext64: assert property((valid_i && op_i != mul_unit.MUL && !op_32bits_i) |=> !(mul_unit.valid_o && ($past(data_rs1_i) == {mul_unit.WIDTH{1'bx}} || $past(data_rs2_i) == {mul_unit.WIDTH{1'bx}})));
+```

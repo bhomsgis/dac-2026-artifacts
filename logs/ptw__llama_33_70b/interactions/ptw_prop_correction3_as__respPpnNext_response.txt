@@ -1,0 +1,1 @@
+as__respPpnNext: assert property(ptw.r_resp_ppn |=> $past(ptw.pte_addr[SIZE_VADDR:12]) == ptw.r_resp_ppn[63:12]);

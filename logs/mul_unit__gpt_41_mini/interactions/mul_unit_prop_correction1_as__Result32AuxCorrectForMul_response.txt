@@ -1,0 +1,6 @@
+// The original assertion fails because it assumes the result_32_aux is directly equal to result_32_aux computed combinationally, but result_32_aux is not a registered signal and the assertion checks result_32_aux against result_low_q which is registered and delayed. Also, it does not consider the pipeline latency and the op_32bits_q signal that qualifies 32-bit operations. The assertion should check the registered signals at the correct pipeline stage and consider the negation logic and sign extension properly.
+
+// The fix is to check the registered signals at the correct pipeline stage (op_q_final and neg_q_final) and compare result_32_aux with the registered result_32_q, which is the final registered 32-bit result. The negation and addition of ONE should be applied to the registered result_low_q bits, and the assertion should use $past() on the precondition signals to refer to the signals at the time of the precondition, matching the pipeline latency.
+
+// Corrected assertion:
+as__Result32AuxCorrectForMul: assert property(( $past(mul_unit.op_q_final == mul_unit.MUL) && $past(mul_unit.op_32bits_q_final) ) |=> (mul_unit.result_32_q == (mul_unit.neg_q_final ? (~mul_unit.result_low_q[mul_unit.WIDTH-1:0] + mul_unit.ONE) : mul_unit.result_low_q[mul_unit.WIDTH-1:0])));

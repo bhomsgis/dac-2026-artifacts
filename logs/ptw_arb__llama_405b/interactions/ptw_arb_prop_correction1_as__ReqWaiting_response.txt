@@ -1,0 +1,13 @@
+Here is the analysis and corrected assertion:
+
+**Why the current assertion might be failing:**
+The current assertion is checking if `ptw_arb.is_req_waiting_q` is 1, then `ptw_arb.itlb_req_waiting_q` should be equal to `itlb_ptw_comm_i`. However, this assertion does not consider the pipeline behavior of the `ptw_arb` module. The `is_req_waiting_q` signal is updated in the next cycle, and the `itlb_req_waiting_q` signal is also updated in the next cycle. Therefore, the assertion is checking the current value of `itlb_ptw_comm_i` with the next cycle's value of `itlb_req_waiting_q`, which is incorrect.
+
+**Proposed fix:**
+To fix this assertion, we need to check the current value of `itlb_ptw_comm_i` with the current cycle's value of `itlb_req_waiting_d`, which is the signal that will be updated to `itlb_req_waiting_q` in the next cycle. We can do this by changing the assertion to use `itlb_req_waiting_d` instead of `itlb_req_waiting_q`.
+
+**Corrected assertion:**
+```
+as__ReqWaiting: assert property(ptw_arb.is_req_waiting_q == 1'b1 |-> ptw_arb.itlb_req_waiting_d == itlb_ptw_comm_i);
+```
+This assertion checks if `ptw_arb.is_req_waiting_q` is 1, then `ptw_arb.itlb_req_waiting_d` (which will be updated to `itlb_req_waiting_q` in the next cycle) should be equal to `itlb_ptw_comm_i`. This assertion correctly considers the pipeline behavior of the `ptw_arb` module.

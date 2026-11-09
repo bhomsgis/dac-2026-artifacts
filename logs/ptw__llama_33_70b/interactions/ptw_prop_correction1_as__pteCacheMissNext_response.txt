@@ -1,0 +1,8 @@
+The current assertion `as__pteCacheMissNext: assert property(!ptw.pte_cache_hit |=> (ptw_dmem_comm_o.req.valid == 1'b1));` might be failing because it does not consider the case when the page table walker is not in the `S_REQ` state. The `ptw_dmem_comm_o.req.valid` signal is only set to `1'b1` when the page table walker is in the `S_REQ` state.
+
+To fix this, we need to modify the assertion to consider the state of the page table walker. We can do this by adding a condition to check if the page table walker is in the `S_REQ` state.
+
+Here is the corrected assertion:
+```systemverilog
+as__pteCacheMissNext: assert property(!ptw.pte_cache_hit |=> (ptw.current_state == ptw.S_REQ && ptw_dmem_comm_o.req.valid == 1'b1));
+```

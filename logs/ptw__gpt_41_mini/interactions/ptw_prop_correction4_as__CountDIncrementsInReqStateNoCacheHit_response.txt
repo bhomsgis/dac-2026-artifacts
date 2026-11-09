@@ -1,0 +1,2 @@
+// Check that count increments by 1 in next cycle when in S_REQ state, no cache hit, and dmem request is accepted (dmem_ready)
+as__CountDIncrementsInReqStateNoCacheHit: assert property((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && ptw.ptw_dmem_comm_o.req.valid && ptw.dmem_ptw_comm_i.dmem_ready) |=> (ptw.count_d == (ptw.count_q + 1'b1)));

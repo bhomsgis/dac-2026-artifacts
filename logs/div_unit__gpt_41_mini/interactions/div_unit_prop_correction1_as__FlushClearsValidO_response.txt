@@ -1,0 +1,7 @@
+1. The current assertion as__FlushClearsValidO: assert property((flush_i) |-> !valid_o); is failing because valid_o is assigned combinationally based on valid_q and cycles_counter. When flush_i is asserted, valid_q is cleared in the next cycle (valid_q <= 0), but valid_o depends on valid_q and cycles_counter combinationally in the same cycle. Therefore, valid_o may still be asserted in the same cycle flush_i is asserted, causing the assertion to fail. The assertion incorrectly assumes valid_o is cleared in the same cycle as flush_i, but valid_o lags valid_q by combinational logic and cycles_counter.
+
+2. The fix is to check that valid_o is cleared in the cycle after flush_i is asserted, i.e., use a next-cycle assertion (|=>) and check !valid_o in the next cycle. This aligns with the pipeline behavior where flush_i clears valid_q on the next clock edge, and valid_o depends on valid_q combinationally. Also, to be precise, the assertion should check that if flush_i is asserted, then in the next cycle valid_o is 0. This avoids false failures due to combinational delay and pipeline timing.
+
+3. Corrected assertion:
+
+as__FlushClearsValidO: assert property (flush_i |=> !valid_o);

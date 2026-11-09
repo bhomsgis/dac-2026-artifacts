@@ -1,0 +1,1 @@
+as__DivZero2: assert property(valid_i |=> div_unit.div_zero_q == $past(div_unit.div_zero_d));

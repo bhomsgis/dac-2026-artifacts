@@ -1,0 +1,19 @@
+The current assertion is failing because it's trying to check the value of `data_rs1_d` in the same cycle as `valid_i`, but `data_rs1_d` is a combinational signal that depends on `op_i` and `op_32bits_i`, which are only guaranteed to be valid when `valid_i` is high. However, the assertion is trying to check the value of `data_rs1_d` in the same cycle, without giving the combinational logic time to settle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `data_rs1_d` in the next cycle, after the combinational logic has had time to settle. We also need to use `$past()` to refer to the value of `op_32bits_i` and `data_rs1_i` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check: assert property((valid_i) |=> (mul_unit.data_rs1_d == ((mul_unit.data_rs1_i[(mul_unit.WIDTH-1)] & !$past(op_32bits_i)) | ($past(data_rs1_i[31]) & $past(op_32bits_i))) ? ~$past(data_rs1_i) + mul_unit.ONE : $past(data_rs1_i)));
+```
+
+However, this is still not correct, as we are using `$past(data_rs1_i)` which is not a registered signal. To fix this, we need to use `$past(data_rs1_i)` only for the bits that are not registered, and use `mul_unit.data_rs1_q` for the bits that are registered.
+
+But, looking at the RTL, we can see that `data_rs1_d` is assigned in the same cycle as `valid_i`, so we can use a same-cycle assertion (`|->`) to check the value of `data_rs1_d`. We just need to make sure to use the correct values for `op_32bits_i` and `data_rs1_i`.
+
+Here is the corrected assertion:
+
+```
+as__DataRs1Check: assert property((valid_i) |-> (mul_unit.data_rs1_d == ((data_rs1_i[(mul_unit.WIDTH-1)] & !op_32bits_i) | (data_rs1_i[31] & op_32bits_i)) ? ~data_rs1_i + mul_unit.ONE : data_rs1_i));
+```

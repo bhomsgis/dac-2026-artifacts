@@ -1,0 +1,2 @@
+// Check that for MUL and MULH operations, when valid_q[0] is set, neg_q matches neg_d from previous cycle
+as__NegQCorrectForMulAndMulH: assert property(( (mul_unit.op_q == mul_unit.MUL) || (mul_unit.op_q == mul_unit.MULH) ) && mul_unit.valid_q[0] |=> mul_unit.neg_q == $past(mul_unit.neg_d));

@@ -1,0 +1,13 @@
+The current assertion is failing because it's not considering the pipeline behavior of the `mul_unit` module. The `result_o` signal is assigned in the same cycle as the `valid_i` and `op_i` signals, but the `result_2width_def` signal is calculated in a previous cycle and stored in a register.
+
+The assertion is trying to check if the `result_o` signal is equal to the `result_2width_def` signal when the `op_i` signal is `MUL` and the `valid_i` signal is high. However, the `result_2width_def` signal is not yet updated with the new values of `data_rs1_i` and `data_rs2_i` when the `op_i` signal is `MUL`.
+
+To fix this issue, we need to use a next-cycle assertion (`|=>`) to check the value of `result_o` in the next cycle, after the `result_2width_def` signal has been updated.
+
+Here is the corrected assertion:
+
+```
+as__ResultCheck2: assert property((valid_i && (op_i == mul_unit.MUL)) |=> (result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0])));
+```
+
+This assertion checks if the `result_o` signal is equal to the `result_2width_def` signal in the next cycle, after the `result_2width_def` signal has been updated with the new values of `data_rs1_i` and `data_rs2_i`. The `$past` function is used to refer to the value of `result_2width_def` in the previous cycle.

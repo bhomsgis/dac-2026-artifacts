@@ -1,0 +1,1 @@
+as__iTLBReady: assert property((ptw_arb.current_state == ptw_arb.IDLE && !(ptw_arb.is_req_waiting_q)) |-> (ptw_itlb_comm_o.ptw_ready == 1'b1));

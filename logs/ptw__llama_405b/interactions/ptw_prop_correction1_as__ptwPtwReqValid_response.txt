@@ -1,0 +1,13 @@
+The current assertion is failing because it is checking the validity of the `ptw_dmem_comm_o.req` signal against the `current_state` of the PTW FSM. However, the `ptw_dmem_comm_o.req.valid` signal is not necessarily asserted in the same cycle as the `current_state` transition to `S_REQ`.
+
+The issue lies in the fact that the `ptw_dmem_comm_o.req.valid` signal is asserted in the `S_REQ` state, but it is not guaranteed to be asserted in the same cycle as the `current_state` transition to `S_REQ`. This is because the `ptw_dmem_comm_o.req.valid` signal is dependent on the `pte_cache_hit` and `count_q` signals, which may not be updated in the same cycle as the `current_state` transition.
+
+To fix this issue, we need to modify the assertion to account for the pipeline behavior of the PTW FSM. Specifically, we need to check the `ptw_dmem_comm_o.req.valid` signal in the next cycle after the `current_state` transition to `S_REQ`.
+
+Here is the corrected assertion:
+
+```
+as__ptwPtwReqValid: assert property(ptw.current_state == ptw.S_REQ |=> ptw.ptw_dmem_comm_o.req.valid);
+```
+
+This assertion checks that if the `current_state` is `S_REQ` in the current cycle, then the `ptw_dmem_comm_o.req.valid` signal must be asserted in the next cycle. This accounts for the pipeline behavior of the PTW FSM and ensures that the assertion is correctly checking the validity of the `ptw_dmem_comm_o.req` signal.

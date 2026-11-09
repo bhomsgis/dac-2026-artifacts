@@ -1,0 +1,6 @@
+// The original assertion fails because it checks div_zero_d in the same cycle as valid_i, but div_zero_d is combinationally assigned from data_rs2_i and op_32bits_i in the current cycle. However, the assertion uses valid_i as precondition and checks div_zero_d in the same cycle, which may not reflect the stable registered value div_zero_q in the next cycle. The previous attempts incorrectly used $past on inputs and op_32bits_i, but did not consider that div_zero_q is updated on the clock edge after valid_i is asserted. The correct approach is to use a next-cycle assertion (|=>) with valid_i as precondition and check div_zero_q in the next cycle, while using $past on data_rs2_i and op_32bits_i to reflect the inputs at the precondition cycle. This matches the pipeline behavior where div_zero_q is updated on the clock edge after valid_i is asserted.
+
+// Corrected assertion uses next-cycle implication (|=>), checks div_zero_q in the next cycle, and uses $past on data_rs2_i and op_32bits_i to reflect the inputs at the precondition cycle. This ensures the assertion matches the RTL timing and pipeline behavior.
+
+// Corrected assertion:
+as__DivZeroDReflectsDivisorZero: assert property (valid_i |=> div_unit.div_zero_q == (~(|$past(data_rs2_i)) || ($past(op_32bits_i) && ~(|$past(data_rs2_i[31:0])))));

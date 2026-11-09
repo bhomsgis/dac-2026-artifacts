@@ -1,0 +1,4 @@
+```systemverilog
+// Check that when there is no hit, the replace enable signal for the accessed index is not set
+as__PLRUTreeEncodeNoHit: assert property(!access_hit_i |-> pseudoLRU.replace_en[access_idx_i] == 1'b0);
+```

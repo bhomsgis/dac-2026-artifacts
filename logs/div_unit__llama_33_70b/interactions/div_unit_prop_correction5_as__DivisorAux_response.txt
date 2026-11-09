@@ -1,0 +1,6 @@
+The current assertion is failing because it does not correctly handle the case when the operation is 32-bit or 64-bit. The assertion is trying to check if the divisor_aux_d is correctly calculated based on the sign of the divisor and the operation type. However, the assertion does not consider the case when the operation is 32-bit and the divisor is a 32-bit value.
+
+The proposed fix is to use a next-cycle assertion to check the value of divisor_aux_d in the next cycle, and use $past() to refer to the value of the wires in the current cycle. This will ensure that the assertion is checking the correct values.
+
+Here is the corrected assertion:
+as__DivisorAux: assert property((!op_32bits_i && $past(data_rs2_i[63]) && !$past(op_unsigned_i)) || (op_32bits_i && $past(data_rs2_i[31]) && !$past(op_unsigned_i)) |=> div_unit.divisor_aux_d == (~$past(data_rs2_i) + {WIDTH{1'b1}}));

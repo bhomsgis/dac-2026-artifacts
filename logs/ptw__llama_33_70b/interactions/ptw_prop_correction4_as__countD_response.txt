@@ -1,0 +1,1 @@
+as__countD: assert property((ptw.current_state == ptw.S_REQ) |=> (ptw.count_d == (ptw.count_q + 1'b1)[1:0]));

@@ -1,0 +1,1 @@
+as__ptwDmemCommOReqValidNext: assert property(ptw_dmem_comm_o.req.valid |=> (ptw.current_state == ptw.S_REQ && ptw.count_q < $unsigned(LEVELS-1) && !ptw.pte_cache_hit && ptw_dmem_comm_i.dmem_ready));

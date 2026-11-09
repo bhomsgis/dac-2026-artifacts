@@ -1,0 +1,21 @@
+The current assertion is failing because it is checking the value of `pseudoLRU.replace_en` in the same cycle as `access_hit_i` is checked. However, `pseudoLRU.replace_en` is a combinational signal that is updated based on the value of `plru_tree_q`, which is a registered signal that is updated on the next clock cycle. Therefore, the assertion is checking the value of `pseudoLRU.replace_en` before it has been updated.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `pseudoLRU.replace_en` on the next clock cycle, after `plru_tree_q` has been updated. We also need to use `$past()` to refer to the value of `access_hit_i` on the previous clock cycle, which is the cycle when `plru_tree_q` was updated.
+
+Here is the corrected assertion:
+
+```
+as__NoReplacementWhenNoHit: assert property($past(access_hit_i) == 1'b0 |=> !(|pseudoLRU.replace_en));
+```
+
+However, this assertion is still not correct because it is checking if all bits of `pseudoLRU.replace_en` are zero, which is not the expected behavior. The expected behavior is that none of the bits of `pseudoLRU.replace_en` should be set when `access_hit_i` is zero.
+
+A better approach is to check if the `replacement_idx_o` is not updated when `access_hit_i` is zero. This can be done by checking if `replacement_idx_o` is equal to its previous value when `access_hit_i` is zero.
+
+Here is the corrected assertion:
+
+```
+as__NoReplacementWhenNoHit: assert property(access_hit_i == 1'b0 |=> replacement_idx_o == $past(replacement_idx_o));
+```
+
+This assertion checks if `replacement_idx_o` remains the same when `access_hit_i` is zero, which is the expected behavior.

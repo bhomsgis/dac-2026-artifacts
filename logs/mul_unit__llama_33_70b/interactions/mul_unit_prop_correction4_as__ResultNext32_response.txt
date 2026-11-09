@@ -1,0 +1,8 @@
+The current assertion `as__ResultNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` might be failing because it does not account for the pipeline behavior and timing of the `mul_unit` module. 
+
+The `result_o` is assigned in different ways depending on the values of `op_32bits_q_final`, `op_q_final`, and `REG_32`. The assertion should consider these conditions to correctly predict the value of `result_o`.
+
+The proposed fix is to use the same-cycle assertion (`|->`) to reason about the behavior occurring in the same cycle and to consider the pipeline behavior and timing of the `mul_unit` module.
+
+Here is the corrected assertion:
+as__ResultNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> result_o == $past(mul_unit.result_2width_def)[mul_unit.WIDTH-1:0]);

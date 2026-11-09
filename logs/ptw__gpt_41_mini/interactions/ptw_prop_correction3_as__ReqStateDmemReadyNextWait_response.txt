@@ -1,0 +1,2 @@
+// Check that when in S_REQ state with no pte_cache_hit and dmem_ptw_comm_i.dmem_ready and ptw_dmem_comm_o.req.valid, next_state transitions to S_WAIT
+as__ReqStateDmemReadyNextWait: assert property ((ptw.current_state == ptw.S_REQ && !ptw.pte_cache_hit && ptw.dmem_ptw_comm_i.dmem_ready && ptw.ptw_dmem_comm_o.req.valid) |=> (ptw.next_state == ptw.S_WAIT));

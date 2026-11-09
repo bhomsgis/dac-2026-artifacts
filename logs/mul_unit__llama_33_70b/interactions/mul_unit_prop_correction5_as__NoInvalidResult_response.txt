@@ -1,0 +1,18 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__NoInvalidResult: assert property(!(valid_o && result_o == {WIDTH{1'bx}}));` checks if the output `result_o` is not all unknown (`{WIDTH{1'bx}}`) when `valid_o` is high.
+2. **Identifying the issue**: The assertion might be failing because it does not account for the case where `result_o` is not all unknown but still invalid (e.g., all zeros or all ones).
+3. **Analyzing the RTL**: The RTL code shows that `result_o` is assigned from `result`, which is calculated based on the operation type and the input operands.
+4. **Considering pipeline behavior and timing**: The assertion should consider the pipeline behavior and timing of the `mul_unit` module.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidResult: assert property(!(valid_o && !(|mul_unit.result_o) && !(&mul_unit.result_o)));
+```
+
+# Explanation of changes:
+* **Added checks for all zeros and all ones**: The new assertion checks if `result_o` is not all zeros (`!(|mul_unit.result_o)`) and not all ones (`!(&mul_unit.result_o)`) when `valid_o` is high.
+* **Used internal signal prefix**: The internal signal `result_o` is prepended with the module prefix `mul_unit.` to ensure correct referencing.
+* **Removed comparison with {WIDTH{1'bx}}**: The comparison with `{WIDTH{1'bx}}` is not necessary, as the checks for all zeros and all ones cover the invalid cases.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` module with various input scenarios, including valid and invalid operations, to ensure that the assertion correctly identifies invalid results.

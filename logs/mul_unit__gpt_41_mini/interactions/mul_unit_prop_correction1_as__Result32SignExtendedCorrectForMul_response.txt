@@ -1,0 +1,6 @@
+// The original assertion fails because it checks result_32 directly at the cycle when op_q == 0 (MUL), but result_32 is combinationally assigned from result_32_aux, which depends on neg_q and result_low_d that are registered signals. The assertion does not consider the pipeline latency and the fact that result_32 is updated in the next cycle (registered as result_32_q). Also, the sign extension should be checked on result_32_q, not on result_32, to match the registered output timing.
+
+// The fix is to use a next-cycle assertion (|=>) that triggers on op_q == 0 and valid_q[0] (indicating the MUL operation is valid in the pipeline stage 0), and then check that result_32_q is correctly sign-extended from result_32_aux (which corresponds to result_low_d with sign correction). We use $past() on result_32_aux to refer to the combinational value at the precondition cycle, and check that result_32_q matches the sign-extended value. This accounts for the pipeline latency and registered outputs.
+
+// Corrected assertion:
+as__Result32SignExtendedCorrectForMul: assert property ((mul_unit.op_q == 0 && mul_unit.valid_q[0]) |=> mul_unit.result_32_q == {{(mul_unit.WIDTH-32){$past(mul_unit.result_low_d[31])}}, $past(mul_unit.result_low_d[31:0])});

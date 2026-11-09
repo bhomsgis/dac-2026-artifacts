@@ -1,0 +1,3 @@
+// The original assertion fails because it checks op_32bits_q immediately when flush_i[0] or !valid_i occurs, but op_32bits_q is a registered signal updated on the clock edge. The flush or invalid condition clears op_32bits_q in the next cycle, so the assertion should check op_32bits_q in the next cycle after flush or invalid. Using a next-cycle assertion (|=>) and $past() on op_32bits_q correctly captures this timing behavior.
+
+as__Op32BitsQResetOnFlushOrInvalidInput: assert property((mul_unit.flush_i[0] || !valid_i) |=> $past(mul_unit.op_32bits_q) == 1'b0);

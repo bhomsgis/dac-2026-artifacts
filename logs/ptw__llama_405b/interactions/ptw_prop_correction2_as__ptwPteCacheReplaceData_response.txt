@@ -1,0 +1,21 @@
+The current assertion is failing because it's checking if the `ptecache_entry` at the `plru_eviction_idx` index has the same data as the `pte.ppn` in the next cycle when `ptw.full_cache` and `ptw.access_hit` are true. However, the `ptecache_entry` is only updated when `dmem_ptw_comm_i.resp.valid` and `is_pte_table` and `!pte_cache_hit` are true.
+
+The issue is that the assertion is not considering the case when the cache is full and there is a hit. In this case, the `ptecache_entry` at the `plru_eviction_idx` index is not updated with the new data.
+
+To fix this, we need to add an additional condition to the assertion to check if the cache is full and there is a hit.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheReplaceData: assert property(ptw.full_cache && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[ptw.plru_eviction_idx].data == $past(ptw.pte.ppn));
+```
+
+However, this assertion is still not correct because it's using `$past(ptw.pte.ppn)` which is not necessary in this case. The `ptecache_entry` is updated with the new data in the same cycle, so we can directly compare it with `ptw.pte.ppn`.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheReplaceData: assert property(ptw.full_cache && ptw.dmem_ptw_comm_i.resp.valid && ptw.is_pte_table && !ptw.pte_cache_hit |=> ptw.ptecache_entry[ptw.plru_eviction_idx].data == ptw.pte.ppn);
+```
+
+This assertion will correctly check if the `ptecache_entry` at the `plru_eviction_idx` index has the same data as the `pte.ppn` when the cache is full and there is a hit.

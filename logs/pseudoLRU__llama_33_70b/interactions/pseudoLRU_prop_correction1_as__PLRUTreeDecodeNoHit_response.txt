@@ -1,0 +1,1 @@
+as__PLRUTreeDecodeNoHit: assert property(!access_hit_i |-> !(&pseudoLRU.access_array[$past(access_idx_i)]));

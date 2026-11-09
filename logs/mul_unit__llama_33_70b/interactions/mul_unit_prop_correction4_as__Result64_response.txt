@@ -1,0 +1,26 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__Result64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |-> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` checks if the result of the multiplication operation is correct when the operation is not MUL and the operands are 64-bit.
+2. **Identifying the issue**: The assertion is failing because it does not consider the case when the operation is MULH, MULHSU, or MULHU. In these cases, the result should be `result_2width_def[WIDTHDOUBLE-1:WIDTH]`.
+3. **Considering pipeline behavior**: The assertion should also consider the pipeline behavior of the mul_unit. The result of the multiplication operation is available in the next cycle.
+
+# Fixed solution:
+```systemverilog
+as__Result64: assert property(valid_i && op_i != mul_unit.MUL && !op_32bits_i |=> result_o == (op_i == mul_unit.MULH || op_i == mul_unit.MULHSU || op_i == mul_unit.MULHU) ? $past(mul_unit.result_2width_def)[mul_unit.WIDTHDOUBLE-1:mul_unit.WIDTH] : $past(mul_unit.result_2width_def)[mul_unit.WIDTH-1:0]);
+```
+
+# Explanation of changes:
+* **Changed the assertion operator**: Changed the assertion operator from `|->` to `|=>` to consider the pipeline behavior of the mul_unit.
+* **Added condition for MULH, MULHSU, and MULHU operations**: Added a condition to check if the operation is MULH, MULHSU, or MULHU, and if so, the result should be `result_2width_def[WIDTHDOUBLE-1:WIDTH]`.
+* **Used $past() function**: Used the `$past()` function to refer to the value of `result_2width_def` in the previous cycle.
+
+# Tests and example uses:
+This assertion can be tested by simulating the mul_unit with different input operations and operands, and verifying that the result is correct. For example, the testbench can simulate the mul_unit with the following inputs:
+* `op_i = MULH`
+* `op_i = MULHSU`
+* `op_i = MULHU`
+* `op_i = MUL`
+* `op_32bits_i = 0`
+* `valid_i = 1`
+* `data_rs1_i` and `data_rs2_i` with different values
+
+The testbench can then verify that the result is correct by checking the value of `result_o` in the next cycle.

@@ -1,0 +1,29 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The given assertion `as__Result32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |-> result_o == mul_unit.result_2width_def[WIDTH-1:0]);` checks if the result of a multiplication operation is correct when the operation is a 64-bit multiplication (i.e., `op_i == mul_unit.MUL` and `!op_32bits_i`).
+2. **Identifying the issue**: The assertion is failing because it does not account for the pipeline behavior of the `mul_unit` module. Specifically, the result of a multiplication operation is not available in the same cycle as the input operands.
+3. **Analyzing the pipeline behavior**: The `mul_unit` module has a pipeline depth of 1 or 2 cycles, depending on the configuration. For 64-bit multiplications, the result is available in the next cycle after the input operands are applied.
+
+# Fixed solution:
+```systemverilog
+as__Result32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> result_o == $past(mul_unit.result_2width_def[WIDTH-1:0]));
+```
+
+# Explanation of changes:
+* **Changed the assertion operator**: The assertion operator was changed from `|->` (same-cycle assertion) to `|=>` (next-cycle assertion) to account for the pipeline behavior of the `mul_unit` module.
+* **Added `$past` function**: The `$past` function was added to the postcondition of the assertion to refer to the value of `mul_unit.result_2width_def[WIDTH-1:0]` in the previous cycle.
+
+# Tests and example uses:
+This assertion can be tested by applying a 64-bit multiplication operation to the `mul_unit` module and verifying that the result is correct in the next cycle. For example:
+```systemverilog
+initial begin
+    // Apply a 64-bit multiplication operation
+    valid_i = 1'b1;
+    op_i = mul_unit.MUL;
+    op_32bits_i = 1'b0;
+    data_rs1_i = 64'h1234567890abcdef;
+    data_rs2_i = 64'hfedcba9876543210;
+    #1;
+    // Verify the result
+    assert(result_o == mul_unit.result_2width_def[WIDTH-1:0]);
+end
+```

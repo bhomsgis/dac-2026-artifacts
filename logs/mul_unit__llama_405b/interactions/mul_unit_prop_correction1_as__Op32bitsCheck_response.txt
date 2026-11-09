@@ -1,0 +1,11 @@
+The current assertion is failing because it is checking the value of `op_32bits_q_final` in the same cycle as `valid_i`, but `op_32bits_q_final` is a registered signal that is updated one cycle after `valid_i`.
+
+The assertion is trying to check that when `valid_i` is high, `op_32bits_q_final` is equal to `op_32bits_i` and `op_i` is equal to `MUL`. However, since `op_32bits_q_final` is a registered signal, its value is not updated until the next cycle, so the assertion is actually checking the value of `op_32bits_q_final` from the previous cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`), like this:
+
+```
+as__Op32bitsCheck: assert property((valid_i) |=> (mul_unit.op_32bits_q_final == $past(op_32bits_i) && $past(op_i) == mul_unit.MUL));
+```
+
+This assertion checks that when `valid_i` is high, `op_32bits_q_final` is equal to the value of `op_32bits_i` from the previous cycle, and `op_i` from the previous cycle is equal to `MUL`. This ensures that we are checking the correct values of `op_32bits_q_final` and `op_i` in relation to `valid_i`.

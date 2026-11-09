@@ -1,0 +1,9 @@
+The current assertion is failing because it does not consider the case when `div_zero_q` is true. In this case, the `result_o` is not necessarily non-zero.
+
+The proposed fix is to add a condition to check if `div_zero_q` is false. However, the previous attempt to fix this assertion by adding `!div_unit.div_zero_q` to the precondition is not sufficient because it does not consider the pipeline behavior and timing of the `div_zero_q` signal.
+
+The corrected assertion should use the next-cycle assertion (`|=>`) to check the value of `result_o` in the next cycle after `cycles_counter` becomes 1. Also, it should use `$past()` to refer to the value of `div_zero_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+`as__ResultOutWhenCyclesCounterOne: assert property(div_unit.cycles_counter == 6'd1 |=> $past(!div_unit.div_zero_q) -> result_o != {WIDTH{1'b0}});`

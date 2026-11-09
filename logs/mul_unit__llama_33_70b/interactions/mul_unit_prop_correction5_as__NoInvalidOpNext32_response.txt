@@ -1,0 +1,11 @@
+The current assertion `as__NoInvalidOpNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && op_i == {MUL_OPS_BITS{1'bx}}));` is failing because it's trying to check if the operation is not valid when `op_i` is not equal to `MUL` in the next cycle. However, this assertion is not considering the pipeline behavior and the fact that `op_i` is not being updated in the next cycle.
+
+The issue with this assertion is that it's using `op_i` in the postcondition, which is a wire and its value changes in the same cycle. The correct way to write this assertion is to use `$past(op_i)` to refer to the value of `op_i` in the previous cycle.
+
+Another issue with this assertion is that it's checking if `op_i` is equal to `{MUL_OPS_BITS{1'bx}}`, which is not a valid operation. Instead, it should check if `op_i` is not equal to `MUL` or if `op_32bits_i` is high.
+
+Here is the corrected assertion:
+
+```systemverilog
+as__NoInvalidOpNext32: assert property(valid_i && op_i == mul_unit.MUL && !op_32bits_i |=> !(valid_o && ($past(op_i) != mul_unit.MUL || $past(op_32bits_i))));
+```

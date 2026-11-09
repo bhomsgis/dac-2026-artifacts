@@ -1,0 +1,21 @@
+The current assertion is failing because it only checks if `ptw_arb.current_state` is `IDLE`, but it does not consider the case where there are pending requests from iTLB or dTLB. In the `IDLE` state, if there are pending requests, the `ptw_ready` signals should not be asserted.
+
+The proposed fix is to add a condition to check if there are no pending requests from iTLB and dTLB. This can be done by checking the `is_req_waiting_q` signal and the `req.valid` signals from iTLB and dTLB.
+
+Here is the corrected assertion:
+
+```
+as__IdleState: assert property(ptw_arb.current_state == ptw_arb.IDLE && !ptw_arb.is_req_waiting_q && !itlb_ptw_comm_i.req.valid && !dtlb_ptw_comm_i.req.valid |-> ptw_itlb_comm_o.ptw_ready == 1'b1 && ptw_dtlb_comm_o.ptw_ready == 1'b1);
+```
+
+However, this assertion is still not correct because it does not consider the case where there are pending requests from iTLB or dTLB, but the `ptw_arb.current_state` is still `IDLE`. In this case, the `ptw_ready` signals should not be asserted.
+
+A better approach is to check the `next_state` signal instead of the `current_state` signal. The `next_state` signal is updated in the same cycle as the `ptw_ready` signals, so it provides a more accurate indication of the state of the arbiter.
+
+Here is the corrected assertion:
+
+```
+as__IdleState: assert property(ptw_arb.next_state == ptw_arb.IDLE |-> ptw_itlb_comm_o.ptw_ready == 1'b1 && ptw_dtlb_comm_o.ptw_ready == 1'b1);
+```
+
+This assertion checks if the `next_state` signal is `IDLE`, and if so, it checks if the `ptw_ready` signals are asserted. This provides a more accurate check of the arbiter's behavior in the `IDLE` state.

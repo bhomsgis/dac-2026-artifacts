@@ -1,0 +1,6 @@
+The current assertion `as__PLRUTreeStable: assert property(!access_hit_i |-> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_q));` is failing because it is checking if the `plru_tree_q` register remains the same when there is no access hit, but it does not consider the case when the `plru_tree_q` register is updated due to a hit. 
+
+The proposed fix is to check if the `plru_tree_q` register remains the same when there is no access hit and no update is made to the `plru_tree_d` wire. 
+
+The corrected assertion is: 
+`as__PLRUTreeStable: assert property(!access_hit_i & (pseudoLRU.plru_tree_d == pseudoLRU.plru_tree_q) |-> pseudoLRU.plru_tree_q == $past(pseudoLRU.plru_tree_q));`

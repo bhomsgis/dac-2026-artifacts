@@ -1,0 +1,11 @@
+1. The current assertion is failing because it assumes a fixed bit index (div_4bits.WIDTH/2-1) for the bit concatenated from dividend_quotient_i, which does not account for the dynamic SEW (Standard Element Width) selection in SIMD mode. The RTL uses different bit indices (7, 15, 31, 63) depending on sew_i, and in scalar mode it uses WIDTH-1. Also, the assertion does not consider that tmp_remanent[1] is a combinational signal derived from remanent_i and dividend_quotient_i in the same cycle, so a same-cycle assertion (|->) should be used.
+
+2. The fix is to write the assertion to reflect the dynamic bit index selected based on sew_i and CONFIG32/SIMD_ENABLE parameters. We can express the bit index as a function of sew_i: for 2'b00 use 7, 2'b01 use 15, 2'b10 use 31, and default (2'b11) use 63. For scalar mode, use WIDTH-1. Since the assertion must be high-level and avoid implementation details, we can write a conditional expression that matches the RTL logic. Also, use a same-cycle assertion (|->) because tmp_remanent[1] is combinationally assigned.
+
+3. Corrected assertion:
+
+```systemverilog
+as__TmpRemanentShiftCorrecteotid: assert property((div_4bits.SIMD_ENABLE) |-> ((div_4bits.tmp_remanent[1] == (remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[(div_4bits.sew_i == 2'b00) ? 7 : (div_4bits.sew_i == 2'b01) ? 15 : (div_4bits.sew_i == 2'b10) ? 31 : 63])))) && (!div_4bits.SIMD_ENABLE |-> (div_4bits.tmp_remanent[1] == {remanent_i[div_4bits.WIDTH-2:0], dividend_quotient_i[div_4bits.WIDTH-1]}));
+```
+
+Note: The assertion uses a same-cycle implication (|->) with the precondition being SIMD_ENABLE or its negation, and the postcondition matching the corresponding concatenation. This covers both SIMD and scalar cases and respects the RTL behavior.

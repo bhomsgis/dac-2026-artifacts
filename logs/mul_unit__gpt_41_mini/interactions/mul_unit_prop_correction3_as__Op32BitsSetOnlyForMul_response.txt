@@ -1,0 +1,6 @@
+// The original assertion fails because it checks op_i and op_32bits_i in the same cycle, but the actual registered signals controlling 32-bit operation are op_q_final and op_32bits_q_final, which appear after pipeline stages. Also, the assertion must consider the valid signal to ensure the operation is valid when checking the 32-bit flag. The previous attempts failed because they used the postcondition on the next cycle but did not properly relate the precondition cycle signals or did not consider the pipeline timing correctly.
+
+// The fix is to check that when the registered operation (op_q_final) is MUL and valid_q[1] is set (indicating the operation is valid in the pipeline stage where op_q_final and op_32bits_q_final are valid), then op_32bits_q_final must be true. This uses a next-cycle assertion (|=>) because op_q_final and op_32bits_q_final are registered signals updated on the clock edge, so the precondition is on valid_i and op_i, and the postcondition is on the registered signals in the next cycle. We use $past() to refer to the precondition signals in the postcondition cycle.
+
+// Corrected assertion:
+as__Op32BitsSetOnlyForMul: assert property (valid_i && (op_i == 0) |=> (op_q_final == 0) && op_32bits_q_final);

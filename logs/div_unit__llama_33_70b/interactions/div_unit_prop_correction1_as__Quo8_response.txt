@@ -1,0 +1,6 @@
+The current assertion `as__Quo8: assert property(!div_unit.div_zero_q && !div_unit.signed_op_q |-> div_unit.quo_aux == div_unit.dividend_quotient_q);` might be failing because it does not consider the case when the operation is unsigned and the dividend and divisor have the same sign. In this case, the quotient should be equal to the dividend_quotient_q.
+
+A corrected version of the assertion should consider the case when the operation is unsigned and the dividend and divisor have the same sign. 
+
+Here is the corrected assertion:
+as__Quo8: assert property(!div_unit.div_zero_q && (!div_unit.signed_op_q || div_unit.same_sign_q) |-> div_unit.quo_aux == div_unit.dividend_quotient_q);

@@ -1,0 +1,23 @@
+The current assertion is failing because it is checking the value of `rmd_aux` in the same cycle as `div_zero_q`, but `rmd_aux` is assigned a value based on `div_zero_q` and other signals in the same cycle. This means that the value of `rmd_aux` may not be updated yet when the assertion is checked.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) instead of a same-cycle assertion (`|->`). This will check the value of `rmd_aux` in the next cycle, after it has been updated based on the value of `div_zero_q`.
+
+Here is the corrected assertion:
+
+`as__RmdAuxWhenDivZero: assert property(div_unit.div_zero_q |=> div_unit.rmd_aux == $past(div_unit.first_dividend_q));`
+
+However, this assertion is still not correct because it is using `$past(div_unit.first_dividend_q)` which is not necessary in this case. The correct assertion should be:
+
+`as__RmdAuxWhenDivZero: assert property(div_unit.div_zero_q |=> div_unit.rmd_aux == div_unit.first_dividend_q);`
+
+But, considering the behavior of the `rmd_aux` signal, which is assigned a value based on `div_zero_q` and other signals, a more accurate assertion would be:
+
+`as__RmdAuxWhenDivZero: assert property(div_unit.div_zero_q |=> div_unit.rmd_aux == div_unit.first_dividend_q);` is not correct and 
+
+`as__RmdAuxWhenDivZero: assert property(div_unit.div_zero_q |-> div_unit.rmd == div_unit.first_dividend_q);` is the correct one.
+
+Note that `rmd_aux` is a signal that is assigned a value based on `rmd`, so we should check `rmd` instead of `rmd_aux`. Also, since `rmd` is assigned a value based on `div_zero_q` in the same cycle, we can use a same-cycle assertion (`|->`) instead of a next-cycle assertion (`|=>`). 
+
+So the final answer is:
+
+`as__RmdAuxWhenDivZero: assert property(div_unit.div_zero_q |-> div_unit.rmd == div_unit.first_dividend_q);`

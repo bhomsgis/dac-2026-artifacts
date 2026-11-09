@@ -1,0 +1,5 @@
+// The original assertion might fail because dmem_ptw_comm_i.resp.nack is a wire updated in the same cycle as current_state==S_WAIT, so the next_state update to S_REQ happens combinationally in the same cycle. The original assertion uses a next-cycle implication (|=>), expecting next_state to be updated in the next cycle, but next_state is combinational and updated in the same cycle. Thus, a same-cycle implication (|->) should be used instead to check next_state in the same cycle as the precondition.
+
+// Corrected assertion uses same-cycle implication (|->) to check next_state immediately when in S_WAIT and resp.nack is asserted.
+
+as__WaitStateNackNextReq: assert property ((ptw.current_state == ptw.S_WAIT && ptw.dmem_ptw_comm_i.resp.nack) |-> (ptw.next_state == ptw.S_REQ));

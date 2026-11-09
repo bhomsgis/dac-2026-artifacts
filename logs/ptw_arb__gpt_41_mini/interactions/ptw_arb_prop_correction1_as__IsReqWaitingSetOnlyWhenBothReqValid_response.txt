@@ -1,0 +1,2 @@
+// Check that is_req_waiting_d is set when both dtlb and itlb requests are valid in IDLE state, considering pipeline update timing
+as__IsReqWaitingSetOnlyWhenBothReqValid: assert property((ptw_arb.current_state == ptw_arb.IDLE) |=> ((ptw_arb.is_req_waiting_q == ( $past(dtlb_ptw_comm_i.req.valid) && $past(itlb_ptw_comm_i.req.valid) ))));

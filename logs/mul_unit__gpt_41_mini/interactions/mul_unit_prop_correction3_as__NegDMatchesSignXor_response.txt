@@ -1,0 +1,6 @@
+// The assertion is failing because neg_d and same_sign are combinational signals updated in the same cycle as op_i, but the assertion checks neg_d against same_sign in the same cycle as op_i without considering pipeline delays. The neg signal is registered as neg_q in the next cycle, so the assertion should check neg_q against the previous cycle's same_sign and op_q to match timing. Also, the original assertion uses neg_d and same_sign directly, which are combinational and may not be stable or aligned with op_i timing.
+
+// The fix is to use a next-cycle assertion (|=>) that checks neg_q against the previous cycle's same_sign and op_q. This aligns the timing of the registered neg_q with the registered op_q and same_sign from the previous cycle, ensuring the assertion matches the pipeline behavior.
+
+// Corrected assertion:
+as__NegDMatchesSignXor: assert property ((($past(mul_unit.op_q) == 0) || ($past(mul_unit.op_q) == 1) || ($past(mul_unit.op_q) == 2)) |=> (mul_unit.neg_q == !$past(mul_unit.same_sign)));

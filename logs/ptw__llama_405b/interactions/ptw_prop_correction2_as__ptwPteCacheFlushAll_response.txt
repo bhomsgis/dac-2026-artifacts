@@ -1,0 +1,23 @@
+The current assertion is failing because it's checking if the `flush` signal is high, then in the next cycle, it checks if all the bits in `valid_vector` are zeros. However, the `valid_vector` is updated in the same cycle as the `flush` signal, not in the next cycle.
+
+The issue is that the `always_ff` block that updates the `ptecache_entry` and `valid_vector` is triggered by the `posedge clk_i` and `negedge rstn_i`, which means that the update happens in the same cycle as the `flush` signal.
+
+To fix this, we need to check the `valid_vector` in the next cycle after the `flush` signal is high. We can do this by using the `$past` function to check the value of `valid_vector` in the previous cycle.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlushAll: assert property(ptw.csr_ptw_comm_i.flush |=> !(&$past(ptw.valid_vector)));
+```
+
+However, this will still not work because the `valid_vector` is updated in the same cycle as the `flush` signal, so we need to check the value of `valid_vector` two cycles after the `flush` signal is high.
+
+But, we can simplify the assertion by checking if the `flush` signal is high, then in the next cycle, it checks if any of the bits in `valid_vector` are ones. If the `flush` signal is high, then all the bits in `valid_vector` should be zeros in the next cycle.
+
+Here is the corrected assertion:
+
+```
+as__ptwPteCacheFlushAll: assert property(ptw.csr_ptw_comm_i.flush |=> !(|ptw.valid_vector));
+```
+
+This assertion will pass if the `flush` signal is high and in the next cycle, all the bits in `valid_vector` are zeros.

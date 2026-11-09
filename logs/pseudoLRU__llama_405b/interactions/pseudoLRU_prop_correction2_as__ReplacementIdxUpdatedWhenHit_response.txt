@@ -1,0 +1,9 @@
+The current assertion is failing because it checks if the `replacement_idx_o` changes whenever there is a hit (`access_hit_i` is 1). However, this is not necessarily true. The `replacement_idx_o` only changes when the hit causes a change in the PLRU tree, which is not always the case.
+
+For example, if the same index is hit multiple times in a row, the PLRU tree will not change, and therefore `replacement_idx_o` will not change either. The assertion will fail in this scenario.
+
+To fix this, we need to check if the hit causes a change in the PLRU tree. We can do this by checking if the `plru_tree_d` is different from the previous `plru_tree_q`. If it is, then we know that the hit caused a change in the PLRU tree, and we can check if the `replacement_idx_o` has changed.
+
+Here is the corrected assertion:
+
+as__ReplacementIdxUpdatedWhenHit: assert property(access_hit_i == 1'b1 && pseudoLRU.plru_tree_d != $past(pseudoLRU.plru_tree_q) |=> replacement_idx_o != $past(replacement_idx_o));

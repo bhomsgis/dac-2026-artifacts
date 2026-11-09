@@ -1,0 +1,11 @@
+The current assertion is failing because it's checking the result of the multiplication in the same cycle as the input is provided, but the multiplication operation takes two cycles to complete. The result is not available until the next cycle.
+
+The proposed fix is to use a next-cycle assertion (|=>) instead of a same-cycle assertion (|->). This will check the result of the multiplication in the next cycle, after the operation has completed.
+
+However, simply changing to a next-cycle assertion is not enough, as we need to make sure that we are checking the result of the correct operation. We need to check the result when the valid output signal is high.
+
+Here is the corrected assertion:
+
+as__ResultCheck3: assert property((valid_i && (op_i == 2'b10)) |=> (mul_unit.valid_o && (result_o == mul_unit.result_2width_def[127:64])));
+
+This assertion checks that when a valid input is provided and the operation is MUL (2'b10), the result of the multiplication is correct in the next cycle, when the valid output signal is high.

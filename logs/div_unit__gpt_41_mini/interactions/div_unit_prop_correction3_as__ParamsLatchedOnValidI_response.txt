@@ -1,0 +1,7 @@
+// 1. Explanation of failure: The original assertion checks that when valid_i is asserted, the registered parameters op_q, op_32_q, and signed_op_q immediately match the inputs op_i, op_32bits_i, and !op_unsigned_i in the same cycle. However, these signals are registered and updated on the clock edge, so their updated values appear in the next cycle. Therefore, the assertion fails because it compares the registered signals in the same cycle as valid_i, before they are updated.
+
+// 2. Proposed fix: Use a next-cycle assertion (|=>) to check that one cycle after valid_i is asserted, the registered signals op_q, op_32_q, and signed_op_q hold the values of the inputs sampled at the cycle when valid_i was asserted. Use $past() on the postcondition to refer to the inputs at the precondition cycle. This matches the pipeline behavior and timing of the registered signals.
+
+// 3. Corrected assertion:
+
+as__ParamsLatchedOnValidI: assert property (valid_i |=> (div_unit.op_q == $past(op_i) && div_unit.op_32_q == $past(op_32bits_i) && div_unit.signed_op_q == !$past(op_unsigned_i)));

@@ -1,0 +1,7 @@
+The current assertion is failing because it's checking the value of `quo_aux` in the same cycle as `signed_op_q`, but `quo_aux` is assigned based on the value of `dividend_quotient_q` which is updated in the next cycle.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check the value of `quo_aux` in the next cycle, after `dividend_quotient_q` has been updated.
+
+Here is the corrected assertion:
+
+`as__QuoAuxWhenSignedOp: assert property(div_unit.signed_op_q |=> div_unit.quo_aux == ((div_unit.same_sign_q) ? $past(div_unit.dividend_quotient_q) : ~$past(div_unit.dividend_quotient_q) + div_unit.ONE));`

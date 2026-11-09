@@ -1,0 +1,27 @@
+The current assertion is failing because it's not considering the pipeline behavior of the `mul_unit` module. The `result_o` signal is assigned in the same cycle as the `valid_i` and `op_i` signals, but the `result_2width_def` signal is calculated in a previous cycle and stored in a register.
+
+The assertion is trying to check if the `result_o` signal is equal to the `result_2width_def` signal when the `op_i` signal is `MUL` and `valid_i` is high. However, since the `result_2width_def` signal is calculated in a previous cycle, the assertion is actually checking the value of `result_2width_def` from the previous cycle, not the current cycle.
+
+To fix this, we need to use a next-cycle assertion (`|=>`) to check the value of `result_o` in the next cycle, after the `result_2width_def` signal has been updated.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck2: assert property((valid_i && (op_i == mul_unit.MUL)) |=> (result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0], 1)));
+```
+
+However, this is still not correct because when `op_32bits_q_final` is high, `result_o` is assigned the value of `result_32_q`, not `result_2width_def`. We need to add a condition to check if `op_32bits_q_final` is high or not.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck2: assert property((valid_i && (op_i == mul_unit.MUL)) |=> ((mul_unit.op_32bits_q_final) ? (result_o == mul_unit.result_32_q) : (result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0], 1))));
+```
+
+However, this is still not correct because when `REG_32` is high, `result_o` is assigned the value of `result_32_q` or `result` depending on the value of `op_32bits_q_final` and `CONFIG32`. We need to add conditions to check these values as well.
+
+Here's the corrected assertion:
+
+```
+as__ResultCheck2: assert property((valid_i && (op_i == mul_unit.MUL)) |=> (((mul_unit.REG_32 && !mul_unit.CONFIG32) && mul_unit.op_32bits_q_final) ? (result_o == mul_unit.result_32_q) : ((mul_unit.REG_32 && !mul_unit.CONFIG32) ? (result_o == $past(mul_unit.result, 1)) : ((mul_unit.op_32bits_q_final) ? (result_o == mul_unit.result_32_q) : (result_o == $past(mul_unit.result_2width_def[mul_unit.WIDTH-1:0], 1))))));
+```

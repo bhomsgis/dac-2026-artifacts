@@ -1,0 +1,15 @@
+The current assertion is failing because it is checking if the `plru_tree_q` register is updated in the same cycle when `access_array` is set. However, the update of `plru_tree_q` is done in the next cycle through the `plru_tree_d` signal, which is assigned to `plru_tree_q` in the sequential process.
+
+The proposed fix is to use a next-cycle assertion (`|=>`) to check if the `plru_tree_q` register is updated in the next cycle when `access_array` is set. Additionally, we need to use `$past()` to refer to the value of `plru_tree_q` in the previous cycle.
+
+Here is the corrected assertion:
+
+`as__AccessArraySetImpliesTreeUpdated: assert property (|pseudoLRU.access_array |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q, 1));`
+
+However, this assertion is still not correct because it will fail when `access_array` is set but `access_hit_i` is not set, as `plru_tree_q` will not be updated in this case.
+
+To fix this, we need to add a condition to check if `access_hit_i` is set when `access_array` is set. Here is the corrected assertion:
+
+`as__AccessArraySetImpliesTreeUpdated: assert property (|pseudoLRU.access_array & pseudoLRU.access_hit_i |=> pseudoLRU.plru_tree_q != $past(pseudoLRU.plru_tree_q, 1));`
+
+This assertion will check if `plru_tree_q` is updated in the next cycle when both `access_array` and `access_hit_i` are set.

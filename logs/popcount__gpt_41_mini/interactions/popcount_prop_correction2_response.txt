@@ -1,0 +1,9 @@
+1. The current assertion is failing because it uses a same-cycle implication (|->) to check the value of `popcount.msport` immediately when the precondition `&operands_regs_i[...]` is true. However, `popcount.msport` is an output of a submodule and likely registered (i.e., updated on the next clock cycle). Therefore, the value of `popcount.msport` corresponding to the current `operands_regs_i` inputs will only be valid in the next cycle, not the same cycle. This timing mismatch causes the assertion to fail.
+
+2. The proposed fix is to use a next-cycle implication (|=>) so that the precondition is evaluated in the current cycle and the postcondition is evaluated in the next cycle, when `popcount.msport` has been updated. Additionally, to compare the updated `popcount.msport` with the expected count, we use `$past()` on the operands slice in the postcondition to refer to the operands at the time of the precondition. This ensures that the assertion checks that `popcount.msport` correctly reflects the popcount of the operands from the previous cycle, matching the pipeline behavior.
+
+3. Corrected assertion:
+
+```systemverilog
+as__PopcountMsportAllOnesCheck: assert property ((&operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]) |=> (popcount.msport == $countones($past(operands_regs_i[popcount.N_PORTS/2 +: popcount.N_PORTS/2]))));
+```

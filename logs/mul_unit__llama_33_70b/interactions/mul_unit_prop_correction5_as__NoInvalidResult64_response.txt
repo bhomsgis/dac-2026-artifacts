@@ -1,0 +1,19 @@
+# Step-by-step analysis of the problem:
+1. **Understanding the assertion**: The assertion `as__NoInvalidResult64` checks that when the operation is not a multiplication (`op_i != mul_unit.MUL`) and it's a 64-bit operation (`!op_32bits_i`), the result should not be equal to the default result for a 64-bit multiplication (`mul_unit.result_2width_def[WIDTH-1:0]`).
+2. **Identifying the issue**: The assertion is failing because it's not considering the pipeline behavior of the `mul_unit`. The result is being checked in the same cycle as the operation, but the result is not available until the next cycle.
+3. **Analyzing the pipeline behavior**: The `mul_unit` has a pipeline with two stages. The first stage computes the result of the multiplication, and the second stage selects the correct word of the result based on the operation.
+4. **Understanding the timing**: The result is available in the next cycle after the operation is performed. Therefore, the assertion should check the result in the next cycle.
+
+# Fixed solution:
+```systemverilog
+as__NoInvalidResult64: assert property(!(valid_o && $past(op_i) != mul_unit.MUL && !$past(op_32bits_i) && result_o != $past(mul_unit.result_2width_def)[WIDTH-1:0]));
+```
+
+# Explanation of changes:
+* **Added `$past` to `op_i` and `op_32bits_i`**: To check the operation and the 32-bit flag in the previous cycle, when the result is not yet available.
+* **Added `$past` to `mul_unit.result_2width_def`**: To check the default result for a 64-bit multiplication in the previous cycle, when the result is not yet available.
+* **Changed `op_i` to `$past(op_i)`**: To check the operation in the previous cycle, when the result is not yet available.
+* **Changed `op_32bits_i` to `$past(op_32bits_i)`**: To check the 32-bit flag in the previous cycle, when the result is not yet available.
+
+# Tests and example uses:
+This assertion can be tested by simulating the `mul_unit` with different operations and inputs, and checking that the assertion is not triggered when the result is correct. For example, simulating a 64-bit multiplication with `op_i = mul_unit.MUL` and `op_32bits_i = 1'b0` should not trigger the assertion.

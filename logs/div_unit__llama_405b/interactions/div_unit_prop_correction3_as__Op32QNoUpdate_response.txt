@@ -1,0 +1,7 @@
+The current assertion is failing because it checks if the `op_32_q` register remains the same when `valid_i` is low, which is not necessarily true. The `op_32_q` register can change when `valid_i` is low if the previous operation was a 32-bit operation and the current cycle is not the first cycle of the operation.
+
+The proposed fix is to check if the `op_32_q` register remains the same when `valid_i` is low and the `cycles_counter` is not equal to the total number of cycles for the operation. This ensures that the `op_32_q` register only changes when a new operation starts.
+
+Here is the corrected assertion:
+
+as__Op32QNoUpdate: assert property(!valid_i && div_unit.cycles_counter != ((div_unit.op_32_q) ? CYCLES_32[5:0] : CYCLES_64[5:0]) |=> div_unit.op_32_q == $past(div_unit.op_32_q));

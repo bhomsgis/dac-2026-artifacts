@@ -1,0 +1,3 @@
+// The original assertion fails because neg_q is a registered signal updated on the next clock cycle, so its value cannot be directly checked in the same cycle as valid_i. Also, flush_i[0] can clear neg_q, so it must be considered in the precondition. The assertion should use a next-cycle implication (|=>) to check neg_q after the clock edge, and refer to neg_d (a combinational signal) with $past() in the postcondition to compare the registered value to the expected value from the previous cycle.
+
+as__NegQUpdatedOnValid: assert property((valid_i && !mul_unit.flush_i[0]) |=> mul_unit.neg_q == $past(mul_unit.neg_d && valid_i && !mul_unit.flush_i[0]));

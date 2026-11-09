@@ -1,0 +1,5 @@
+// The original assertion fails because it does not consider flush conditions at stage 0 and the possibility that valid_q[1] may be cleared due to flush or no valid input in stage 0. Also, it assumes valid_q[1] is always set next cycle when valid_q[0] is set and flush_i[1] is not asserted, but flush_i[0] can clear valid_q[0], preventing valid_q[1] from being set. The assertion must consider flush_i[0] and valid_q[0] being cleared.
+// The fix is to add a precondition that valid_q[0] is set and not flushed at stage 0, and flush_i[1] is not asserted, then valid_q[1] should be set next cycle. This matches the pipeline behavior where valid_q[1] is loaded from valid_q[0] if not flushed.
+// Corrected assertion:
+
+as__ValidQ1SetOnValidQ0: assert property((mul_unit.valid_q[0] && !mul_unit.flush_i[0] && !mul_unit.flush_i[1]) |=> mul_unit.valid_q[1]);

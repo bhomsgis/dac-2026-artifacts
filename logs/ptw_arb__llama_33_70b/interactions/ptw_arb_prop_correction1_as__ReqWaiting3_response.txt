@@ -1,0 +1,1 @@
+as__ReqWaiting3: assert property(ptw_arb.is_req_waiting_q |-> ptw_arb.current_state != ptw_arb.IDLE);

@@ -1,0 +1,1 @@
+as__fsmNextStateSReq: assert property((ptw.current_state == ptw.S_REQ) |=> (ptw.next_state == ptw.S_WAIT || ptw.next_state == ptw.S_REQ || ptw.next_state == ptw.S_ERROR));

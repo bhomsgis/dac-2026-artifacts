@@ -1,0 +1,9 @@
+1. Explanation of failure:  
+The original assertion checks that when valid_q[1] is high, the signal result_32 matches the sign-extended version of result_32_aux[31:0]. However, result_32 is a wire assigned combinationally from result_32_aux, which itself depends on neg_q and result_low_d. At valid_q[1], the pipeline stage 1, the registered signals are result_32_q, neg_q_final, and result_low_q, not the combinational signals result_32 or neg_q. The assertion incorrectly compares the combinational result_32 at cycle 1 instead of the registered result_32_q, and it does not consider the pipeline latency and registered signals properly. This mismatch in timing and signal usage causes the assertion to fail.
+
+2. Proposed fix:  
+Use a next-cycle assertion triggered by valid_q[0] (the previous pipeline stage valid) to check the registered signals at valid_q[1]. In the postcondition, check that result_32_q equals the sign-extended version of result_low_q[31:0], adjusted by neg_q_final. Use $past() to refer to the combinational signals at the cycle of the precondition (valid_q[0]). This aligns the timing correctly with the pipeline registers and uses the correct registered signals for comparison. This approach respects the pipeline latency and the register updates, ensuring the assertion checks the correct data at the correct time.
+
+3. Corrected assertion:
+
+as__Result32SignExtendedCorrectOnValidQ1: assert property (mul_unit.valid_q[0] |=> (mul_unit.result_32_q == {{{(mul_unit.WIDTH-32){mul_unit.result_low_q[31]}}, mul_unit.result_low_q[31:0]}}));
